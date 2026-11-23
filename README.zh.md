@@ -22,7 +22,7 @@ npm run preview  # 预览生产构建
 
 ## 线上地址
 
-已部署在 **Cloudflare Pages**（经典 Pages 流程，GitHub 集成）：<https://dsh-visualizer.pages.dev>
+已部署在 **Cloudflare Pages**（经典 Pages 流程，GitHub 集成）：<https://www.learnagentai.top>（自定义域名；同时可通过 <https://dsh-visualizer.pages.dev> 访问）
 
 - 生产分支：`main`，每次推送自动重新部署。
 - 构建命令：`npm run build` · 构建输出目录：`dist` · 根目录：（空）· 框架预设：与 Vite 预设相同的值（Pages 预设列表里没有独立的 "Vite" 项）。

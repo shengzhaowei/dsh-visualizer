@@ -22,7 +22,7 @@ Deploy the `dist/` output to any static host (Vercel config included).
 
 ## Live site
 
-Deployed on **Cloudflare Pages** (classic Pages flow, GitHub integration): <https://dsh-visualizer.pages.dev>
+Deployed on **Cloudflare Pages** (classic Pages flow, GitHub integration): <https://www.learnagentai.top> (custom domain; also live at <https://dsh-visualizer.pages.dev>)
 
 - Production branch: `main` — every push redeploys automatically.
 - Build command: `npm run build` · Build output directory: `dist` · Root directory: (empty) · Framework preset: Vite-equivalent values (Pages has no standalone "Vite" preset; same command + output dir).
