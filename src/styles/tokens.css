@@ -44,8 +44,9 @@
   --code-border: rgba(70, 65, 59, 0.18);
   --overlay-bg: rgba(29, 27, 24, 0.42);
   --hover-bg: rgba(70, 65, 59, 0.06);
+  --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Noto Sans SC', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --topbar-h: 54px;
+  --topbar-h: 64px;
   --sidebar-w: 296px;
   --inspector-w: 388px;
   --radius-xs: 4px;
@@ -54,6 +55,14 @@
   --radius-lg: 11px;
   --radius-pill: 999px;
   --ease-snappy: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Iso node "paper stack" lip colors (per tone) */
+  --iso-lip-neutral: #dfd5c6;
+  --iso-lip-green: #aec88e;
+  --iso-lip-violet: #ccbbe6;
+  --iso-lip-blue: #b4cce9;
+  --iso-lip-orange: #e8bd96;
+  --iso-lip-rose: #e0b4b4;
+  --iso-lip-dark: #151311;
 }
 
 [data-theme='dark'] {
@@ -97,6 +106,13 @@
   --code-border: rgba(239, 230, 214, 0.16);
   --overlay-bg: rgba(10, 8, 6, 0.66);
   --hover-bg: rgba(239, 230, 214, 0.06);
+  --iso-lip-neutral: #1a1713;
+  --iso-lip-green: #29331b;
+  --iso-lip-violet: #312245;
+  --iso-lip-blue: #1d2c3f;
+  --iso-lip-orange: #3d2e1f;
+  --iso-lip-rose: #3f2123;
+  --iso-lip-dark: #0e0c0a;
 }
 
 *,
@@ -116,8 +132,7 @@ body,
 html {
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-mono);
-  font-feature-settings: 'calt' 0, 'liga' 0;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -125,7 +140,7 @@ html {
 body {
   background: var(--paper);
   color: var(--ink);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.65;
   overflow: hidden;
 }
@@ -135,7 +150,6 @@ input,
 select,
 textarea {
   font: inherit;
-  font-feature-settings: 'calt' 0, 'liga' 0;
   color: inherit;
 }
 
@@ -163,10 +177,24 @@ a {
   border-radius: var(--radius-xs);
   background: var(--code-bg);
   border: 1px solid var(--code-border);
+  font-family: var(--font-mono);
   font-size: 0.91em;
   font-weight: 600;
   color: var(--ink);
   word-break: break-word;
+}
+
+/* 关键短语高亮（**粗体** 渲染为高亮底色） */
+.hl {
+  background: var(--green);
+  border-radius: 3px;
+  padding: 0 3px;
+  font-weight: 700;
+}
+
+/* 等宽字只用于代码、ID、数字、徽章 */
+.mono {
+  font-family: var(--font-mono);
 }
 
 .kbd {

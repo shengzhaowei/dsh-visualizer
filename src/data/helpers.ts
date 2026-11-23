@@ -56,8 +56,9 @@ export function iso(
   nodes: IsoFlowScene['nodes'],
   edges: IsoFlowScene['edges'],
   callouts?: IsoFlowScene['callouts'],
+  zones?: IsoFlowScene['zones'],
 ): IsoFlowScene {
-  return { kind: 'iso-flow', title, nodes, edges, callouts };
+  return { kind: 'iso-flow', title, nodes, edges, callouts, zones };
 }
 
 export function swim(
@@ -66,8 +67,10 @@ export function swim(
   bars: SwimlaneScene['bars'],
   events?: SwimlaneScene['events'],
   ticks?: SwimlaneScene['ticks'],
+  phaseBands?: SwimlaneScene['phaseBands'],
+  connectors?: SwimlaneScene['connectors'],
 ): SwimlaneScene {
-  return { kind: 'swimlane', title, lanes, bars, events, ticks };
+  return { kind: 'swimlane', title, lanes, bars, events, ticks, phaseBands, connectors };
 }
 
 export function tree(
@@ -75,8 +78,9 @@ export function tree(
   nodes: TreeScene['nodes'],
   edges: TreeScene['edges'],
   annotations?: TreeScene['annotations'],
+  filePreview?: TreeScene['filePreview'],
 ): TreeScene {
-  return { kind: 'tree', title, nodes, edges, annotations };
+  return { kind: 'tree', title, nodes, edges, annotations, filePreview };
 }
 
 export interface StepSpec {

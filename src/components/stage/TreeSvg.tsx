@@ -1,16 +1,12 @@
 import type { TreeScene } from '../../types/lesson';
-import { TONE_STROKE } from './tones';
+import { KIND_FILL, KIND_LABEL, KIND_STROKE, TONE_STROKE } from './tones';
 
-const KIND_FILL: Record<string, string> = {
-  root: 'var(--ink)',
-  plugin: 'var(--blue)',
-  service: 'var(--green)',
-  event: 'var(--orange)',
-  user: 'var(--violet)',
-  assistant: 'var(--mint)',
-  tool: 'var(--rose)',
-  log: 'var(--card)',
-};
+/** 按字符宽度估算文本像素宽：全角字符按字号计，半角按约 0.55 字号计。 */
+function textWidth(text: string, fontSize: number): number {
+  let w = 0;
+  for (const ch of text) w += ch.charCodeAt(0) > 255 ? fontSize : fontSize * 0.55;
+  return w;
+}
 
 /** Tree diagram: nodes positioned by lesson data, edges drawn parent → child. */
 export function TreeSvg({ scene }: { scene: TreeScene }) {
@@ -22,7 +18,7 @@ export function TreeSvg({ scene }: { scene: TreeScene }) {
           <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--muted)" />
         </marker>
       </defs>
-      {scene.edges.map((e) => {
+      {scene.edges.map((e, i) => {
         const from = byId.get(e.from);
         const to = byId.get(e.to);
         if (!from || !to) return null;
@@ -32,7 +28,7 @@ export function TreeSvg({ scene }: { scene: TreeScene }) {
         const y2 = to.y - 26;
         const my = (y1 + y2) / 2;
         return (
-          <g key={`${e.from}-${e.to}`}>
+          <g key={`${e.from}-${e.to}`} className="stage-edge-enter" style={{ animationDelay: `${i * 50}ms` }}>
             <path
               d={`M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`}
               fill="none"
@@ -42,35 +38,40 @@ export function TreeSvg({ scene }: { scene: TreeScene }) {
               markerEnd="url(#tree-arrow)"
             />
             {e.label && (
-              <text x={(x1 + x2) / 2 + 8} y={my} fontSize="11" fill="var(--muted)" fontFamily="inherit">
+              <text x={(x1 + x2) / 2 + 8} y={my} fontSize="11" fill="var(--muted)" fontFamily="inherit" style={{ paintOrder: 'stroke', stroke: 'var(--sheet)', strokeWidth: 3 }}>
                 {e.label}
               </text>
             )}
           </g>
         );
       })}
-      {scene.nodes.map((n) => {
-        const w = Math.max(120, n.label.length * 8.5 + 28);
-        const h = n.sublabel ? 52 : 40;
+      {scene.nodes.map((n, i) => {
+        const hasParent = Boolean(n.parentId);
+        const w = Math.max(150, textWidth(n.label, 13) + 66, n.sublabel ? textWidth(n.sublabel, 10.5) + 66 : 0);
+        const h = n.sublabel ? (hasParent ? 64 : 54) : 42;
         const fill = KIND_FILL[n.kind] ?? 'var(--card)';
+        const stroke = KIND_STROKE[n.kind] ?? 'var(--edge)';
         const isRoot = n.kind === 'root';
+        const roleLabel = KIND_LABEL[n.kind] ?? n.kind;
         return (
-          <g key={n.id} opacity={n.status === 'dimmed' ? 0.45 : 1}>
-            <rect x={n.x - w / 2} y={n.y - h / 2 + 4} width={w} height={h} rx={8} fill="var(--edge)" opacity={0.5} />
+          <g key={n.id} className="stage-node-enter" style={{ animationDelay: `${i * 55}ms` }} opacity={n.status === 'dimmed' ? 0.45 : 1}>
+            {/* 底部错位叠层边 */}
+            <rect x={n.x - w / 2 + 3} y={n.y - h / 2 + 5} width={w} height={h} rx={10} fill="var(--edge)" opacity={0.45} />
             <rect
               x={n.x - w / 2}
               y={n.y - h / 2}
               width={w}
               height={h}
-              rx={8}
+              rx={10}
               fill={fill}
-              stroke={n.status === 'highlight' ? 'var(--rust)' : TONE_STROKE[n.kind === 'service' ? 'green' : n.kind === 'plugin' ? 'blue' : n.kind === 'tool' ? 'rose' : 'neutral']}
-              strokeWidth={n.status === 'highlight' ? 2.6 : 1.5}
+              stroke={n.status === 'highlight' ? 'var(--rust)' : stroke}
+              strokeWidth={n.status === 'highlight' ? 2.6 : 1.6}
             />
+            {/* 左侧加粗色条 */}
+            <rect x={n.x - w / 2} y={n.y - h / 2} width={5} height={h} rx={2.5} fill={stroke} />
             <text
-              x={n.x}
-              y={n.y + (n.sublabel ? -3 : 5)}
-              textAnchor="middle"
+              x={n.x - w / 2 + 15}
+              y={n.y + (n.sublabel ? -8 : 5)}
               fontSize="13"
               fontWeight="700"
               fill={isRoot ? 'var(--paper)' : 'var(--ink)'}
@@ -79,9 +80,30 @@ export function TreeSvg({ scene }: { scene: TreeScene }) {
               {n.label}
             </text>
             {n.sublabel && (
-              <text x={n.x} y={n.y + 15} textAnchor="middle" fontSize="10.5" fill={isRoot ? 'var(--paper-2)' : 'var(--muted)'} fontFamily="inherit">
+              <text x={n.x - w / 2 + 15} y={n.y + 10} fontSize="10.5" fill={isRoot ? 'var(--paper-2)' : 'var(--muted)'} fontFamily="inherit">
                 {n.sublabel}
               </text>
+            )}
+            {hasParent && (
+              <text x={n.x - w / 2 + 15} y={n.y + 24} fontSize="9" fill={isRoot ? 'var(--paper-2)' : 'var(--muted)'} fontFamily="var(--font-mono)">
+                ↑ {n.parentId}
+              </text>
+            )}
+            {/* 角色徽章 */}
+            <g>
+              <rect x={n.x + w / 2 - 42} y={n.y - h / 2 - 9} width={34} height={16} rx={8} fill="var(--sheet)" stroke="var(--edge)" strokeWidth={1} />
+              <text x={n.x + w / 2 - 25} y={n.y - h / 2 + 3} textAnchor="middle" fontSize="9.5" fontWeight="700" fill="var(--ink)" fontFamily="inherit">
+                {roleLabel}
+              </text>
+            </g>
+            {/* 六位 ID 药丸 */}
+            {n.hexId && (
+              <g>
+                <rect x={n.x + w / 2 - 4} y={n.y - h / 2 - 9} width={52} height={16} rx={8} fill="var(--ink)" stroke="var(--edge)" strokeWidth={1} />
+                <text x={n.x + w / 2 + 22} y={n.y - h / 2 + 3} textAnchor="middle" fontSize="9.5" fontWeight="700" fill="var(--paper)" fontFamily="var(--font-mono)">
+                  #{n.hexId}
+                </text>
+              </g>
             )}
             {n.badge && (
               <text x={n.x + w / 2 + 6} y={n.y - h / 2 + 2} fontSize="10.5" fontWeight="700" fill="var(--rust)" fontFamily="inherit">
@@ -92,9 +114,13 @@ export function TreeSvg({ scene }: { scene: TreeScene }) {
         );
       })}
       {scene.annotations?.map((a, i) => (
-        <text key={`ann-${i}`} x={a.x} y={a.y} fontSize="12" fontWeight="600" fill={a.tone ? TONE_STROKE[a.tone] : 'var(--muted)'} fontFamily="inherit">
-          {a.text}
-        </text>
+        <g key={`ann-${i}`} className="stage-label-enter" style={{ animationDelay: `${300 + i * 80}ms` }}>
+          <rect x={a.x - 10} y={a.y - 19} width={a.text.length * 7.2 + 20} height={26} rx={8} fill="var(--sheet)" stroke={a.tone ? TONE_STROKE[a.tone] : 'var(--edge)'} strokeWidth={1.4} />
+          <circle cx={a.x - 2} cy={a.y - 6} r={3} fill={a.tone ? TONE_STROKE[a.tone] : 'var(--muted)'} />
+          <text x={a.x + 6} y={a.y} fontSize="11.5" fontWeight="600" fill="var(--ink)" fontFamily="inherit">
+            {a.text}
+          </text>
+        </g>
       ))}
     </svg>
   );

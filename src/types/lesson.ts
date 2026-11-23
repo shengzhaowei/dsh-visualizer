@@ -25,6 +25,10 @@ export interface IsoNode {
   active?: boolean;
   dimmed?: boolean;
   badge?: string;
+  /** lucide-react 图标名（小写 kebab，如 'database'、'wrench'），无则按语义推断 */
+  icon?: string;
+  /** 卡内进度条：value 为 0–100 */
+  meter?: { value: number; label: string };
 }
 
 export interface IsoEdge {
@@ -32,7 +36,15 @@ export interface IsoEdge {
   to: string;
   label?: string;
   dashed?: boolean;
+  /** 绿点线边 */
+  dotted?: boolean;
   status?: 'normal' | 'active' | 'error' | 'dimmed';
+  /** 沿边流动的小药丸数量（默认 1） */
+  packetCount?: number;
+  /** 药丸流速倍率（默认 1） */
+  packetSpeed?: number;
+  /** 药丸上的文字 */
+  packetLabel?: string;
 }
 
 export interface IsoCallout {
@@ -42,12 +54,23 @@ export interface IsoCallout {
   tone?: StageTone;
 }
 
+export interface IsoZone {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  tone?: IsoNodeTone;
+  dashed?: boolean;
+}
+
 export interface IsoFlowScene {
   kind: 'iso-flow';
   title?: string;
   nodes: IsoNode[];
   edges: IsoEdge[];
   callouts?: IsoCallout[];
+  zones?: IsoZone[];
 }
 
 export interface SwimlaneLane {
@@ -84,6 +107,10 @@ export interface SwimlaneScene {
   ticks?: { pos: number; label: string }[];
   bars: SwimlaneBar[];
   events?: SwimlaneEvent[];
+  /** 顶部阶段条：start/end 为 0–100 的横向位置 */
+  phaseBands?: { start: number; end: number; label: string; tone?: StageTone }[];
+  /** 跨泳道连接线：fromPos/toPos 为 0–100 的横向位置 */
+  connectors?: { fromLaneId: string; fromPos: number; toLaneId: string; toPos: number; label?: string; dashed?: boolean }[];
 }
 
 export type TreeNodeKind = 'root' | 'plugin' | 'service' | 'event' | 'user' | 'assistant' | 'tool' | 'log';
@@ -97,6 +124,10 @@ export interface TreeNode {
   sublabel?: string;
   status?: 'active' | 'done' | 'highlight' | 'new' | 'dimmed';
   badge?: string;
+  /** 六位十六进制 ID 药丸，如 'a1b2c3' */
+  hexId?: string;
+  /** 父节点 id（小字展示） */
+  parentId?: string;
 }
 
 export interface TreeEdge {
@@ -112,6 +143,8 @@ export interface TreeScene {
   nodes: TreeNode[];
   edges: TreeEdge[];
   annotations?: { x: number; y: number; text: string; tone?: StageTone }[];
+  /** 右侧深色终端面板 */
+  filePreview?: { title: string; lines: { text: string; highlight?: boolean; muted?: boolean }[] };
 }
 
 export type StageScene = IsoFlowScene | SwimlaneScene | TreeScene;

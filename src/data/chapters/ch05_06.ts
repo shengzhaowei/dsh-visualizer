@@ -29,12 +29,12 @@ const L11 = lesson(
       ],
       kpis: [kpi('会话本质', '只追加事件日志', 'good'), kpi('当前状态', '重放算出', 'neutral'), kpi('删除 / 修改', '不直接改日志', 'neutral')],
       scene: tree('会话 = 只追加的事件日志', [
-        { id: 'log', x: 500, y: 60, kind: 'root', label: '会话日志（append-only）', sublabel: '事件溯源 event sourcing', status: 'active' },
-        { id: 'u', x: 160, y: 200, kind: 'user', label: '用户消息', sublabel: '现在几点？' },
-        { id: 'a', x: 380, y: 200, kind: 'assistant', label: '模型回复', sublabel: '工具调用 get_time' },
-        { id: 't', x: 620, y: 200, kind: 'tool', label: '工具结果', sublabel: '当前时间 …' },
-        { id: 'a2', x: 840, y: 200, kind: 'assistant', label: '模型回复', sublabel: '现在是 …' },
-        { id: 'state', x: 500, y: 340, kind: 'log', label: '当前状态 = 从头重放', sublabel: '模型可见即已记录', status: 'highlight' },
+        { id: 'log', x: 500, y: 60, kind: 'root', label: '会话日志（append-only）', sublabel: '事件溯源 event sourcing', status: 'active', hexId: 'a1b2c3' },
+        { id: 'u', x: 160, y: 200, kind: 'user', label: '用户消息', sublabel: '现在几点？', hexId: 'e7a1f2', parentId: 'log' },
+        { id: 'a', x: 380, y: 200, kind: 'assistant', label: '模型回复', sublabel: '工具调用 get_time', hexId: 'c4d5e6', parentId: 'log' },
+        { id: 't', x: 620, y: 200, kind: 'tool', label: '工具结果', sublabel: '当前时间 …', hexId: '9f8e7d', parentId: 'log' },
+        { id: 'a2', x: 840, y: 200, kind: 'assistant', label: '模型回复', sublabel: '现在是 …', hexId: '3b4c5d', parentId: 'log' },
+        { id: 'state', x: 500, y: 340, kind: 'log', label: '当前状态 = 从头重放', sublabel: '模型可见即已记录', status: 'highlight', hexId: '1a2b3c', parentId: 'log' },
       ], [
         { from: 'log', to: 'u' },
         { from: 'log', to: 'a' },
@@ -42,7 +42,7 @@ const L11 = lesson(
         { from: 'log', to: 'a2' },
         { from: 'u', to: 'state', label: '重放', animated: true },
         { from: 'a2', to: 'state' },
-      ]),
+      ], undefined, { title: 'sessions.jsonl — append-only', lines: [{ text: '{"seq": 1, "type": "user", "content": "现在几点？"}', highlight: true }, { text: '{"seq": 2, "type": "assistant", "toolCall": "get_time"}' }, { text: '{"seq": 3, "type": "tool-result", "content": "15:04"}' }, { text: '{"seq": 4, "type": "assistant", "content": "现在是 15:04"}', highlight: true }, { text: '// 只追加：新事件永远写在末尾', muted: true } ] }),
     },
     {
       shortLabel: '模型可见即已记录',
@@ -55,10 +55,10 @@ const L11 = lesson(
       callout: { kind: 'idea', title: '一句话', text: '模型可见即已记录：日志与上下文是同一份事实的两种形态，日志是源，上下文是投影。' },
       kpis: [kpi('真相来源', '日志', 'good'), kpi('上下文', '日志的投影', 'neutral'), kpi('调试第一步', '查日志', 'neutral')],
       scene: iso('日志是源，上下文是投影', [
-        { id: 'log', x: 120, y: 200, label: '会话日志', sublabel: '唯一真相来源', tone: 'green', active: true },
-        { id: 'ctx', x: 620, y: 200, label: '模型上下文', sublabel: '日志的一次投影', tone: 'blue' },
+        { id: 'log', x: 120, y: 200, label: '会话日志', sublabel: '唯一真相来源', tone: 'green', active: true, icon: 'database' },
+        { id: 'ctx', x: 620, y: 200, label: '模型上下文', sublabel: '日志的一次投影', tone: 'blue', icon: 'brain' },
       ], [
-        { from: 'log', to: 'ctx', label: '组装 / 投影', status: 'active' },
+        { from: 'log', to: 'ctx', label: '组装 / 投影', status: 'active', packetCount: 2, packetLabel: '投影' },
       ], [{ x: 480, y: 120, text: '模型可见 ⟺ 日志已有', tone: 'green' }]),
     },
     {
@@ -88,7 +88,7 @@ const L11 = lesson(
         { id: 'a', laneId: 'loop', start: 2, end: 26, label: 'append(tool-result)', tone: 'violet', status: 'done' },
         { id: 'b', laneId: 'store', start: 28, end: 52, label: 'emit session/event', tone: 'green', status: 'done' },
         { id: 'c', laneId: 'sub', start: 54, end: 96, label: '持久化写入 · 界面更新', tone: 'blue', status: 'done' },
-      ], [{ id: 'ev', laneId: 'store', pos: 40, label: 'session/event', tone: 'green', emphasized: true }]),
+      ], [{ id: 'ev', laneId: 'store', pos: 40, label: 'session/event', tone: 'green', emphasized: true }], undefined, [{ start: 0, end: 26, label: '追加', tone: 'violet' }, { start: 26, end: 52, label: '广播', tone: 'green' }, { start: 52, end: 100, label: '消费', tone: 'blue' }], [{ fromLaneId: 'loop', fromPos: 26, toLaneId: 'store', toPos: 28 }, { fromLaneId: 'store', fromPos: 52, toLaneId: 'sub', toPos: 54 }]),
     },
     {
       shortLabel: '只追加的好处',
@@ -100,10 +100,10 @@ const L11 = lesson(
       ],
       kpis: [kpi('可重放', '是', 'good'), kpi('可审计', '是', 'good'), kpi('可恢复', '读日志即可', 'good')],
       scene: tree('日志的三个好处', [
-        { id: 'log', x: 500, y: 60, kind: 'root', label: '只追加日志', sublabel: 'append-only', status: 'active' },
-        { id: 'r', x: 200, y: 200, kind: 'log', label: '可重放', sublabel: '从头 replay 复现对话' },
-        { id: 'a', x: 500, y: 200, kind: 'log', label: '可审计', sublabel: '历史不可篡改' },
-        { id: 'c', x: 800, y: 200, kind: 'log', label: '可恢复', sublabel: '崩了读日志恢复' },
+        { id: 'log', x: 500, y: 60, kind: 'root', label: '只追加日志', sublabel: 'append-only', status: 'active', hexId: 'a1b2c3' },
+        { id: 'r', x: 200, y: 200, kind: 'log', label: '可重放', sublabel: '从头 replay 复现对话', hexId: 'f1e2d3', parentId: 'log' },
+        { id: 'a', x: 500, y: 200, kind: 'log', label: '可审计', sublabel: '历史不可篡改', hexId: '4a5b6c', parentId: 'log' },
+        { id: 'c', x: 800, y: 200, kind: 'log', label: '可恢复', sublabel: '崩了读日志恢复', hexId: '7d8e9f', parentId: 'log' },
       ], [
         { from: 'log', to: 'r' },
         { from: 'log', to: 'a' },
@@ -120,11 +120,11 @@ const L11 = lesson(
       ],
       kpis: [kpi('后端', 'JSONL / SQLite', 'neutral'), kpi('服务名', 'sessionPersistence', 'neutral'), kpi('可选性', 'ctx.get 查询', 'good')],
       scene: iso('持久化：可选服务，两种后端', [
-        { id: 'store', x: 400, y: 120, label: 'SessionStore', sublabel: 'ctx.get(\'sessionPersistence\')', tone: 'green', size: 'lg', active: true },
-        { id: 'jsonl', x: 120, y: 320, label: 'JSONL', sublabel: '每行一个事件 · 人可读', tone: 'blue' },
-        { id: 'sqlite', x: 620, y: 320, label: 'SQLite', sublabel: '可查询 · 多会话', tone: 'violet' },
+        { id: 'store', x: 400, y: 120, label: 'SessionStore', sublabel: 'ctx.get(\'sessionPersistence\')', tone: 'green', size: 'lg', active: true, icon: 'database' },
+        { id: 'jsonl', x: 120, y: 320, label: 'JSONL', sublabel: '每行一个事件 · 人可读', tone: 'blue', icon: 'file-text' },
+        { id: 'sqlite', x: 620, y: 320, label: 'SQLite', sublabel: '可查询 · 多会话', tone: 'violet', icon: 'hard-drive' },
       ], [
-        { from: 'store', to: 'jsonl', label: '有就用' },
+        { from: 'store', to: 'jsonl', label: '有就用', packetCount: 1, packetLabel: '写入' },
         { from: 'store', to: 'sqlite', label: '换后端 = 换插件' },
       ]),
     },
@@ -143,10 +143,10 @@ const L11 = lesson(
       ],
       kpis: [kpi('会话本质', '事件日志', 'good'), kpi('广播事件', 'session/event', 'neutral'), kpi('本课步骤', '6 步', 'neutral')],
       scene: tree('会话全貌', [
-        { id: 'log', x: 500, y: 60, kind: 'root', label: '会话日志', sublabel: 'append-only · 事件溯源', status: 'active' },
-        { id: 'ev', x: 200, y: 200, kind: 'event', label: 'session/event', sublabel: '每追加一次广播一次' },
-        { id: 'ctx', x: 500, y: 200, kind: 'assistant', label: '模型上下文', sublabel: '日志的投影' },
-        { id: 'per', x: 800, y: 200, kind: 'service', label: 'sessionPersistence', sublabel: 'JSONL / SQLite · 可选' },
+        { id: 'log', x: 500, y: 60, kind: 'root', label: '会话日志', sublabel: 'append-only · 事件溯源', status: 'active', hexId: 'a1b2c3' },
+        { id: 'ev', x: 200, y: 200, kind: 'event', label: 'session/event', sublabel: '每追加一次广播一次', hexId: 'b2c3d4', parentId: 'log' },
+        { id: 'ctx', x: 500, y: 200, kind: 'assistant', label: '模型上下文', sublabel: '日志的投影', hexId: 'c3d4e5', parentId: 'log' },
+        { id: 'per', x: 800, y: 200, kind: 'service', label: 'sessionPersistence', sublabel: 'JSONL / SQLite · 可选', hexId: 'd4e5f6', parentId: 'log' },
       ], [
         { from: 'log', to: 'ev' },
         { from: 'log', to: 'ctx', label: '组装' },

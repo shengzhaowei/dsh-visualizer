@@ -4,11 +4,40 @@
   border-left: 1.5px solid var(--edge);
   background: var(--paper-2);
   overflow-y: auto;
-  padding: 14px 14px 24px;
+  padding: 16px 16px 24px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   min-height: 0;
+}
+
+@keyframes inspectorFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.inspector-anim {
+  animation: inspectorFade 0.35s var(--ease-snappy) both;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* 顶部按步分段进度条 */
+.inspector-progress {
+  display: flex;
+  gap: 4px;
+}
+.inspector-progress-seg {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--line-strong);
+}
+.inspector-progress-seg--done {
+  background: var(--green-stroke);
+}
+.inspector-progress-seg--current {
+  background: var(--ink);
 }
 
 .inspector-step-head {
@@ -17,27 +46,35 @@
   gap: 8px;
   flex-wrap: wrap;
 }
-.inspector-step-title {
-  font-size: 16px;
+.inspector-step-count {
+  font-size: 11px;
+  color: var(--muted);
   font-weight: 700;
-  line-height: 1.4;
+}
+.inspector-step-title {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
   margin: 0;
 }
 .inspector-body p {
-  margin: 0 0 10px;
-  font-size: 12.5px;
-  line-height: 1.75;
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.85;
 }
 .inspector-body p:last-child { margin-bottom: 0; }
 
+/* Callout：左缘绿条圆角卡 */
 .callout {
   border: 1.5px solid var(--edge);
+  border-left: 4px solid var(--green-stroke);
   border-radius: var(--radius-md);
-  padding: 10px 12px;
+  padding: 11px 13px;
   background: var(--sheet);
   box-shadow: var(--pop-shadow-sm);
-  font-size: 12px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.7;
 }
 .callout--idea { background: var(--violet); }
 .callout--tip { background: var(--green); }
@@ -50,47 +87,74 @@
   gap: 6px;
 }
 
+/* KPI：4 列浅灰卡，上标签下粗体数值 */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 .kpi-card {
-  border: 1.5px solid var(--edge);
+  border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: var(--sheet);
-  padding: 8px 9px;
-  box-shadow: var(--pop-shadow-sm);
+  background: var(--paper);
+  padding: 9px 10px;
 }
 .kpi-label {
   font-size: 10px;
   color: var(--muted);
   font-weight: 700;
   letter-spacing: 0.02em;
+  line-height: 1.4;
 }
 .kpi-value {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.3;
-  margin-top: 2px;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.35;
+  margin-top: 3px;
+  word-break: break-word;
 }
 .kpi-value--good { color: var(--green-stroke); }
 .kpi-value--warn { color: var(--orange-stroke); }
 .kpi-value--bad { color: var(--rose-stroke); }
 
-.inspector-section-title {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin: 0 0 6px;
+/* 可折叠的本课收获清单 */
+.objectives {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--sheet);
+  overflow: hidden;
 }
-
+.objectives-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 11px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.objectives-head-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.objectives-chevron {
+  color: var(--muted);
+  transition: transform 0.18s ease;
+  flex: 0 0 auto;
+}
+.objectives-chevron--open {
+  transform: rotate(180deg);
+}
 .objectives-list {
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 0 8px 8px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -99,11 +163,11 @@
   display: flex;
   gap: 8px;
   align-items: flex-start;
-  font-size: 12px;
+  font-size: 12.5px;
   line-height: 1.55;
   border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  background: var(--sheet);
+  background: var(--paper);
   padding: 7px 9px;
 }
 .objectives-list li.done {
@@ -128,6 +192,7 @@
   font-weight: 700;
 }
 
+/* 源码抽屉：文件图标 + 复制按钮 + 行数；代码区行号 + 近乎单色 */
 .source-drawer {
   border: 1.5px solid var(--edge);
   border-radius: var(--radius-md);
@@ -146,6 +211,34 @@
 .source-drawer-title {
   font-size: 11.5px;
   font-weight: 700;
+  min-width: 0;
+}
+.source-drawer-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.source-line-count {
+  font-size: 10.5px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.source-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  background: var(--sheet);
+  padding: 3px 7px;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--ink);
+}
+.source-copy-btn:hover {
+  background: var(--paper-2);
 }
 .source-drawer-path {
   font-size: 10.5px;
@@ -153,15 +246,36 @@
   word-break: break-all;
   padding: 6px 10px 0;
 }
-.source-drawer pre {
+.code-block {
   margin: 8px 0 0;
-  padding: 10px;
+  padding: 10px 0;
   overflow-x: auto;
   font-family: var(--font-mono);
-  font-size: 11px;
-  line-height: 1.6;
+  font-size: 11.5px;
+  line-height: 1.65;
   background: var(--paper);
   border-top: 1px solid var(--line);
+  color: var(--ink-2);
+}
+.code-line {
+  display: flex;
+  padding: 0 10px 0 0;
+  white-space: pre;
+}
+.code-line:hover {
+  background: var(--hover-bg);
+}
+.code-ln {
+  flex: 0 0 34px;
+  text-align: right;
+  padding-right: 10px;
+  color: var(--muted);
+  opacity: 0.7;
+  user-select: none;
+}
+.code-text {
+  flex: 1;
+  min-width: 0;
   white-space: pre;
 }
 .source-drawer-caption {
@@ -169,6 +283,7 @@
   font-size: 11px;
   color: var(--muted);
   border-top: 1px solid var(--line);
+  line-height: 1.6;
 }
 .source-link {
   display: inline-flex;
@@ -180,25 +295,103 @@
   white-space: nowrap;
 }
 
-.recap-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 11.5px;
+/* Recap：决策行样式 */
+.recap {
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-md);
+  background: var(--sheet);
+  box-shadow: var(--pop-shadow-sm);
+  overflow: hidden;
+}
+.recap-head {
+  padding: 9px 12px;
+  background: var(--blue);
+  border-bottom: 1.5px solid var(--edge);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.recap-row {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.recap-row + .recap-row {
+  border-top: 1px dashed var(--line-strong);
+}
+.recap-q {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.recap-q-label {
+  font-family: var(--font-mono);
+  color: var(--blue-stroke);
+  margin-right: 5px;
+}
+.recap-a {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 13px;
   line-height: 1.55;
 }
-.recap-table th,
-.recap-table td {
-  border: 1px solid var(--line-strong);
-  padding: 7px 8px;
-  text-align: left;
-  vertical-align: top;
-  background: var(--sheet);
+.recap-arrow {
+  color: var(--green-stroke);
+  flex: 0 0 auto;
+  margin-top: 2px;
 }
-.recap-table th {
-  background: var(--paper);
+.recap-decision {
+  background: var(--green);
+  border-radius: var(--radius-sm);
+  padding: 1px 7px;
+  font-weight: 700;
+}
+.recap-why {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  padding-left: 20px;
+}
+
+/* 下一课预告卡 */
+.next-lesson-card {
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-md);
+  background: var(--green);
+  box-shadow: var(--pop-shadow-sm);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.next-lesson-eyebrow {
   font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  color: var(--green-stroke);
+}
+.next-lesson-title {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+.next-lesson-sub {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.6;
+}
+.next-lesson-btn {
+  margin-top: 8px;
+  width: 100%;
+  min-height: 34px;
+  font-size: 12.5px;
+  white-space: normal;
+  line-height: 1.4;
+  text-align: left;
+  padding: 8px 10px;
 }
 
 .inspector-nav {
@@ -210,15 +403,6 @@
   flex: 1;
   height: 34px;
   font-size: 12px;
-}
-.inspector-next-lesson {
-  width: 100%;
-  min-height: 36px;
-  font-size: 12px;
-  text-align: left;
-  padding: 8px 10px;
-  white-space: normal;
-  line-height: 1.4;
 }
 .inspector-links {
   display: flex;
@@ -236,5 +420,8 @@
     border-left: none;
     border-top: 1.5px solid var(--edge);
     overflow: visible;
+  }
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

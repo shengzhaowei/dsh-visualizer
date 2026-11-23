@@ -189,6 +189,11 @@ export function App() {
     if (first) handleSelectLesson(first.slug, 1);
   }, [handleSelectLesson]);
 
+  const handleContinue = useCallback(() => {
+    const next = ALL_LESSONS.find((l) => !completedLessons.has(l.slug)) ?? ALL_LESSONS[0];
+    if (next) handleSelectLesson(next.slug, 1);
+  }, [completedLessons, handleSelectLesson]);
+
   const handleResetProgress = useCallback(() => {
     setCompletedLessons(new Set());
     try { localStorage.removeItem(STORAGE_PROGRESS_KEY); } catch { /* ignore */ }
@@ -247,8 +252,10 @@ export function App() {
           <Sidebar
             chapters={CHAPTERS}
             activeLessonSlug={currentLesson.slug}
+            currentStepIndex={safeStepIndex}
             completedLessons={completedLessons}
             onSelectLesson={(slug) => handleSelectLesson(slug, 1)}
+            onContinue={handleContinue}
             onResetProgress={handleResetProgress}
             collapsed={sidebarCollapsed}
             onToggleCollapsed={() => setSidebarCollapsed((c) => !c)}
@@ -307,8 +314,10 @@ export function App() {
               <Sidebar
                 chapters={CHAPTERS}
                 activeLessonSlug={currentLesson?.slug ?? ''}
+                currentStepIndex={safeStepIndex}
                 completedLessons={completedLessons}
                 onSelectLesson={(slug) => handleSelectLesson(slug, 1)}
+                onContinue={handleContinue}
                 onResetProgress={handleResetProgress}
               />
             </div>

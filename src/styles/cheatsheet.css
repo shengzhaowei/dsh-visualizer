@@ -20,13 +20,14 @@
   color: var(--rust);
 }
 .cheatsheet-title {
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1.3;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
   margin: 6px 0 4px;
 }
 .cheatsheet-subtitle {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
   line-height: 1.7;
 }
@@ -37,25 +38,121 @@
   line-height: 1.7;
 }
 .cheatsheet-stats {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
-  flex-wrap: wrap;
   margin-top: 16px;
 }
 .cheatsheet-stat {
   border: 1.5px solid var(--edge);
   border-radius: var(--radius-md);
   background: var(--paper);
-  padding: 8px 12px;
+  padding: 10px 12px;
   box-shadow: var(--pop-shadow-sm);
-}
-.cheatsheet-stat-value {
-  font-size: 17px;
-  font-weight: 700;
 }
 .cheatsheet-stat-label {
   font-size: 10.5px;
   color: var(--muted);
+  font-weight: 700;
+}
+.cheatsheet-stat-value {
+  font-size: 18px;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+/* 章节药丸导航 */
+.cheatsheet-nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.cheatsheet-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-pill);
+  background: var(--sheet);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  box-shadow: var(--pop-shadow-sm);
+  transition: background-color 0.14s ease;
+}
+.cheatsheet-nav-pill:hover {
+  background: var(--green);
+}
+.cheatsheet-nav-num {
+  font-size: 10.5px;
+  color: var(--rust);
+  font-weight: 700;
+}
+
+.cheatsheet-section-body {
+  padding: 14px 16px;
+}
+
+/* 卡片网格（map 类分区） */
+.cheatsheet-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.cheatsheet-card {
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  box-shadow: var(--pop-shadow-sm);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 0.14s var(--ease-snappy);
+}
+.cheatsheet-card:hover {
+  transform: translateY(-1px);
+}
+.cheatsheet-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cheatsheet-card-type {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  background: var(--green);
+  border: 1px solid var(--green-stroke);
+  border-radius: var(--radius-pill);
+  padding: 1px 8px;
+}
+.cheatsheet-card-jump {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue-stroke);
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+}
+.cheatsheet-card-sig {
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.5;
+  word-break: break-word;
+}
+.cheatsheet-card-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.65;
 }
 
 .cheatsheet-section {
@@ -126,4 +223,13 @@
 
 .cheatsheet-back {
   margin-top: 26px;
+}
+
+@media (max-width: 720px) {
+  .cheatsheet-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .cheatsheet-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
