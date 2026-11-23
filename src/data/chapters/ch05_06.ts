@@ -125,7 +125,7 @@ const L11 = lesson(
         { id: 'sqlite', x: 620, y: 320, label: 'SQLite', sublabel: '可查询 · 多会话', tone: 'violet', icon: 'hard-drive' },
       ], [
         { from: 'store', to: 'jsonl', label: '有就用', packetCount: 1, packetLabel: '写入' },
-        { from: 'store', to: 'sqlite', label: '换后端 = 换插件' },
+        { from: 'store', to: 'sqlite', label: '换后端 = 换插件', packetCount: 1, packetLabel: '写入' },
       ]),
     },
     {
@@ -188,9 +188,9 @@ const L12 = lesson(
         { id: 'agent', x: 540, y: 180, label: 'agent-loop', sublabel: '贡献：行为约束', tone: 'violet', size: 'sm' },
         { id: 'sp', x: 180, y: 400, label: 'systemPrompt 服务', sublabel: '按顺序拼接各段落', tone: 'dark', size: 'platform' },
       ], [
-        { from: 'time', to: 'sp' },
-        { from: 'fs', to: 'sp' },
-        { from: 'agent', to: 'sp' },
+        { from: 'time', to: 'sp', packetCount: 1, packetLabel: '时间' },
+        { from: 'fs', to: 'sp', packetCount: 1, packetLabel: '目录' },
+        { from: 'agent', to: 'sp', packetCount: 1, packetLabel: '段落' },
       ]),
     },
     {
@@ -269,8 +269,8 @@ const L12 = lesson(
         { id: 'sp', x: 420, y: 200, label: 'systemPrompt', sublabel: '重新拼接', tone: 'rose' },
         { id: 'loop', x: 720, y: 200, label: 'agent-loop', sublabel: '一行不改', tone: 'violet', dimmed: true },
       ], [
-        { from: 'para', to: 'sp', label: '新段落', status: 'active' },
-        { from: 'sp', to: 'loop', label: '新提示词', dashed: true },
+        { from: 'para', to: 'sp', label: '新段落', status: 'active', packetCount: 2, packetLabel: '新段落' },
+        { from: 'sp', to: 'loop', label: '新提示词', dashed: true, packetCount: 1, packetLabel: '新提示词' },
       ]),
     },
     {
@@ -293,9 +293,9 @@ const L12 = lesson(
         { id: 'loop', x: 700, y: 60, label: 'agent-loop', sublabel: '使用', tone: 'violet', size: 'sm' },
         { id: 'llm', x: 120, y: 380, label: '模型', sublabel: '看到最终提示词', tone: 'green', size: 'sm' },
       ], [
-        { from: 'p', to: 'sp' },
-        { from: 'sp', to: 'loop' },
-        { from: 'loop', to: 'llm', label: 'stream(提示词 + 消息)' },
+        { from: 'p', to: 'sp', packetCount: 1, packetLabel: '段落' },
+        { from: 'sp', to: 'loop', packetCount: 1, packetLabel: '提示词' },
+        { from: 'loop', to: 'llm', label: 'stream(提示词 + 消息)', packetCount: 1, packetLabel: 'stream' },
       ]),
     },
   ]),
@@ -391,8 +391,8 @@ const L13 = lesson(
         { id: 'prov', x: 380, y: 200, label: '提供实现', sublabel: 'llm-deepseek 注册适配器', tone: 'green', active: true },
         { id: 'use', x: 700, y: 200, label: '使用服务', sublabel: 'agent-loop：ctx.llm.stream()', tone: 'violet' },
       ], [
-        { from: 'def', to: 'prov', label: '接口' },
-        { from: 'prov', to: 'use', label: '服务名' },
+        { from: 'def', to: 'prov', label: '接口', packetCount: 1, packetLabel: '接口' },
+        { from: 'prov', to: 'use', label: '服务名', packetCount: 1, packetLabel: '服务名' },
       ]),
     },
     {
@@ -410,10 +410,10 @@ const L13 = lesson(
         { id: 'cli', x: 680, y: 60, label: 'CLI 入口', sublabel: 'headless profile', tone: 'green' },
         { id: 'user', x: 400, y: 420, label: '用户', sublabel: '浏览器 / 终端', tone: 'neutral' },
       ], [
-        { from: 'web', to: 'core' },
-        { from: 'cli', to: 'core' },
-        { from: 'user', to: 'web', dashed: true },
-        { from: 'user', to: 'cli', dashed: true },
+        { from: 'web', to: 'core', packetCount: 1, packetLabel: '请求' },
+        { from: 'cli', to: 'core', packetCount: 1, packetLabel: '命令' },
+        { from: 'user', to: 'web', dashed: true, packetCount: 1, packetLabel: '消息' },
+        { from: 'user', to: 'cli', dashed: true, packetCount: 1, packetLabel: '命令' },
       ]),
     },
     {
@@ -563,8 +563,8 @@ const { Context, Service } = lib`,
         { id: 'mini', x: 620, y: 200, label: '迷你版', sublabel: 'Proxy 绑定回真 Fiber', tone: 'green', active: true },
         { id: 'bug', x: 370, y: 60, label: 'update() 的 this 指向', sublabel: '真版写到包装对象上', tone: 'rose', size: 'sm' },
       ], [
-        { from: 'bug', to: 'real', label: '状态写错地方', dashed: true },
-        { from: 'bug', to: 'mini', label: '无此问题', status: 'active' },
+        { from: 'bug', to: 'real', label: '状态写错地方', dashed: true, packetCount: 1, packetLabel: 'update' },
+        { from: 'bug', to: 'mini', label: '无此问题', status: 'active', packetCount: 1, packetLabel: 'update' },
       ]),
     },
     {
@@ -605,9 +605,9 @@ const { Context, Service } = lib`,
         { id: 'iso', x: 700, y: 200, label: '作用域隔离', sublabel: 'isolate / intercept', tone: 'violet', active: true },
         { id: 'core', x: 180, y: 400, label: '核心原理不受影响', sublabel: '五条规则 680 行就能写出来', tone: 'dark', size: 'platform' },
       ], [
-        { from: 'e', to: 'core' },
-        { from: 'err', to: 'core' },
-        { from: 'iso', to: 'core' },
+        { from: 'e', to: 'core', packetCount: 1 },
+        { from: 'err', to: 'core', packetCount: 1 },
+        { from: 'iso', to: 'core', packetCount: 1 },
       ]),
     },
     {

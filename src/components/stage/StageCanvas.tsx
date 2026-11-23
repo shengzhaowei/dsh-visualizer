@@ -15,7 +15,6 @@ export const ZOOM_MAX = 2.2;
 
 interface StageCanvasProps {
   scene: StageScene;
-  isPlaying: boolean;
   view: ViewState;
   onViewChange: (next: ViewState) => void;
   onResetView: () => void;
@@ -38,8 +37,8 @@ function sceneHeight(scene: StageScene): number {
 }
 
 /** 舞台画布：每次换课/换步都按场景包围盒适配（fit-to-view），缩放状态不跨步残留；
- *  滚轮缩放（限定在画布区域内，以指针为锚点）、拖拽平移、双击复位；播放时驱动 SMIL 动画。 */
-export function StageCanvas({ scene, isPlaying, view, onViewChange, onResetView }: StageCanvasProps) {
+ *  滚轮缩放（限定在画布区域内，以指针为锚点）、拖拽平移、双击复位；数据包 SMIL 动画常驻流动，不跟随播放状态。 */
+export function StageCanvas({ scene, view, onViewChange, onResetView }: StageCanvasProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const [vp, setVp] = useState({ w: 0, h: 0 });
   const dragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
@@ -75,21 +74,6 @@ export function StageCanvas({ scene, isPlaying, view, onViewChange, onResetView 
   }, [scene, vp]);
   const fitRef = useRef(fit);
   fitRef.current = fit;
-
-  // SMIL 动画：播放/暂停跟随 isPlaying。
-  useEffect(() => {
-    const root = viewportRef.current;
-    if (!root) return;
-    const svgs = Array.from(root.querySelectorAll('svg')) as unknown as SVGSVGElement[];
-    for (const svg of svgs) {
-      try {
-        if (isPlaying) svg.unpauseAnimations();
-        else svg.pauseAnimations();
-      } catch {
-        // 旧浏览器不支持 SMIL 控制时忽略
-      }
-    }
-  }, [isPlaying, scene]);
 
   // 滚轮缩放：非被动监听，避免页面滚动；以指针为锚点（用 ref 避免反复重订阅）。
   useEffect(() => {
@@ -162,7 +146,7 @@ export function StageCanvas({ scene, isPlaying, view, onViewChange, onResetView 
         }}
       >
         {scene.kind === 'iso-flow' ? (
-          <IsoFlowSvg scene={scene} active={isPlaying} />
+          <IsoFlowSvg scene={scene} />
         ) : scene.kind === 'swimlane' ? (
           <SwimlaneSvg scene={scene} />
         ) : (

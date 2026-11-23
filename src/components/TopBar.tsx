@@ -20,7 +20,7 @@ export function TopBar({ mode, theme, onChangeMode, onOpenSearch, onToggleTheme,
         <Menu size={15} />
       </button>
       <div className="brand" onClick={onGoHome} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onGoHome()}>
-        <span className="brand-mark">DS</span>
+        <img className="brand-mark-img" src="/whale-girl-icon.png" alt="鲸鱼娘" />
         <span>
           <span className="brand-title">DSH Agent Loop Visualizer</span>
           <br />

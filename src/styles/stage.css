@@ -516,6 +516,21 @@
   animation: stagePulse 1.4s ease-in-out infinite;
 }
 
+/* 数据包：激活虚线边的流动虚线 + 数据包入场淡入 */
+.stage-dash-flow {
+  animation: dashFlow 1s linear infinite;
+}
+@keyframes dashFlow {
+  to { stroke-dashoffset: -11; }
+}
+.stage-packet-enter {
+  animation: packetEnter 0.45s ease both;
+}
+@keyframes packetEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 [data-theme='dark'] .stage-viewport {
   background-image: radial-gradient(rgba(239, 230, 214, 0.08) 1px, transparent 1px);
 }

@@ -303,7 +303,7 @@ export function App() {
       {route.mode === 'learn' && (
         <footer className="keyboard-hint-bar" aria-label="键盘快捷键">
           <span><span className="kbd">←</span> <span className="kbd">→</span> 切换步骤</span>
-          <span><span className="kbd">Space</span> 播放 / 暂停</span>
+          <span><span className="kbd">Space</span> 自动翻步 / 暂停</span>
           <span><span className="kbd">R</span> 重播</span>
           <span><span className="kbd">Ctrl K</span> 搜索</span>
         </footer>

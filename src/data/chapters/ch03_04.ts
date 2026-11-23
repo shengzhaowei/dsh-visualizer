@@ -36,10 +36,10 @@ const L5 = lesson(
         { id: 'loop', x: 780, y: 180, label: 'AgentLoop', sublabel: '→ 提供 agentLoop', tone: 'violet', size: 'sm' },
         { id: 'table', x: 180, y: 400, label: '服务表 store', sublabel: '名字 → { 值, 提供者 Fiber }', tone: 'dark', size: 'platform' },
       ], [
-        { from: 'llm', to: 'table' },
-        { from: 'tools', to: 'table' },
-        { from: 'sess', to: 'table' },
-        { from: 'loop', to: 'table' },
+        { from: 'llm', to: 'table', packetCount: 1, packetLabel: 'llm' },
+        { from: 'tools', to: 'table', packetCount: 1, packetLabel: 'tools' },
+        { from: 'sess', to: 'table', packetCount: 1, packetLabel: 'sessions' },
+        { from: 'loop', to: 'table', packetCount: 1, packetLabel: 'agentLoop' },
       ]),
     },
     {
@@ -195,9 +195,9 @@ declare module '@nami/cordis' {
         { id: 'use', x: 700, y: 200, label: '使用服务', sublabel: 'agent-loop：只认 ctx.llm', tone: 'violet' },
         { id: 'table', x: 180, y: 420, label: '服务表 + declare module', sublabel: '运行时靠名字，编译时靠类型', tone: 'dark', size: 'platform' },
       ], [
-        { from: 'def', to: 'table', label: '声明 llm: LlmRuntime' },
-        { from: 'prov', to: 'table', label: 'provide' },
-        { from: 'use', to: 'table', label: 'inject + 读取' },
+        { from: 'def', to: 'table', label: '声明 llm: LlmRuntime', packetCount: 1, packetLabel: '类型声明' },
+        { from: 'prov', to: 'table', label: 'provide', packetCount: 1, packetLabel: 'provide' },
+        { from: 'use', to: 'table', label: 'inject + 读取', packetCount: 1, packetLabel: 'inject' },
       ]),
     },
   ]),
@@ -234,8 +234,8 @@ const L6 = lesson(
         { id: 'bus', x: 420, y: 200, label: '事件总线', sublabel: 'events · _hooks[name]', tone: 'dark', active: true },
         { id: 'b', x: 720, y: 200, label: '插件 B', sublabel: 'ctx.emit(\'greet\', \'nami\')', tone: 'green' },
       ], [
-        { from: 'a', to: 'bus', label: '监听' },
-        { from: 'b', to: 'bus', label: '触发' },
+        { from: 'a', to: 'bus', label: '监听', packetCount: 1, packetLabel: '监听' },
+        { from: 'b', to: 'bus', label: '触发', packetCount: 1, packetLabel: 'greet' },
       ], [{ x: 480, y: 120, text: '双方互不知道对方存在', tone: 'neutral' }]),
     },
     {
@@ -359,8 +359,8 @@ const L6 = lesson(
         { id: 'evt', x: 620, y: 200, label: '事件 tools/pre-execute', sublabel: '一对多 · 不要 inject · 只约定名字', tone: 'orange', active: true },
         { id: 'loop', x: 370, y: 60, label: 'agent-loop', sublabel: '既用服务，也发事件', tone: 'violet', size: 'sm' },
       ], [
-        { from: 'loop', to: 'svc', label: '调用能力' },
-        { from: 'loop', to: 'evt', label: '广播 / 被插手' },
+        { from: 'loop', to: 'svc', label: '调用能力', packetCount: 1, packetLabel: 'stream' },
+        { from: 'loop', to: 'evt', label: '广播 / 被插手', packetCount: 1, packetLabel: 'exec' },
       ]),
     },
   ]),
@@ -602,10 +602,10 @@ const L8 = lesson(
         { id: 'time', x: 640, y: 180, label: 'tool-time', sublabel: '时间工具', tone: 'orange', icon: 'clock' },
         { id: 'alt', x: 760, y: 60, label: '我的循环', sublabel: '也可以 setFactory', tone: 'blue', size: 'sm', icon: 'refresh-cw' },
       ], [
-        { from: 'loop', to: 'cordis' },
-        { from: 'fs', to: 'cordis' },
-        { from: 'time', to: 'cordis' },
-        { from: 'alt', to: 'cordis', dotted: true, label: '替换' },
+        { from: 'loop', to: 'cordis', packetCount: 1, packetLabel: 'agentLoop' },
+        { from: 'fs', to: 'cordis', packetCount: 1, packetLabel: 'tool-fs' },
+        { from: 'time', to: 'cordis', packetCount: 1, packetLabel: 'tool-time' },
+        { from: 'alt', to: 'cordis', dotted: true, label: '替换', packetCount: 1, packetLabel: 'setFactory' },
       ]),
     },
     {
@@ -679,9 +679,9 @@ const L8 = lesson(
         { id: 'llm', x: 120, y: 400, label: 'ctx.llm', sublabel: 'stream()', tone: 'blue', icon: 'brain' },
         { id: 'tools', x: 700, y: 400, label: 'ctx.tools', sublabel: 'execute()', tone: 'orange', icon: 'wrench' },
       ], [
-        { from: 'inbox', to: 'loop', dashed: true },
-        { from: 'int', to: 'loop', dashed: true },
-        { from: 'par', to: 'loop', dotted: true },
+        { from: 'inbox', to: 'loop', dashed: true, packetCount: 1, packetLabel: '新消息' },
+        { from: 'int', to: 'loop', dashed: true, packetCount: 1, packetLabel: '中断' },
+        { from: 'par', to: 'loop', dotted: true, packetCount: 1, packetLabel: 'toolCalls' },
         { from: 'loop', to: 'llm', packetCount: 1, packetLabel: 'stream' },
         { from: 'loop', to: 'tools', packetCount: 1, packetLabel: 'execute' },
       ]),
@@ -727,7 +727,7 @@ const L8 = lesson(
         { id: 'tools', x: 120, y: 380, label: 'tools', sublabel: 'execute()', tone: 'orange', size: 'sm', icon: 'wrench' },
         { id: 'sess', x: 700, y: 380, label: 'sessions', sublabel: 'append()', tone: 'green', size: 'sm', icon: 'database' },
       ], [
-        { from: 'loop', to: 'agents', label: 'setFactory' },
+        { from: 'loop', to: 'agents', label: 'setFactory', packetCount: 1, packetLabel: 'setFactory' },
         { from: 'loop', to: 'llm', packetCount: 2, packetLabel: 'stream' },
         { from: 'loop', to: 'tools', packetCount: 1, packetLabel: 'execute' },
         { from: 'loop', to: 'sess', packetCount: 1, packetLabel: 'append' },
@@ -797,9 +797,9 @@ const L9 = lesson(
         { id: 'exe', x: 720, y: 180, label: 'tools/execute', sublabel: '执行工具', tone: 'blue' },
         { id: 'def', x: 420, y: 400, label: '默认实现 allow', sublabel: '无人监听时直接放行', tone: 'green' },
       ], [
-        { from: 'guard', to: 'pre', label: '监听' },
-        { from: 'pre', to: 'exe', label: 'next() 放行' },
-        { from: 'pre', to: 'def', label: '无监听时', dashed: true },
+        { from: 'guard', to: 'pre', label: '监听', packetCount: 1, packetLabel: '监听' },
+        { from: 'pre', to: 'exe', label: 'next() 放行', packetCount: 1, packetLabel: 'exec' },
+        { from: 'pre', to: 'def', label: '无监听时', dashed: true, packetCount: 1, packetLabel: 'allow' },
       ]),
     },
     {
@@ -852,8 +852,8 @@ const L9 = lesson(
         { id: 'throw', x: 620, y: 200, label: '抛错', sublabel: 'Fiber → FAILED · 链以为出故障', tone: 'rose', dimmed: true },
         { id: 'model', x: 370, y: 60, label: '模型', sublabel: '看到拒绝，换个方式继续', tone: 'violet', size: 'sm' },
       ], [
-        { from: 'model', to: 'deny', label: '正确：继续任务' },
-        { from: 'model', to: 'throw', label: '错误：任务中断', dashed: true },
+        { from: 'model', to: 'deny', label: '正确：继续任务', packetCount: 1, packetLabel: '拒绝结果' },
+        { from: 'model', to: 'throw', label: '错误：任务中断', dashed: true, packetCount: 1, packetLabel: 'Error' },
       ]),
     },
     {
@@ -871,9 +871,9 @@ const L9 = lesson(
         { id: 'post', x: 700, y: 180, label: 'post-execute', sublabel: '超时 · 结果呈现', tone: 'green' },
         { id: 'core', x: 180, y: 400, label: '核心流程只有一份', sublabel: '能力以插件形式挂在关口上', tone: 'dark', size: 'platform' },
       ], [
-        { from: 'pre', to: 'core' },
-        { from: 'exe', to: 'core' },
-        { from: 'post', to: 'core' },
+        { from: 'pre', to: 'core', packetCount: 1 },
+        { from: 'exe', to: 'core', packetCount: 1 },
+        { from: 'post', to: 'core', packetCount: 1 },
       ]),
     },
     {
@@ -936,8 +936,8 @@ const L10 = lesson(
         { id: 'local', x: 120, y: 320, label: '本地执行器', sublabel: '本机权限 · 开发调试', tone: 'blue' },
         { id: 'e2b', x: 620, y: 320, label: 'E2B 沙箱', sublabel: '隔离环境 · 默认推荐', tone: 'green' },
       ], [
-        { from: 'tool', to: 'local', label: '部署选本地' },
-        { from: 'tool', to: 'e2b', label: '部署选沙箱', status: 'active' },
+        { from: 'tool', to: 'local', label: '部署选本地', packetCount: 1, packetLabel: '命令' },
+        { from: 'tool', to: 'e2b', label: '部署选沙箱', status: 'active', packetCount: 2, packetLabel: '命令' },
       ]),
     },
     {
@@ -997,9 +997,9 @@ const L10 = lesson(
         { id: 'post', x: 700, y: 200, label: 'post-execute', sublabel: '超时 · 结果', tone: 'green' },
         { id: 'tool', x: 370, y: 60, label: '工具本体', sublabel: '只负责「做什么」', tone: 'violet', size: 'sm' },
       ], [
-        { from: 'tool', to: 'exe', label: '交给管线' },
-        { from: 'pre', to: 'exe' },
-        { from: 'exe', to: 'post' },
+        { from: 'tool', to: 'exe', label: '交给管线', packetCount: 1, packetLabel: 'exec' },
+        { from: 'pre', to: 'exe', packetCount: 1, packetLabel: 'exec' },
+        { from: 'exe', to: 'post', packetCount: 1, packetLabel: '结果' },
       ]),
     },
     {
@@ -1045,10 +1045,10 @@ const L10 = lesson(
         { id: 'local', x: 600, y: 320, label: '本地执行器', sublabel: '本机执行', tone: 'blue', size: 'sm' },
         { id: 'fc', x: 800, y: 320, label: 'fail-closed', sublabel: '未知即拒绝', tone: 'rose', size: 'sm' },
       ], [
-        { from: 'tool', to: 'pre' },
-        { from: 'pre', to: 'e2b', label: '放行' },
-        { from: 'pre', to: 'local', dashed: true },
-        { from: 'e2b', to: 'fc', dashed: true, label: '未知时' },
+        { from: 'tool', to: 'pre', packetCount: 1, packetLabel: 'exec' },
+        { from: 'pre', to: 'e2b', label: '放行', packetCount: 1, packetLabel: 'exec' },
+        { from: 'pre', to: 'local', dashed: true, packetCount: 1, packetLabel: 'exec' },
+        { from: 'e2b', to: 'fc', dashed: true, label: '未知时', packetCount: 1, packetLabel: '拒绝' },
       ]),
     },
   ]),

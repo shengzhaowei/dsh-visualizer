@@ -41,6 +41,16 @@
   font-size: 14px;
   font-family: var(--font-mono);
 }
+.brand-mark-img {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border: 1.5px solid var(--edge);
+  border-radius: 10px;
+  box-shadow: var(--pop-shadow-sm);
+  object-fit: cover;
+  background: #0b4d8f;
+}
 .brand-title {
   font-weight: 800;
   font-size: 15px;

@@ -8,6 +8,15 @@ function textWidth(text: string, fontSize: number): number {
   return w;
 }
 
+/** 是否减弱动效：减弱时不渲染流动的数据包。 */
+function prefersReducedMotion(): boolean {
+  try {
+    return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return false;
+  }
+}
+
 export function treeNodeSize(n: TreeNode): { w: number; h: number } {
   const hasParent = Boolean(n.parentId);
   const w = Math.max(150, textWidth(n.label, 13) + 66, n.sublabel ? textWidth(n.sublabel, 10.5) + 66 : 0);
@@ -39,6 +48,7 @@ export function treeSceneBBox(scene: TreeScene): { x: number; y: number; w: numb
 /** Tree diagram: nodes positioned by lesson data, edges drawn parent → child. */
 export function TreeSvg({ scene }: { scene: TreeScene }) {
   const byId = new Map(scene.nodes.map((n) => [n.id, n]));
+  const reducedMotion = prefersReducedMotion();
   return (
     <svg viewBox="0 0 1000 560" className="stage-svg" role="img" aria-label={scene.title ?? '树形图'}>
       <defs>
@@ -57,16 +67,28 @@ export function TreeSvg({ scene }: { scene: TreeScene }) {
         const my = (y1 + y2) / 2;
         const labelW = e.label ? textWidth(e.label, 11) + 16 : 0;
         const lx = (x1 + x2) / 2 + 8;
+        const d = `M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`;
         return (
           <g key={`${e.from}-${e.to}`} className="stage-edge-enter" style={{ animationDelay: `${i * 50}ms` }}>
             <path
-              d={`M ${x1} ${y1} C ${x1} ${my}, ${x2} ${my}, ${x2} ${y2}`}
+              d={d}
               fill="none"
               stroke={e.animated ? 'var(--rust)' : 'var(--muted)'}
               strokeWidth={e.animated ? 2.2 : 1.5}
               strokeDasharray={e.animated ? '7 4' : undefined}
               markerEnd="url(#tree-arrow)"
             />
+            {/* animated 边：一个 subtle 的流动小圆点，常驻流动 */}
+            {e.animated && !reducedMotion && (
+              <g className="stage-packet-enter">
+                <circle r={6} fill="var(--rust)" fillOpacity={0.2}>
+                  <animateMotion dur="2.6s" repeatCount="indefinite" rotate="auto" path={d} />
+                </circle>
+                <circle r={3} fill="var(--rust)" stroke="var(--sheet)" strokeWidth={1}>
+                  <animateMotion dur="2.6s" repeatCount="indefinite" rotate="auto" path={d} />
+                </circle>
+              </g>
+            )}
             {e.label && (
               <g>
                 <rect x={lx - labelW / 2} y={my - 18} width={labelW} height={18} rx={9} fill="var(--sheet)" stroke="var(--line-strong)" strokeWidth={1} />

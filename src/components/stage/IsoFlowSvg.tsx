@@ -96,7 +96,32 @@ function wrapLabel(label: string, fontSize: number, maxWidth: number): string[] 
   return [l1, l2];
 }
 
-/** 场景包围盒（节点 + 分组框 + 标注），供 fit-to-view 使用。 */
+/** 二次贝塞尔曲线长度（采样估算），供数据包时长按边长计算。 */
+function quadLength(x1: number, y1: number, cx: number, cy: number, x2: number, y2: number): number {
+  let len = 0;
+  let px = x1;
+  let py = y1;
+  const N = 24;
+  for (let i = 1; i <= N; i++) {
+    const t = i / N;
+    const mt = 1 - t;
+    const x = mt * mt * x1 + 2 * mt * t * cx + t * t * x2;
+    const y = mt * mt * y1 + 2 * mt * t * cy + t * t * y2;
+    len += Math.hypot(x - px, y - py);
+    px = x;
+    py = y;
+  }
+  return len;
+}
+
+/** 是否减弱动效：减弱时不渲染流动的数据包。 */
+export function prefersReducedMotion(): boolean {
+  try {
+    return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return false;
+  }
+}
 export function isoSceneBBox(scene: IsoFlowScene): { x: number; y: number; w: number; h: number } {
   let minX = Infinity;
   let minY = Infinity;
@@ -118,9 +143,11 @@ export function isoSceneBBox(scene: IsoFlowScene): { x: number; y: number; w: nu
   return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
 }
 
-/** 2.5D isometric-style plugin / layer diagram in a 0..1000 x 0..560 space. */
-export function IsoFlowSvg({ scene, active }: { scene: IsoFlowScene; active: boolean }) {
+/** 2.5D isometric-style plugin / layer diagram in a 0..1000 x 0..560 space.
+ *  数据包常驻流动：从页面打开就沿边流动，不依赖播放按钮；播放只控制步骤自动翻页。 */
+export function IsoFlowSvg({ scene }: { scene: IsoFlowScene }) {
   const byId = new Map(scene.nodes.map((n) => [n.id, n]));
+  const reducedMotion = prefersReducedMotion();
   return (
     <svg viewBox="0 0 1000 560" className="stage-svg" role="img" aria-label={scene.title ?? '架构图'}>
       <defs>
@@ -178,7 +205,16 @@ export function IsoFlowSvg({ scene, active }: { scene: IsoFlowScene; active: boo
           : kind === 'dotted' ? 'iso-arrow-green'
           : 'iso-arrow';
         const packetCount = e.packetCount ?? 0;
-        const dur = 6 / (e.packetSpeed ?? 1);
+        // 时长按边长算：边长 / (115 × 速度)，夹在 1.15–5.5 秒之间
+        const edgeLen = quadLength(x1, y1, mx, my, x2, y2);
+        const dur = Math.max(1.15, Math.min(5.5, edgeLen / (115 * Math.max(0.3, e.packetSpeed ?? 1))));
+        // 数据包颜色跟边状态走：error 红、active 绿、虚线橙、点线绿、默认锈色
+        const packetColor =
+          isError ? 'var(--rose-stroke)'
+          : isActive ? 'var(--green-stroke)'
+          : kind === 'dashed' ? 'var(--orange-stroke)'
+          : kind === 'dotted' ? 'var(--green-stroke)'
+          : 'var(--rust)';
         const labelW = e.label ? textWidth(e.label, 11.5) + 18 : 0;
         return (
           <g key={`${e.from}-${e.to}`} opacity={dimmed ? 0.78 : 1} className="stage-edge-dim">
@@ -191,6 +227,7 @@ export function IsoFlowSvg({ scene, active }: { scene: IsoFlowScene; active: boo
                 strokeDasharray={kind === 'dashed' ? '6 5' : kind === 'dotted' ? '1.5 5' : undefined}
                 strokeLinecap={kind === 'dotted' ? 'round' : undefined}
                 markerEnd={`url(#${marker})`}
+                className={kind === 'dashed' && isActive ? 'stage-dash-flow' : undefined}
               />
               {e.label && (
                 <g>
@@ -208,22 +245,33 @@ export function IsoFlowSvg({ scene, active }: { scene: IsoFlowScene; active: boo
                   </text>
                 </g>
               )}
-              {active && packetCount > 0 &&
+              {/* 数据包常驻流动：不依赖播放按钮；减弱动效时不渲染 */}
+              {!reducedMotion && packetCount > 0 &&
                 Array.from({ length: packetCount }, (_, pi) => {
-                  const label = e.packetLabel;
-                  const pw = label ? label.length * 7 + 18 : 12;
+                  // 同一条边有多个包时，只在第一个包上显示文字药丸，其余为无字小圆点
+                  const label = pi === 0 ? e.packetLabel : undefined;
+                  const pw = label ? textWidth(label, 10.5) + 18 : 12;
+                  const durStr = `${dur.toFixed(2)}s`;
+                  const begin = `${(-(pi * dur) / packetCount).toFixed(2)}s`;
                   return (
-                    <g key={`pkt-${pi}`} className="stage-packet">
-                      <animateMotion dur={`${dur}s`} begin={`${-(pi * dur) / packetCount}s`} repeatCount="indefinite" path={d} />
+                    <g key={`pkt-${pi}`} className="stage-packet-enter">
                       {label ? (
-                        <>
-                          <rect x={-pw / 2} y={-9} width={pw} height={18} rx={9} fill="var(--sheet)" stroke={stroke} strokeWidth={1.4} />
+                        <g>
+                          <animateMotion dur={durStr} begin={begin} repeatCount="indefinite" rotate="auto" path={d} />
+                          <rect x={-pw / 2} y={-9} width={pw} height={18} rx={9} fill="var(--sheet)" stroke={packetColor} strokeWidth={1.4} />
                           <text y={3.5} textAnchor="middle" fontSize="10.5" fontWeight="700" fill="var(--ink)" fontFamily="var(--font-mono)">
                             {label}
                           </text>
-                        </>
+                        </g>
                       ) : (
-                        <circle r={5} fill="var(--rust)" stroke="var(--sheet)" strokeWidth={1.4} />
+                        <g>
+                          <circle r={7} fill={packetColor} fillOpacity={0.24}>
+                            <animateMotion dur={durStr} begin={begin} repeatCount="indefinite" rotate="auto" path={d} />
+                          </circle>
+                          <circle r={3.5} fill={packetColor} stroke="var(--sheet)" strokeWidth={1.1}>
+                            <animateMotion dur={durStr} begin={begin} repeatCount="indefinite" rotate="auto" path={d} />
+                          </circle>
+                        </g>
                       )}
                     </g>
                   );

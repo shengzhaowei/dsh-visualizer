@@ -124,7 +124,7 @@ export function StagePanel({ lesson, step, stepIndex, totalSteps, chapterColor, 
               <RotateCcw size={14} />
               <span className="kbd">R</span>
             </button>
-            <button type="button" className="stage-ctrl-btn" onClick={onTogglePlay} aria-label={isPlaying ? '暂停自动播放' : '开始自动播放'} title={isPlaying ? '暂停（空格）' : '播放（空格）'}>
+            <button type="button" className="stage-ctrl-btn" onClick={onTogglePlay} aria-label={isPlaying ? '暂停自动翻步' : '开始自动翻步'} title={isPlaying ? '暂停自动翻步（空格）' : '自动翻步（空格）'}>
               {isPlaying ? <Pause size={14} /> : <Play size={14} />}
               <span className="kbd">Space</span>
             </button>
@@ -174,7 +174,7 @@ export function StagePanel({ lesson, step, stepIndex, totalSteps, chapterColor, 
             <span>{step.scene.title ?? step.title}</span>
             <span>{SCENE_KIND_LABEL[step.scene.kind] ?? ''}</span>
           </div>
-          <StageCanvas scene={step.scene} isPlaying={isPlaying} view={view} onViewChange={setView} onResetView={resetView} />
+          <StageCanvas scene={step.scene} view={view} onViewChange={setView} onResetView={resetView} />
           <div className="stage-legend-row">
             <div className="stage-legend" aria-label="图例">
               {legend.map((item) => (

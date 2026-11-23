@@ -39,11 +39,11 @@ export interface IsoEdge {
   /** 绿点线边 */
   dotted?: boolean;
   status?: 'normal' | 'active' | 'error' | 'dimmed';
-  /** 沿边流动的小药丸数量（默认 1） */
+  /** 沿边流动的数据包数量（常驻流动，默认 1；dimmed 的边为 0） */
   packetCount?: number;
-  /** 药丸流速倍率（默认 1） */
+  /** 数据包流速倍率（默认 1） */
   packetSpeed?: number;
-  /** 药丸上的文字 */
+  /** 数据包上的文字：只在第一个包上显示为文字药丸，其余为无字小圆点 */
   packetLabel?: string;
 }
 
