@@ -1,0 +1,301 @@
+/* DSH Visualizer — app shell layout: topbar + 3-column workbench. */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--paper);
+}
+
+.topbar {
+  height: var(--topbar-h);
+  flex: 0 0 var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-bottom: 1.5px solid var(--edge);
+  background: var(--paper-2);
+  z-index: 30;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  min-width: 0;
+}
+.brand-mark {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-sm);
+  background: var(--green);
+  box-shadow: var(--pop-shadow-sm);
+  font-weight: 700;
+  font-size: 13px;
+}
+.brand-title {
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.brand-sub {
+  font-size: 10.5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  .brand-sub { display: none; }
+}
+
+.topbar-modes {
+  display: flex;
+  gap: 6px;
+  margin-left: 8px;
+}
+.topbar-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 11px;
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-pill);
+  background: var(--sheet);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--pop-shadow-sm);
+  white-space: nowrap;
+}
+.topbar-pill--active {
+  background: var(--ink);
+  color: var(--paper);
+}
+.topbar-spacer { flex: 1; }
+.topbar-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-sm);
+  background: var(--sheet);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: var(--pop-shadow-sm);
+}
+.topbar-icon-btn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+}
+.topbar-links {
+  display: flex;
+  gap: 6px;
+}
+@media (max-width: 900px) {
+  .topbar-links { display: none; }
+}
+
+.topbar-menu-btn {
+  display: none;
+}
+@media (max-width: 1080px) {
+  .topbar-menu-btn {
+    display: inline-flex;
+  }
+}
+
+.workspace-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr) var(--inspector-w);
+}
+.workspace-grid--sidebar-collapsed {
+  grid-template-columns: 52px minmax(0, 1fr) var(--inspector-w);
+}
+
+.sidebar {
+  border-right: 1.5px solid var(--edge);
+  background: var(--paper-2);
+  overflow-y: auto;
+  padding: 12px 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sidebar--collapsed {
+  padding: 12px 6px;
+  align-items: center;
+}
+.sidebar-progress {
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-md);
+  background: var(--sheet);
+  padding: 10px;
+  margin-bottom: 10px;
+  box-shadow: var(--pop-shadow-sm);
+}
+.sidebar-progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.sidebar-progress-bar {
+  height: 8px;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  background: var(--paper);
+  overflow: hidden;
+}
+.sidebar-progress-fill {
+  height: 100%;
+  background: var(--green-3);
+  transition: width 0.3s var(--ease-snappy);
+}
+.sidebar-chapter {
+  margin-top: 8px;
+}
+.sidebar-chapter-head {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.sidebar-chapter-num {
+  font-size: 10px;
+  color: var(--muted);
+}
+.sidebar-lesson {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 7px 8px;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.sidebar-lesson:hover { background: var(--hover-bg); }
+.sidebar-lesson--active {
+  background: var(--sheet);
+  border-color: var(--edge);
+  box-shadow: var(--pop-shadow-sm);
+}
+.sidebar-lesson-check {
+  flex: 0 0 16px;
+  margin-top: 1px;
+  color: var(--green-stroke);
+}
+.sidebar-lesson-meta {
+  display: block;
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 14px;
+}
+.sidebar-reset {
+  width: 100%;
+  height: 28px;
+  font-size: 11.5px;
+}
+
+.stage-slot {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--stage-bg);
+  background-image: radial-gradient(var(--grid-dot) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.empty-curriculum {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+.empty-curriculum-card {
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-lg);
+  background: var(--sheet);
+  box-shadow: var(--pop-shadow-lg);
+  padding: 24px;
+  max-width: 520px;
+}
+
+.mobile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-bg);
+  z-index: 60;
+  display: flex;
+}
+.mobile-drawer {
+  width: min(340px, 88vw);
+  height: 100%;
+  background: var(--paper-2);
+  border-right: 1.5px solid var(--edge);
+  display: flex;
+  flex-direction: column;
+}
+.mobile-drawer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1.5px solid var(--edge);
+}
+.mobile-drawer-content {
+  flex: 1;
+  overflow-y: auto;
+}
+.mobile-drawer-links {
+  padding: 12px 14px;
+  border-top: 1.5px solid var(--edge);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cheatsheet-scroll-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+@media (max-width: 1080px) {
+  .workspace-grid,
+  .workspace-grid--sidebar-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    overflow-y: auto;
+  }
+  .sidebar { display: none; }
+  .stage-slot { min-height: 560px; }
+  .app-shell { height: auto; min-height: 100vh; }
+}

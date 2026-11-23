@@ -1,0 +1,137 @@
+/* Stage panel: header, SVG canvas, step rail, transport controls. */
+
+.stage-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px 12px;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.stage-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.stage-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.stage-title {
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 2px 0 0;
+}
+.stage-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.stage-head-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.stage-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-pill);
+  background: var(--sheet);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.stage-canvas-wrap {
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-lg);
+  background: var(--sheet);
+  box-shadow: var(--pop-shadow-lg);
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+.stage-canvas-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.stage-canvas-title span:last-child {
+  color: var(--muted);
+  font-weight: 500;
+}
+.stage-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.stage-rail {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.stage-rail-btn {
+  flex: 1 1 0;
+  min-width: 86px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 7px 9px;
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-sm);
+  background: var(--sheet);
+  cursor: pointer;
+  text-align: left;
+  box-shadow: var(--pop-shadow-sm);
+}
+.stage-rail-btn--active {
+  background: var(--green);
+}
+.stage-rail-num {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.stage-rail-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.stage-transport {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.stage-transport .tactile-btn {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+.stage-progress-text {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.stage-hint {
+  font-size: 11px;
+  color: var(--muted);
+}
