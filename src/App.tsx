@@ -8,6 +8,7 @@ import { SearchModal } from './components/SearchModal';
 import { Sidebar } from './components/Sidebar';
 import { StagePanel } from './components/StagePanel';
 import { TopBar } from './components/TopBar';
+import { WelcomeOverlay } from './components/WelcomeOverlay';
 
 type AppMode = 'learn' | 'cheatsheet';
 type Theme = 'light' | 'dark';
@@ -20,6 +21,7 @@ interface RouteState {
 
 const STORAGE_THEME_KEY = 'dsh-visualizer-theme';
 const STORAGE_PROGRESS_KEY = 'dsh-visualizer-completed';
+const STORAGE_GUIDE_KEY = 'dsh-visualizer-welcomed';
 
 function getInitialTheme(): Theme {
   try {
@@ -82,6 +84,18 @@ export function App() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(() => {
+    try { return localStorage.getItem(STORAGE_GUIDE_KEY) !== '1'; } catch { return true; }
+  });
+
+  const markGuideSeen = useCallback(() => {
+    try { localStorage.setItem(STORAGE_GUIDE_KEY, '1'); } catch { /* ignore */ }
+  }, []);
+
+  const handleDismissGuide = useCallback(() => {
+    markGuideSeen();
+    setGuideOpen(false);
+  }, [markGuideSeen]);
 
   const navigate = useCallback((next: RouteState) => {
     setRoute(next);
@@ -189,6 +203,12 @@ export function App() {
     if (first) handleSelectLesson(first.slug, 1);
   }, [handleSelectLesson]);
 
+  const handleStartGuide = useCallback(() => {
+    markGuideSeen();
+    setGuideOpen(false);
+    handleGoHome();
+  }, [markGuideSeen, handleGoHome]);
+
   const handleContinue = useCallback(() => {
     const next = ALL_LESSONS.find((l) => !completedLessons.has(l.slug)) ?? ALL_LESSONS[0];
     if (next) handleSelectLesson(next.slug, 1);
@@ -237,6 +257,7 @@ export function App() {
         onToggleTheme={handleToggleTheme}
         onOpenMobileDrawer={() => setMobileDrawerOpen(true)}
         onGoHome={handleGoHome}
+        onShowGuide={() => setGuideOpen(true)}
       />
 
       {route.mode === 'cheatsheet' ? (
@@ -313,7 +334,7 @@ export function App() {
         <div className="mobile-drawer-backdrop" role="dialog" aria-modal="true" aria-label="课程目录抽屉" onClick={(e) => { if (e.target === e.currentTarget) setMobileDrawerOpen(false); }}>
           <div className="mobile-drawer">
             <div className="mobile-drawer-top">
-              <span className="brand-title">DSH Agent Loop</span>
+              <span className="brand-title">图解 DSH 源码</span>
               <button type="button" className="tactile-btn" style={{ width: 30, height: 30, padding: 0 }} onClick={() => setMobileDrawerOpen(false)} aria-label="关闭目录">
                 <X size={15} />
               </button>
@@ -329,16 +350,15 @@ export function App() {
               />
             </div>
             <div className="mobile-drawer-links">
-              <a className="topbar-pill" href="https://github.com/deepseek-ai/deepseek-harness" target="_blank" rel="noopener noreferrer">
-                <Code2 size={13} /> DSH 源码 <ExternalLink size={11} />
-              </a>
-              <a className="topbar-pill" href="https://namiai.tech/dsh/" target="_blank" rel="noopener noreferrer">
-                namiai.tech/dsh
+              <a className="topbar-pill" href="https://github.com/shengzhaowei/dsh-visualizer" target="_blank" rel="noopener noreferrer">
+                <Code2 size={13} /> 本站源码 <ExternalLink size={11} />
               </a>
             </div>
           </div>
         </div>
       )}
+
+      <WelcomeOverlay isOpen={guideOpen} onStart={handleStartGuide} onDismiss={handleDismissGuide} />
 
       <SearchModal
         isOpen={searchOpen}
