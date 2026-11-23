@@ -58,29 +58,42 @@
   font-size: 11px;
 }
 
-/* 本步关键指标（切步时数值闪烁一次） */
+/* 本步关键指标：4 张等宽卡，标签在上、值在下；值禁止词中断裂 */
 .stage-kpi-strip {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
-  flex-wrap: wrap;
 }
 .stage-kpi {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 6px;
-  padding: 4px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px 10px;
   border: 1px solid var(--line-strong);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-md);
   background: var(--sheet);
-  font-size: 11.5px;
+  box-shadow: var(--pop-shadow-sm);
 }
 .stage-kpi-label {
   color: var(--muted);
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 10.5px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .stage-kpi-value {
   font-family: var(--font-mono);
-  font-weight: 700;
+  font-weight: 800;
+  font-size: clamp(12px, 1.05vw, 16px);
+  line-height: 1.35;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 @keyframes kpiFlash {
   0% { background: var(--green); border-radius: 4px; }
@@ -115,12 +128,15 @@
   font-weight: 500;
 }
 
-/* 右上工具条：重放 / 播放 / 缩放 */
+/* 画布工具条：舞台上方独立行，永不遮挡图 */
+.stage-toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 .stage-toolbar {
-  position: absolute;
-  top: 46px;
-  right: 10px;
-  z-index: 5;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -129,6 +145,10 @@
   border-radius: var(--radius-pill);
   background: var(--sheet);
   box-shadow: var(--pop-shadow-sm);
+}
+.stage-toolbar-hint {
+  font-size: 11px;
+  color: var(--muted);
 }
 .stage-toolbar-sep {
   width: 1px;
@@ -140,8 +160,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
+  gap: 4px;
+  width: auto;
+  min-width: 28px;
   height: 28px;
+  padding: 0 6px;
   border: none;
   border-radius: var(--radius-pill);
   background: transparent;
@@ -152,8 +175,13 @@
 .stage-ctrl-btn:hover {
   background: var(--hover-bg);
 }
+.stage-ctrl-btn .kbd {
+  min-width: 16px;
+  height: 15px;
+  font-size: 9px;
+  padding: 0 3px;
+}
 .stage-ctrl-zoom {
-  width: auto;
   min-width: 44px;
   padding: 0 6px;
   font-family: var(--font-mono);
@@ -187,106 +215,13 @@
   pointer-events: none;
 }
 .stage-zoom-layer {
-  width: 100%;
+  width: 1000px;
   will-change: transform;
 }
 .stage-svg {
   display: block;
   width: 100%;
   height: auto;
-}
-
-/* 树图 + 终端面板并排 */
-.stage-tree-wrap {
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-}
-.stage-tree-wrap .stage-svg {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.stage-terminal {
-  flex: 0 0 330px;
-  margin: 12px 12px 12px 0;
-  border: 1.5px solid #46413b;
-  border-radius: var(--radius-md);
-  background: #221f1b;
-  color: #e8e0d2;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-.stage-terminal-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-bottom: 1px solid #3a352e;
-  background: #2a261f;
-}
-.stage-terminal-dots {
-  display: inline-flex;
-  gap: 5px;
-}
-.stage-terminal-dots i {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  display: block;
-}
-.stage-terminal-dots i:nth-child(1) { background: #ff5f57; }
-.stage-terminal-dots i:nth-child(2) { background: #febc2e; }
-.stage-terminal-dots i:nth-child(3) { background: #28c840; }
-.stage-terminal-title {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  color: #e8e0d2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.stage-terminal-badge {
-  margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #d8cfc0;
-  border: 1px solid #6f6961;
-  border-radius: var(--radius-xs);
-  padding: 1px 5px;
-  white-space: nowrap;
-}
-.stage-terminal-body {
-  padding: 8px 0;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  line-height: 1.75;
-  overflow-x: auto;
-}
-.stage-terminal-line {
-  display: flex;
-  gap: 10px;
-  padding: 0 12px;
-  white-space: pre;
-}
-.stage-terminal-line--highlight {
-  background: rgba(127, 194, 120, 0.14);
-  box-shadow: inset 2px 0 0 #7fc278;
-}
-.stage-terminal-line--muted .stage-terminal-text {
-  color: #8a8074;
-}
-.stage-terminal-ln {
-  flex: 0 0 auto;
-  color: #8a8074;
-  user-select: none;
-}
-.stage-terminal-text {
-  color: #e8e0d2;
-  word-break: break-all;
 }
 
 /* 图例行 + 蓝图印章 */
@@ -418,14 +353,23 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  gap: 2px;
+  width: auto;
+  min-width: 24px;
   height: 24px;
+  padding: 0 4px;
   border: 1.5px solid var(--edge);
   border-radius: var(--radius-pill);
   background: var(--sheet);
   color: var(--ink);
   cursor: pointer;
   box-shadow: var(--pop-shadow-sm);
+}
+.timeline-nudge-btn .kbd {
+  min-width: 14px;
+  height: 14px;
+  font-size: 9px;
+  padding: 0 2px;
 }
 .timeline-nudge-btn:hover:not(:disabled) {
   background: var(--paper-2);
@@ -510,6 +454,12 @@
   color: var(--ink);
   box-shadow: var(--pop-shadow-sm);
   transform: translateY(-1px) scale(1.05);
+  animation: timelinePop 0.3s var(--ease-snappy) both;
+}
+@keyframes timelinePop {
+  0% { transform: translateY(-1px) scale(0.85); }
+  60% { transform: translateY(-1px) scale(1.14); }
+  100% { transform: translateY(-1px) scale(1.05); }
 }
 .timeline-label {
   font-size: 10.5px;
@@ -522,17 +472,8 @@
   text-overflow: ellipsis;
   padding: 0 1px;
 }
-.timeline-label--sub {
-  font-size: 9.5px;
-  font-weight: 500;
-}
 .timeline-node--done .timeline-label { color: var(--ink-2); }
 .timeline-node--active .timeline-label { color: var(--ink); font-weight: 800; }
-
-.stage-hint {
-  font-size: 11px;
-  color: var(--muted);
-}
 
 /* SVG 入场动画 */
 @keyframes stageFadeUp {
@@ -546,6 +487,18 @@
 @keyframes stagePulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.25; }
+}
+/* 幽灵节点透明度平滑过渡（与入场动画分层，避免动画覆盖透明度） */
+.stage-node-dim,
+.stage-edge-dim {
+  transition: opacity 0.35s ease;
+}
+@keyframes nodeGlow {
+  0%, 100% { opacity: 0.18; }
+  50% { opacity: 0.5; }
+}
+.stage-node-glow {
+  animation: nodeGlow 1.8s ease-in-out infinite;
 }
 .stage-node-enter {
   animation: stageFadeUp 0.45s var(--ease-snappy) both;
@@ -571,15 +524,111 @@
   filter: saturate(1.18);
 }
 
-@media (max-width: 900px) {
-  .stage-tree-wrap {
-    flex-direction: column;
-  }
-  .stage-terminal {
-    flex: 1 1 auto;
-    margin: 0 12px 12px;
-  }
-  .timeline-label--sub {
-    display: none;
-  }
+/* RECAP 步骤：本课总览（替代稀疏场景图） */
+.stage-recap-overview {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 2px;
 }
+.stage-recap-card {
+  width: min(680px, 100%);
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-lg);
+  background: var(--sheet);
+  box-shadow: var(--pop-shadow-lg);
+  padding: 20px 22px;
+  animation: stageFadeUp 0.45s var(--ease-snappy) both;
+}
+.stage-recap-eyebrow {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue-stroke);
+}
+.stage-recap-title {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 4px 0 2px;
+}
+.stage-recap-sub {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.stage-recap-steps {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stage-recap-steps li {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.stage-recap-step--current {
+  border-color: var(--green-stroke);
+  background: var(--green);
+}
+.stage-recap-num {
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  background: var(--sheet);
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(4px);
+}
+.stage-recap-step--current .stage-recap-num {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+.stage-recap-label {
+  font-weight: 800;
+  white-space: nowrap;
+}
+.stage-recap-step-title {
+  color: var(--muted);
+  font-weight: 500;
+}
+.stage-recap-keys {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line-strong);
+}
+.stage-recap-keys-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+}
+.stage-recap-key {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line-strong);
+  background: var(--paper);
+}
+

@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BookOpen, FileText, ListChecks, Search, SearchX, X } from 'lucide-react';
+import { ArrowRight, BookOpen, FileText, ListChecks, Search, SearchX, X } from 'lucide-react';
 import type { Lesson } from '../types/lesson';
+
+const SUGGESTIONS = ['Cordis', 'waterfall', 'agentLoop', 'sessions.jsonl', '审批', '沙箱'];
 
 export interface SearchTarget {
   mode: 'learn' | 'cheatsheet';
@@ -65,7 +67,10 @@ export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: Search
         })),
       ]),
     ];
-    if (!q) return all.slice(0, 12);
+    if (!q) {
+      // 默认列出速查表 + 全部 14 课（不含步骤，避免列表过长）。
+      return all.filter((h) => h.group !== '步骤');
+    }
     return all.filter((h) => `${h.title} ${h.meta}`.toLowerCase().includes(q)).slice(0, 20);
   }, [query, lessons]);
 
@@ -86,13 +91,17 @@ export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: Search
   return (
     <div className="search-backdrop" role="dialog" aria-modal="true" aria-label="搜索" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="search-modal">
+        <div className="search-head">
+          <span className="search-head-title">搜索课程与概念</span>
+          <span className="search-head-sub">SEARCH</span>
+        </div>
         <div className="search-input-row">
           <Search size={16} />
           <input
             ref={inputRef}
             className="search-input"
             value={query}
-            placeholder="搜索课程、步骤、速查表…"
+            placeholder="搜索课程、概念或命令… 例如：waterfall、agentLoop、sessions.jsonl"
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'ArrowDown') { e.preventDefault(); setSelected((s) => Math.min(hits.length - 1, s + 1)); }
@@ -110,7 +119,14 @@ export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: Search
             <div className="search-empty">
               <SearchX size={22} />
               <div className="search-empty-title">没有找到「{query}」相关的内容</div>
-              <div className="search-empty-sub">换个关键词试试，比如：Cordis、瀑布、会话、审批</div>
+              <div className="search-empty-sub">换个关键词试试：</div>
+              <div className="search-suggestions">
+                {SUGGESTIONS.map((s) => (
+                  <button key={s} type="button" className="search-suggestion mono" onClick={() => setQuery(s)}>
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
           ) : (
             groups.map((group) => {
@@ -134,8 +150,11 @@ export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: Search
                         onMouseEnter={() => setSelected(i)}
                         onClick={() => choose(hit)}
                       >
-                        <span className="search-result-title">{hit.title}</span>
-                        <span className="search-result-meta">{hit.meta}</span>
+                        <span className="search-result-main">
+                          <span className="search-result-title">{hit.title}</span>
+                          <span className="search-result-meta">{hit.meta}</span>
+                        </span>
+                        <ArrowRight size={14} className="search-result-arrow" />
                       </button>
                     );
                   })}

@@ -1,4 +1,4 @@
-import type { TreeScene } from '../../types/lesson';
+import type { TreeNode, TreeScene } from '../../types/lesson';
 import { KIND_FILL, KIND_LABEL, KIND_STROKE, TONE_STROKE } from './tones';
 
 /** 按字符宽度估算文本像素宽：全角字符按字号计，半角按约 0.55 字号计。 */
@@ -6,6 +6,34 @@ function textWidth(text: string, fontSize: number): number {
   let w = 0;
   for (const ch of text) w += ch.charCodeAt(0) > 255 ? fontSize : fontSize * 0.55;
   return w;
+}
+
+export function treeNodeSize(n: TreeNode): { w: number; h: number } {
+  const hasParent = Boolean(n.parentId);
+  const w = Math.max(150, textWidth(n.label, 13) + 66, n.sublabel ? textWidth(n.sublabel, 10.5) + 66 : 0);
+  const h = n.sublabel ? (hasParent ? 64 : 54) : 42;
+  return { w, h };
+}
+
+/** 场景包围盒（节点 + 标注），供 fit-to-view 使用。 */
+export function treeSceneBBox(scene: TreeScene): { x: number; y: number; w: number; h: number } {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  const eat = (x: number, y: number, w: number, h: number) => {
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x + w);
+    maxY = Math.max(maxY, y + h);
+  };
+  for (const n of scene.nodes) {
+    const { w, h } = treeNodeSize(n);
+    eat(n.x - w / 2 - 4, n.y - h / 2 - 12, w + 8, h + 18);
+  }
+  for (const a of scene.annotations ?? []) eat(a.x - 10, a.y - 19, a.text.length * 7.2 + 20, 26);
+  if (!Number.isFinite(minX)) return { x: 0, y: 0, w: 1000, h: 560 };
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
 }
 
 /** Tree diagram: nodes positioned by lesson data, edges drawn parent → child. */
@@ -27,6 +55,8 @@ export function TreeSvg({ scene }: { scene: TreeScene }) {
         const x2 = to.x;
         const y2 = to.y - 26;
         const my = (y1 + y2) / 2;
+        const labelW = e.label ? textWidth(e.label, 11) + 16 : 0;
+        const lx = (x1 + x2) / 2 + 8;
         return (
           <g key={`${e.from}-${e.to}`} className="stage-edge-enter" style={{ animationDelay: `${i * 50}ms` }}>
             <path
@@ -38,23 +68,30 @@ export function TreeSvg({ scene }: { scene: TreeScene }) {
               markerEnd="url(#tree-arrow)"
             />
             {e.label && (
-              <text x={(x1 + x2) / 2 + 8} y={my} fontSize="11" fill="var(--muted)" fontFamily="inherit" style={{ paintOrder: 'stroke', stroke: 'var(--sheet)', strokeWidth: 3 }}>
-                {e.label}
-              </text>
+              <g>
+                <rect x={lx - labelW / 2} y={my - 18} width={labelW} height={18} rx={9} fill="var(--sheet)" stroke="var(--line-strong)" strokeWidth={1} />
+                <text x={lx} y={my - 5} textAnchor="middle" fontSize="11" fill="var(--ink-2)" fontFamily="inherit">
+                  {e.label}
+                </text>
+              </g>
             )}
           </g>
         );
       })}
       {scene.nodes.map((n, i) => {
         const hasParent = Boolean(n.parentId);
-        const w = Math.max(150, textWidth(n.label, 13) + 66, n.sublabel ? textWidth(n.sublabel, 10.5) + 66 : 0);
-        const h = n.sublabel ? (hasParent ? 64 : 54) : 42;
+        const { w, h } = treeNodeSize(n);
         const fill = KIND_FILL[n.kind] ?? 'var(--card)';
         const stroke = KIND_STROKE[n.kind] ?? 'var(--edge)';
         const isRoot = n.kind === 'root';
         const roleLabel = KIND_LABEL[n.kind] ?? n.kind;
         return (
-          <g key={n.id} className="stage-node-enter" style={{ animationDelay: `${i * 55}ms` }} opacity={n.status === 'dimmed' ? 0.45 : 1}>
+          <g key={n.id} opacity={n.status === 'dimmed' ? 0.78 : 1} className="stage-node-dim">
+            <g className="stage-node-enter" style={{ animationDelay: `${i * 55}ms` }}>
+            {/* 激活节点：绿光晕 */}
+            {n.status === 'active' && (
+              <rect className="stage-node-glow" x={n.x - w / 2 - 4} y={n.y - h / 2 - 4} width={w + 8} height={h + 8} rx={13} fill="none" stroke="var(--green-stroke)" strokeWidth={5} />
+            )}
             {/* 底部错位叠层边 */}
             <rect x={n.x - w / 2 + 3} y={n.y - h / 2 + 5} width={w} height={h} rx={10} fill="var(--edge)" opacity={0.45} />
             <rect
@@ -66,6 +103,7 @@ export function TreeSvg({ scene }: { scene: TreeScene }) {
               fill={fill}
               stroke={n.status === 'highlight' ? 'var(--rust)' : stroke}
               strokeWidth={n.status === 'highlight' ? 2.6 : 1.6}
+              strokeDasharray={n.status === 'dimmed' ? '4 3' : undefined}
             />
             {/* 左侧加粗色条 */}
             <rect x={n.x - w / 2} y={n.y - h / 2} width={5} height={h} rx={2.5} fill={stroke} />
@@ -110,6 +148,7 @@ export function TreeSvg({ scene }: { scene: TreeScene }) {
                 {n.badge}
               </text>
             )}
+            </g>
           </g>
         );
       })}

@@ -8,11 +8,22 @@ const BAND_H = 20;
 const BAND_TOP = 6;
 const TOP = BAND_TOP + BAND_H + 16;
 
+export function swimlaneHeight(scene: SwimlaneScene): number {
+  return TOP + scene.lanes.length * LANE_H + 18;
+}
+
+/** 按字符宽度估算文本像素宽：全角字符按字号计，半角按约 0.55 字号计。 */
+function textWidth(text: string, fontSize: number): number {
+  let w = 0;
+  for (const ch of text) w += ch.charCodeAt(0) > 255 ? fontSize : fontSize * 0.55;
+  return w;
+}
+
 /** Swimlane timeline: lanes on the left, bars and event markers on a 0..100 axis. */
 export function SwimlaneSvg({ scene }: { scene: SwimlaneScene }) {
   const laneX0 = LANE_LABEL_W;
   const laneW = W - LANE_LABEL_W - 24;
-  const height = TOP + scene.lanes.length * LANE_H + 18;
+  const height = swimlaneHeight(scene);
   const xFor = (pos: number) => laneX0 + (pos / 100) * laneW;
   const laneIndex = new Map(scene.lanes.map((l, i) => [l.id, i]));
   const yFor = (laneId: string) => TOP + (laneIndex.get(laneId) ?? 0) * LANE_H;
@@ -88,6 +99,7 @@ export function SwimlaneSvg({ scene }: { scene: SwimlaneScene }) {
         const y2 = yFor(c.toLaneId) + 24;
         const mx = (x1 + x2) / 2;
         const my = (y1 + y2) / 2;
+        const labelW = c.label ? textWidth(c.label, 10) + 16 : 0;
         return (
           <g key={`conn-${i}`} className="stage-edge-enter" style={{ animationDelay: `${200 + i * 70}ms` }}>
             <path
@@ -99,9 +111,12 @@ export function SwimlaneSvg({ scene }: { scene: SwimlaneScene }) {
               markerEnd="url(#swim-arrow)"
             />
             {c.label && (
-              <text x={mx} y={my - 5} textAnchor="middle" fontSize="10" fontWeight="700" fill="var(--green-stroke)" fontFamily="var(--font-mono)" style={{ paintOrder: 'stroke', stroke: 'var(--sheet)', strokeWidth: 3 }}>
-                {c.label}
-              </text>
+              <g>
+                <rect x={mx - labelW / 2} y={my - 17} width={labelW} height={18} rx={9} fill="var(--sheet)" stroke="var(--line-strong)" strokeWidth={1} />
+                <text x={mx} y={my - 4} textAnchor="middle" fontSize="10" fontWeight="700" fill="var(--green-stroke)" fontFamily="var(--font-mono)">
+                  {c.label}
+                </text>
+              </g>
             )}
           </g>
         );
@@ -112,29 +127,32 @@ export function SwimlaneSvg({ scene }: { scene: SwimlaneScene }) {
         const y = yFor(bar.laneId) + 10;
         const x = xFor(bar.start);
         const w = Math.max(14, xFor(bar.end) - x);
-        const labelW = bar.label.length * 6.8;
-        const fits = labelW <= w - 16;
-        const shownLabel = fits ? bar.label : bar.label.length > 14 ? `${bar.label.slice(0, 13)}…` : bar.label;
+        // 标签放不下时缩小字号，绝不中途截断
+        const avail = Math.max(20, w - 18);
+        const fullW = textWidth(bar.label, 12);
+        const fontSize = fullW > avail ? Math.max(9.5, (12 * avail) / fullW) : 12;
         return (
-          <g key={bar.id} className="stage-node-enter" style={{ animationDelay: `${i * 55}ms` }} opacity={bar.status === 'blocked' ? 0.55 : 1}>
-            <rect x={x} y={y} width={w} height={28} rx={7} fill={TONE_FILL[bar.tone]} stroke={TONE_STROKE[bar.tone]} strokeWidth={1.6} />
-            <rect x={x} y={y} width={w} height={28} rx={7} fill="url(#swim-hatch)" />
-            <text x={x + 9} y={y + 18} fontSize="12" fontWeight="700" fill="var(--ink)" fontFamily="inherit">
-              {shownLabel}
-            </text>
-            {bar.sublabel && w > 150 && (
-              <text x={x + w - 9} y={y + 18} textAnchor="end" fontSize="11" fill="var(--muted)" fontFamily="inherit">
-                {bar.sublabel}
+          <g key={bar.id} opacity={bar.status === 'blocked' ? 0.78 : 1} className="stage-node-dim">
+            <g className="stage-node-enter" style={{ animationDelay: `${i * 55}ms` }}>
+              <rect x={x} y={y} width={w} height={28} rx={7} fill={TONE_FILL[bar.tone]} stroke={TONE_STROKE[bar.tone]} strokeWidth={1.6} strokeDasharray={bar.status === 'blocked' ? '4 3' : undefined} />
+              <rect x={x} y={y} width={w} height={28} rx={7} fill="url(#swim-hatch)" />
+              <text x={x + 9} y={y + 18} fontSize={fontSize} fontWeight="700" fill="var(--ink)" fontFamily="inherit">
+                {bar.label}
               </text>
-            )}
-            {bar.status === 'running' && (
-              <circle cx={x + w - 10} cy={y + 14} r={3.5} fill="var(--green-stroke)" className="stage-pulse" />
-            )}
-            {(bar.status === 'error' || bar.status === 'blocked') && (
-              <text x={x + w + 6} y={y + 19} fontSize="13" fontWeight="700" fill="var(--rose-stroke)" fontFamily="inherit">
-                ✕
-              </text>
-            )}
+              {bar.sublabel && w > 150 && (
+                <text x={x + w - 9} y={y + 18} textAnchor="end" fontSize="11" fill="var(--muted)" fontFamily="inherit">
+                  {bar.sublabel}
+                </text>
+              )}
+              {bar.status === 'running' && (
+                <circle cx={x + w - 10} cy={y + 14} r={3.5} fill="var(--green-stroke)" className="stage-pulse" />
+              )}
+              {(bar.status === 'error' || bar.status === 'blocked') && (
+                <text x={x + w + 6} y={y + 19} fontSize="13" fontWeight="700" fill="var(--rose-stroke)" fontFamily="inherit">
+                  ✕
+                </text>
+              )}
+            </g>
           </g>
         );
       })}

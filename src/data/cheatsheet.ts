@@ -59,7 +59,7 @@ export const CHEATSHEET_DATA: CheatsheetData = {
       subtitle: '一次提问「现在几点？」的 16 步旅程：turn 是一次用户提问，step 是一次模型调用加工具执行。',
       lessonSlug: 'ask-journey',
       stepNumber: 6,
-      kind: 'table',
+      kind: 'steps',
       headers: ['阶段', '谁在动', '关键调用 / 事件'],
       rows: [
         ['1–4 请求进来', '浏览器 → webserver', 'POST /api/chat；ctx.sessions 找会话；监听 agent/text-delta、agent/tool-call'],

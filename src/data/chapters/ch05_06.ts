@@ -194,7 +194,7 @@ const L12 = lesson(
       ]),
     },
     {
-      shortLabel: 'systemPrompt 服务',
+      shortLabel: '提示词服务',
       badge: 'TECHNIQUE',
       title: 'systemPrompt 服务：汇总，不生产',
       paragraphs: [
@@ -396,7 +396,7 @@ const L13 = lesson(
       ]),
     },
     {
-      shortLabel: 'web 与 headless',
+      shortLabel: '双端形态',
       badge: 'INSIGHT',
       title: 'web 与 headless：只差一个入口插件',
       paragraphs: [
@@ -417,7 +417,7 @@ const L13 = lesson(
       ]),
     },
     {
-      shortLabel: 'npx dsh web',
+      shortLabel: 'dsh web',
       badge: 'TECHNIQUE',
       title: '跑起来：npx dsh web',
       paragraphs: [

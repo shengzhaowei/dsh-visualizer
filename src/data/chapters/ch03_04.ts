@@ -261,7 +261,7 @@ const L6 = lesson(
       ], [{ id: 'ev', laneId: 'ser', pos: 58, label: '监听 3 没被调用', tone: 'orange', emphasized: true }]),
     },
     {
-      shortLabel: 'waterfall 洋葱',
+      shortLabel: '瀑布洋葱',
       badge: 'SOLUTION',
       title: 'waterfall：留给别人插手的口子',
       paragraphs: [
@@ -296,7 +296,7 @@ const L6 = lesson(
       ], [{ id: 'ev', laneId: 'pre', pos: 16, label: '不调 next() 即拦截', tone: 'rose', emphasized: true }], [{ pos: 0, label: '调用工具' }, { pos: 100, label: '拿到结果' }]),
     },
     {
-      shortLabel: 'waterfall 陷阱',
+      shortLabel: '瀑布陷阱',
       badge: 'INSIGHT',
       title: 'waterfall 陷阱：忘了 next()，链就断了',
       paragraphs: [
@@ -316,7 +316,7 @@ const L6 = lesson(
       ], [{ id: 'ev', laneId: 'bad', pos: 41, label: '链在这里断了', tone: 'rose', emphasized: true }]),
     },
     {
-      shortLabel: 'internal 事件',
+      shortLabel: '内部事件',
       badge: 'TECHNIQUE',
       title: '框架自己的事件：internal/*',
       paragraphs: [
@@ -643,7 +643,7 @@ const L8 = lesson(
       ]),
     },
     {
-      shortLabel: 'turn 与 step',
+      shortLabel: '轮次与步',
       badge: 'SOLUTION',
       title: 'turn 套 step：两层循环',
       paragraphs: [
@@ -687,7 +687,7 @@ const L8 = lesson(
       ]),
     },
     {
-      shortLabel: '不 import 模型',
+      shortLabel: '模型解耦',
       badge: 'TECHNIQUE',
       title: '循环调模型：stream()，没有模型 import',
       paragraphs: [
@@ -963,7 +963,7 @@ const L10 = lesson(
       ]),
     },
     {
-      shortLabel: 'fail-closed',
+      shortLabel: '默认拒绝',
       badge: 'SOLUTION',
       title: 'fail-closed：不确定，就拒绝',
       paragraphs: [

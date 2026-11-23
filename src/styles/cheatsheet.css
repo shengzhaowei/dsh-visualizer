@@ -56,10 +56,15 @@
   font-weight: 700;
 }
 .cheatsheet-stat-value {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
   margin-top: 2px;
 }
+.cheatsheet-stat--green { background: var(--green); }
+.cheatsheet-stat--blue { background: var(--blue); }
+.cheatsheet-stat--violet { background: var(--violet); }
+.cheatsheet-stat--orange { background: var(--orange); }
+.cheatsheet-stat--neutral { background: var(--paper); }
 
 /* 章节药丸导航 */
 .cheatsheet-nav {
@@ -131,6 +136,10 @@
   border-radius: var(--radius-pill);
   padding: 1px 8px;
 }
+.cheatsheet-card-type--blue { background: var(--blue); border-color: var(--blue-stroke); }
+.cheatsheet-card-type--violet { background: var(--violet); border-color: var(--violet-stroke); }
+.cheatsheet-card-type--orange { background: var(--orange); border-color: var(--orange-stroke); }
+.cheatsheet-card-type--neutral { background: var(--paper); border-color: var(--line-strong); }
 .cheatsheet-card-jump {
   display: inline-flex;
   align-items: center;
@@ -153,6 +162,30 @@
   font-size: 12px;
   color: var(--muted);
   line-height: 1.65;
+}
+.cheatsheet-card-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.cheatsheet-card-row {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.cheatsheet-card-row-label {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--muted);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-xs);
+  padding: 0 5px;
+  line-height: 1.7;
+  height: fit-content;
+  margin-top: 1px;
 }
 
 .cheatsheet-section {
@@ -232,4 +265,132 @@
   .cheatsheet-cards {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* 插件树挂载顺序大流程图（根在上，入口在下） */
+.cheatsheet-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 6px 0 16px;
+}
+.cheatsheet-flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.cheatsheet-flow-node {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: min(460px, 100%);
+  justify-content: center;
+  padding: 9px 16px;
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  box-shadow: var(--pop-shadow-sm);
+  font-size: 12.5px;
+}
+.cheatsheet-flow-node--green { background: var(--green); }
+.cheatsheet-flow-node--blue { background: var(--blue); }
+.cheatsheet-flow-node--violet { background: var(--violet); }
+.cheatsheet-flow-node--orange { background: var(--orange); }
+.cheatsheet-flow-node--neutral { background: var(--paper); }
+.cheatsheet-flow-type {
+  font-weight: 800;
+  white-space: nowrap;
+}
+.cheatsheet-flow-sig {
+  font-weight: 700;
+  color: var(--ink-2);
+  word-break: break-word;
+}
+.cheatsheet-flow-arrow {
+  color: var(--muted);
+  margin: 3px 0;
+}
+
+/* 编号步骤横向卡 */
+.cheatsheet-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cheatsheet-step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  padding: 11px 12px;
+}
+.cheatsheet-step-num {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--green);
+  border: 1.5px solid var(--green-stroke);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.cheatsheet-step-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cheatsheet-step-stage {
+  font-size: 13px;
+  font-weight: 800;
+}
+.cheatsheet-step-who {
+  font-size: 12px;
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.cheatsheet-step-calls {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+  font-family: var(--font-mono);
+}
+.cheatsheet-step-arrow {
+  flex: 0 0 auto;
+  color: var(--line-strong);
+  margin-top: 4px;
+}
+
+/* 事件表：方法名 mono 芯片 + LEVEL 徽章 */
+.cheatsheet-event-chip {
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  border-radius: var(--radius-xs);
+  padding: 1px 6px;
+}
+.cheatsheet-level-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-xs);
+  padding: 1px 6px;
+  border: 1px solid var(--edge);
+}
+.cheatsheet-level-badge--sync {
+  background: var(--green);
+  border-color: var(--green-stroke);
+}
+.cheatsheet-level-badge--async {
+  background: var(--blue);
+  border-color: var(--blue-stroke);
 }

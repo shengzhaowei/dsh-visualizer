@@ -66,18 +66,18 @@
 }
 
 [data-theme='dark'] {
-  --paper: #211e1a;
-  --paper-2: #25211c;
-  --sheet: #28241f;
-  --card: #26231e;
-  --stage-bg: #292520;
-  --ink: #efe6d6;
+  --paper: #221d17;
+  --paper-2: #272119;
+  --sheet: #2c251c;
+  --card: #2f2820;
+  --stage-bg: #2a241b;
+  --ink: #f0e7d6;
   --ink-2: #ddd3c2;
-  --muted: #a3998b;
-  --line: #342f28;
-  --line-soft: #2e2923;
-  --line-strong: #4f473d;
-  --edge: #c6bfb7;
+  --muted: #a89a87;
+  --line: #3e352a;
+  --line-soft: #352d23;
+  --line-strong: #57493a;
+  --edge: #8a7c66;
   --green: #3f4c2b;
   --green-2: #2e3b22;
   --green-3: #7fc278;
@@ -188,8 +188,8 @@ a {
 .hl {
   background: var(--green);
   border-radius: 3px;
-  padding: 0 3px;
-  font-weight: 700;
+  padding: 1px 4px;
+  font-weight: 800;
 }
 
 /* 等宽字只用于代码、ID、数字、徽章 */
@@ -243,6 +243,13 @@ a {
   cursor: not-allowed;
   box-shadow: none;
 }
+/* 禁用态主按钮变灰，避免与绿色“继续”按钮混淆 */
+.tactile-btn--primary:disabled {
+  background: var(--line);
+  border-color: var(--line-strong);
+  color: var(--muted);
+  opacity: 1;
+}
 .tactile-btn--primary {
   background: var(--green);
 }
@@ -281,6 +288,7 @@ a {
 :focus-visible {
   outline: 2px solid var(--rust);
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--rust) 22%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -290,6 +298,6 @@ a {
     transition-duration: 0.01ms !important;
   }
 }
-@media (max-width: 1080px) {
+@media (max-width: 1200px) {
   body { overflow: auto; }
 }

@@ -234,7 +234,7 @@ export interface CheatsheetSection {
   subtitle: string;
   lessonSlug?: string;
   stepNumber?: number;
-  kind: 'table' | 'cards' | 'map';
+  kind: 'table' | 'cards' | 'map' | 'steps';
   headers: string[];
   rows: string[][];
 }

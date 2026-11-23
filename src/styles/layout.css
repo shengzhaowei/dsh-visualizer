@@ -124,7 +124,7 @@
 .topbar-menu-btn {
   display: none;
 }
-@media (max-width: 1080px) {
+@media (max-width: 1200px) {
   .topbar-menu-btn {
     display: inline-flex;
   }
@@ -152,6 +152,52 @@
 .sidebar--collapsed {
   padding: 12px 6px;
   align-items: center;
+}
+.sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 6px 8px;
+}
+.sidebar-head-title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.sidebar-head-en {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+}
+.sidebar-reset-ghost {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--radius-xs);
+}
+.sidebar-reset-ghost:hover {
+  color: var(--ink);
+  background: var(--hover-bg);
+}
+.sidebar-chapter-count {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.sidebar-collapse {
+  width: 100%;
+  height: 28px;
+  font-size: 11.5px;
 }
 .sidebar-progress {
   border: 1.5px solid var(--edge);
@@ -286,11 +332,6 @@
   height: 34px;
   font-size: 12.5px;
 }
-.sidebar-reset {
-  width: 100%;
-  height: 28px;
-  font-size: 11.5px;
-}
 
 .stage-slot {
   min-width: 0;
@@ -358,7 +399,7 @@
   overflow-y: auto;
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1200px) {
   .workspace-grid,
   .workspace-grid--sidebar-collapsed {
     grid-template-columns: minmax(0, 1fr);
@@ -368,4 +409,27 @@
   .sidebar { display: none; }
   .stage-slot { min-height: 560px; }
   .app-shell { height: auto; min-height: 100vh; }
+  .keyboard-hint-bar { display: none; }
+}
+
+/* 底部常驻键盘提示栏（学习模式） */
+.keyboard-hint-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  height: 30px;
+  border-top: 1px solid var(--line);
+  background: var(--paper-2);
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+.keyboard-hint-bar > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }

@@ -252,7 +252,6 @@ export function App() {
           <Sidebar
             chapters={CHAPTERS}
             activeLessonSlug={currentLesson.slug}
-            currentStepIndex={safeStepIndex}
             completedLessons={completedLessons}
             onSelectLesson={(slug) => handleSelectLesson(slug, 1)}
             onContinue={handleContinue}
@@ -301,6 +300,15 @@ export function App() {
         </div>
       )}
 
+      {route.mode === 'learn' && (
+        <footer className="keyboard-hint-bar" aria-label="键盘快捷键">
+          <span><span className="kbd">←</span> <span className="kbd">→</span> 切换步骤</span>
+          <span><span className="kbd">Space</span> 播放 / 暂停</span>
+          <span><span className="kbd">R</span> 重播</span>
+          <span><span className="kbd">Ctrl K</span> 搜索</span>
+        </footer>
+      )}
+
       {mobileDrawerOpen && (
         <div className="mobile-drawer-backdrop" role="dialog" aria-modal="true" aria-label="课程目录抽屉" onClick={(e) => { if (e.target === e.currentTarget) setMobileDrawerOpen(false); }}>
           <div className="mobile-drawer">
@@ -314,7 +322,6 @@ export function App() {
               <Sidebar
                 chapters={CHAPTERS}
                 activeLessonSlug={currentLesson?.slug ?? ''}
-                currentStepIndex={safeStepIndex}
                 completedLessons={completedLessons}
                 onSelectLesson={(slug) => handleSelectLesson(slug, 1)}
                 onContinue={handleContinue}

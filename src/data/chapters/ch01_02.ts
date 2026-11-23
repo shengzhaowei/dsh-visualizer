@@ -73,7 +73,7 @@ const L1 = lesson(
       ]),
     },
     {
-      shortLabel: 'AgentLoop 开头',
+      shortLabel: 'AgentLoop',
       badge: 'SOLUTION',
       title: 'AgentLoop 的开头只有声明，没有模型',
       paragraphs: [
@@ -347,7 +347,7 @@ const L2 = lesson(
       ], undefined, [{ x: 100, y: 40, w: 800, h: 92, label: '产品层', tone: 'blue' }, { x: 160, y: 180, w: 680, h: 104, label: 'dsh-base', tone: 'dark' }, { x: 160, y: 310, w: 680, h: 104, label: 'Cordis', tone: 'dark' }]),
     },
     {
-      shortLabel: 'dump-config',
+      shortLabel: '导出配置',
       badge: 'RECAP',
       title: 'dump-config 是真相来源',
       paragraphs: [
@@ -461,7 +461,7 @@ export const L3 = lesson(
       ], [{ id: 'e', laneId: 'out', pos: 96, label: '身份确立', tone: 'green', emphasized: true }]),
     },
     {
-      shortLabel: 'plugin() 三件事',
+      shortLabel: '插件三件事',
       badge: 'SOLUTION',
       title: 'ctx.plugin() 做了三件事',
       paragraphs: [
