@@ -1,11 +1,11 @@
 import type { MouseEvent } from 'react';
-import { BookOpen, Code2, ExternalLink, Menu, Moon, Play, Search, Sun } from 'lucide-react';
+import { BookOpen, Code2, ExternalLink, Menu, Moon, Play, Search, Sun, Waves } from 'lucide-react';
 
 export type AppMode = 'learn' | 'cheatsheet';
 
 interface TopBarProps {
   mode: AppMode;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'deepsea';
   onChangeMode: (mode: AppMode) => void;
   onOpenSearch: () => void;
   onToggleTheme: (e: MouseEvent<HTMLButtonElement>) => void;
@@ -50,8 +50,8 @@ export function TopBar({ mode, theme, onChangeMode, onOpenSearch, onToggleTheme,
           <Code2 size={13} /> 本站源码 <ExternalLink size={11} />
         </a>
       </div>
-      <button type="button" className="tactile-btn topbar-icon-btn" onClick={onToggleTheme} aria-label={theme === 'dark' ? '切换到浅色' : '切换到深色'}>
-        {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+      <button type="button" className="tactile-btn topbar-icon-btn" onClick={onToggleTheme} aria-label={theme === 'light' ? '切换到深海主题' : theme === 'deepsea' ? '切换到深色主题' : '切换到浅色主题'}>
+        {theme === 'light' ? <Waves size={15} /> : theme === 'deepsea' ? <Moon size={15} /> : <Sun size={15} />}
       </button>
     </header>
   );

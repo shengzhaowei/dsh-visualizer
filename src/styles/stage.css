@@ -539,6 +539,17 @@
   filter: saturate(1.18);
 }
 
+/* 深海主题：舞台变夜光海水——顶部透光 + 荧光青气泡点阵 */
+[data-theme='deepsea'] .stage-viewport {
+  background-image:
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(111, 227, 242, 0.1), transparent 70%),
+    radial-gradient(rgba(111, 227, 242, 0.2) 1.2px, transparent 1.2px);
+  background-size: auto, 18px 18px;
+}
+[data-theme='deepsea'] .stage-viewport .stage-svg {
+  filter: saturate(1.25) brightness(1.05);
+}
+
 /* RECAP 步骤：本课总览（替代稀疏场景图） */
 .stage-recap-overview {
   display: flex;

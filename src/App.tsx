@@ -11,7 +11,7 @@ import { TopBar } from './components/TopBar';
 import { WelcomeOverlay } from './components/WelcomeOverlay';
 
 type AppMode = 'learn' | 'cheatsheet';
-type Theme = 'light' | 'dark';
+type Theme = 'light' | 'dark' | 'deepsea';
 
 interface RouteState {
   mode: AppMode;
@@ -26,11 +26,12 @@ const STORAGE_GUIDE_KEY = 'dsh-visualizer-welcomed';
 function getInitialTheme(): Theme {
   try {
     const saved = localStorage.getItem(STORAGE_THEME_KEY);
-    if (saved === 'dark' || saved === 'light') return saved;
+    if (saved === 'dark' || saved === 'light' || saved === 'deepsea') return saved;
   } catch {
     // ignore
   }
-  return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const attr = document.documentElement.getAttribute('data-theme');
+  return attr === 'dark' || attr === 'deepsea' ? attr : 'light';
 }
 
 function loadCompletedLessons(): Set<string> {
@@ -143,13 +144,13 @@ export function App() {
   }, [route.mode, currentLesson, safeStepIndex]);
 
   const applyThemeDom = useCallback((nextTheme: Theme) => {
-    if (nextTheme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
-    else document.documentElement.removeAttribute('data-theme');
+    if (nextTheme === 'light') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', nextTheme);
     try { localStorage.setItem(STORAGE_THEME_KEY, nextTheme); } catch { /* ignore */ }
   }, []);
 
   const handleToggleTheme = useCallback((event: MouseEvent<HTMLButtonElement>) => {
-    const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark';
+    const nextTheme: Theme = theme === 'light' ? 'deepsea' : theme === 'deepsea' ? 'dark' : 'light';
     const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const startViewTransition = (document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void> } }).startViewTransition?.bind(document);
     if (!startViewTransition || prefersReducedMotion) {

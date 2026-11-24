@@ -10,7 +10,7 @@
     <script>
       try {
         var t = localStorage.getItem('dsh-visualizer-theme');
-        if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        if (t === 'dark' || t === 'deepsea') document.documentElement.setAttribute('data-theme', t);
       } catch (e) {}
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />

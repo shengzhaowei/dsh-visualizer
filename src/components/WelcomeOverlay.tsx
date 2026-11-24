@@ -51,7 +51,7 @@ export function WelcomeOverlay({ isOpen, onStart, onDismiss }: WelcomeOverlayPro
           </button>
           <button type="button" className="guide-skip" onClick={onDismiss}>直接进入</button>
         </div>
-        <p className="guide-note">14 课 · 84 步 · 随时按 Ctrl K 搜索</p>
+        <p className="guide-note">14 课 · 84 步 · 随时按 Ctrl K 搜索 · 右上角可切换深海主题</p>
       </div>
     </div>
   );

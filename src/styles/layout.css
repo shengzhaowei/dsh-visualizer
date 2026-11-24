@@ -613,3 +613,13 @@
     animation: none;
   }
 }
+
+/* 深海主题：鲸鱼娘图标带夜光晕 */
+[data-theme='deepsea'] .brand-mark-img {
+  border-color: #6fe3f2;
+  box-shadow: 0 0 12px rgba(111, 227, 242, 0.45), var(--pop-shadow-sm);
+}
+[data-theme='deepsea'] .guide-icon {
+  border-color: #6fe3f2;
+  box-shadow: 0 0 16px rgba(111, 227, 242, 0.35), var(--pop-shadow-sm);
+}

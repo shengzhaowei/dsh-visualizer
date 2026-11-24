@@ -1,4 +1,4 @@
-/* DSH Agent Loop Visualizer — design tokens: warm paper (light) + warm espresso (dark). */
+/* DSH Agent Loop Visualizer — design tokens: warm paper (light) + warm espresso (dark) + deep sea (deepsea, 鲸鱼娘）. */
 
 :root {
   --paper: #f4ebe0;
@@ -113,6 +113,60 @@
   --iso-lip-orange: #3d2e1f;
   --iso-lip-rose: #3f2123;
   --iso-lip-dark: #0e0c0a;
+}
+
+/* 深海·鲸鱼娘：夜光深海，荧光青是主色，鲸鱼娘的蓝是身份色 */
+[data-theme='deepsea'] {
+  --paper: #071523;
+  --paper-2: #0a1c2e;
+  --sheet: #0c2236;
+  --card: #0e2740;
+  --stage-bg: #081a2c;
+  --ink: #e6f4f8;
+  --ink-2: #c4dde8;
+  --muted: #8fb0c4;
+  --line: #1d3a52;
+  --line-soft: #163049;
+  --line-strong: #2c4d68;
+  --edge: #3d6a8c;
+  --green: #0f3d4a;
+  --green-2: #0b2f3c;
+  --green-3: #4dd8e6;
+  --violet: #2c2350;
+  --blue: #12294d;
+  --orange: #4d3418;
+  --mint: #123c36;
+  --rose: #4d2226;
+  --rust: #ff9a6b;
+  --green-stroke: #6fe3f2;
+  --violet-stroke: #c0a5f2;
+  --blue-stroke: #7fb8f2;
+  --orange-stroke: #f2b06e;
+  --rose-stroke: #f28c89;
+  --kpi-good: #34d399;
+  --kpi-warn: #fbbf24;
+  --kpi-bad: #f87171;
+  --ch-sage: #7fd4a8;
+  --ch-blue: #7fb8f2;
+  --ch-violet: #c0a5f2;
+  --ch-amber: #f2c069;
+  --ch-coral: #f28c89;
+  --ch-teal: #5eead4;
+  --pop-shadow: 1.5px 2.5px 0 rgba(0, 0, 0, 0.55);
+  --pop-shadow-sm: 1px 1.5px 0 rgba(0, 0, 0, 0.5);
+  --pop-shadow-lg: 2.5px 3.5px 0 rgba(0, 0, 0, 0.6);
+  --grid-dot: rgba(111, 227, 242, 0.16);
+  --code-bg: rgba(111, 227, 242, 0.08);
+  --code-border: rgba(111, 227, 242, 0.18);
+  --overlay-bg: rgba(3, 10, 18, 0.66);
+  --hover-bg: rgba(111, 227, 242, 0.07);
+  --iso-lip-neutral: #0a1826;
+  --iso-lip-green: #0d2f3a;
+  --iso-lip-violet: #241a3d;
+  --iso-lip-blue: #0e2238;
+  --iso-lip-orange: #33220f;
+  --iso-lip-rose: #351a1e;
+  --iso-lip-dark: #04090f;
 }
 
 *,
