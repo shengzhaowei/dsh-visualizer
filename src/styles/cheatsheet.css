@@ -12,27 +12,50 @@
   box-shadow: var(--pop-shadow-lg);
   padding: 22px 24px;
 }
+.cheatsheet-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.cheatsheet-hero-back {
+  height: 34px;
+  padding: 0 14px;
+  font-size: 12.5px;
+  flex-shrink: 0;
+}
 .cheatsheet-eyebrow {
-  font-size: 11px;
-  font-weight: 700;
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--green-stroke);
+  background: var(--green);
+  font-size: 10.5px;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--rust);
+  color: var(--ink);
 }
 .cheatsheet-title {
   font-size: 30px;
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: -0.01em;
-  margin: 6px 0 4px;
+  margin: 8px 0 4px;
 }
 .cheatsheet-subtitle {
   font-size: 14px;
   color: var(--muted);
   line-height: 1.7;
+  margin: 0;
 }
 .cheatsheet-notes {
-  margin-top: 10px;
+  margin-top: 14px;
+  padding: 9px 12px;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
   font-size: 11.5px;
   color: var(--muted);
   line-height: 1.7;
@@ -49,6 +72,11 @@
   background: var(--paper);
   padding: 10px 12px;
   box-shadow: var(--pop-shadow-sm);
+  transition: transform 0.16s var(--ease-snappy), box-shadow 0.16s var(--ease-snappy);
+}
+.cheatsheet-stat:hover {
+  transform: translate(-1px, -2px);
+  box-shadow: var(--pop-shadow);
 }
 .cheatsheet-stat-label {
   font-size: 10.5px;
@@ -84,11 +112,18 @@
   font-size: 12px;
   font-weight: 700;
   color: var(--ink);
+  cursor: pointer;
   box-shadow: var(--pop-shadow-sm);
-  transition: background-color 0.14s ease;
+  transition: transform 0.14s var(--ease-snappy), box-shadow 0.14s var(--ease-snappy), background-color 0.14s ease;
 }
 .cheatsheet-nav-pill:hover {
   background: var(--green);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--pop-shadow);
+}
+.cheatsheet-nav-pill:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
 }
 .cheatsheet-nav-num {
   font-size: 10.5px;
@@ -115,10 +150,11 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  transition: transform 0.14s var(--ease-snappy);
+  transition: transform 0.16s var(--ease-snappy), box-shadow 0.16s var(--ease-snappy);
 }
 .cheatsheet-card:hover {
-  transform: translateY(-1px);
+  transform: translate(-1px, -2px);
+  box-shadow: var(--pop-shadow);
 }
 .cheatsheet-card-top {
   display: flex;

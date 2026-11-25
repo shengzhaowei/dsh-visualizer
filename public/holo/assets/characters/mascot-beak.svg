@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 32" width="36" height="32">
+  <defs>
+    <radialGradient id="beakG" cx="35%" cy="25%" r="70%">
+      <stop offset="0%" stop-color="#ffe68c"/>
+      <stop offset="60%" stop-color="#f6b63b"/>
+      <stop offset="100%" stop-color="#cf8116"/>
+    </radialGradient>
+  </defs>
+  <path d="M4 10 Q18 1 32 10 Q28 26 18 30 Q8 26 4 10 Z" fill="url(#beakG)"/>
+  <ellipse cx="14" cy="12" rx="5.5" ry="2.6" fill="#ffffff" opacity="0.58"/>
+</svg>

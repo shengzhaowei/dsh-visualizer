@@ -1,14 +1,14 @@
-// 第 5–6 章：会话与提示词、组装与对照
+// 会话与提示词（CH3 后半）、迷你版 vs 真 Cordis 对照（CH5 后半）
 // 内容依据：NamiDSH docs/06、07 与 DSH 公开资料；示意数字已在文内注明。
-import { chapter, dshSrc, DSH_REPO, iso, kpi, lesson, namiSrc, src, steps, swim, tree } from '../helpers';
+import { dshSrc, iso, kpi, lesson, namiSrc, steps, swim, tree } from '../helpers';
 
-const L11 = lesson(
+export const L11 = lesson(
   'session-log',
-  'ch05',
-  5,
-  '会话与提示词',
-  1,
+  'ch03',
+  3,
+  'Agent 循环与记忆',
   2,
+  3,
   '会话事件溯源：模型可见即已记录',
   '会话不是一堆消息，而是一条只追加的事件日志。模型能看到什么，日志里就有什么——反过来也一样。',
   12,
@@ -156,13 +156,13 @@ const L11 = lesson(
   ]),
 );
 
-const L12 = lesson(
+export const L12 = lesson(
   'system-prompt',
-  'ch05',
-  5,
-  '会话与提示词',
-  2,
-  2,
+  'ch03',
+  3,
+  'Agent 循环与记忆',
+  3,
+  3,
   '系统提示词组装',
   '系统提示词不是写死在代码里的一大段字符串，而是各个插件贡献的段落，按顺序拼起来的。',
   10,
@@ -301,183 +301,11 @@ const L12 = lesson(
   ]),
 );
 
-const L13 = lesson(
-  'spine-to-products',
-  'ch06',
-  6,
-  '组装与对照',
-  1,
-  2,
-  '从 spine 到 web / headless：同一核心，多种产品',
-  '套件只装「每个 Agent 都需要的东西」，模型与入口故意留在外面。同一套核心，换入口就是新产品。',
-  12,
-  '核心',
-  [
-    { text: '解释 spine 套件的取舍：装什么、不装什么', completedAtStep: 2 },
-    { text: '说出 web 与 headless 两种产品的组装差异', completedAtStep: 4 },
-    { text: '用 dsh web 命令说明入口如何启动', completedAtStep: 5 },
-  ],
-  steps([
-    {
-      shortLabel: '套件的取舍',
-      badge: 'PROBLEM',
-      title: 'spine：只装每个 Agent 都需要的东西',
-      paragraphs: [
-        'DSH 有一个 `agent-spine-demo` 包，它的说明里写得很清楚：套件只装「每个 Agent 都需要的东西」，`连哪家模型、用什么入口（命令行、网页、IDE 插件）故意留在外面`，由使用方决定。',
-        '这个取舍是整套分层设计的关键：套件越小，可复用的面越广；模型与入口越晚决定，组合的自由度越高。迷你版的 `spine` 完全照搬了这个做法：挂 7 个核心插件，模型与入口都不在里面。',
-      ],
-      kpis: [kpi('spine 挂插件', '7 个', 'neutral'), kpi('模型在内吗', '不在', 'good'), kpi('入口在内吗', '不在', 'good')],
-      scene: tree('spine 的取舍', [
-        { id: 'spine', x: 500, y: 60, kind: 'root', label: 'agent-spine 套件', sublabel: '只装每个 Agent 都需要的', status: 'active' },
-        { id: 'in1', x: 160, y: 200, kind: 'service', label: 'llm · tools', sublabel: '在内' },
-        { id: 'in2', x: 400, y: 200, kind: 'service', label: 'sessions · systemPrompt', sublabel: '在内' },
-        { id: 'in3', x: 640, y: 200, kind: 'plugin', label: 'agent-loop · 工具', sublabel: '在内' },
-        { id: 'out1', x: 240, y: 340, kind: 'plugin', label: '模型适配器', sublabel: '在外 · 使用方决定', status: 'dimmed' },
-        { id: 'out2', x: 760, y: 340, kind: 'plugin', label: '入口 webserver / CLI', sublabel: '在外 · 使用方决定', status: 'dimmed' },
-      ], [
-        { from: 'spine', to: 'in1' },
-        { from: 'spine', to: 'in2' },
-        { from: 'spine', to: 'in3' },
-        { from: 'spine', to: 'out1', label: '故意留出' },
-        { from: 'spine', to: 'out2', label: '故意留出' },
-      ]),
-    },
-    {
-      shortLabel: 'spine 代码',
-      badge: 'TECHNIQUE',
-      title: 'spine 的 apply：一口气挂 7 个插件',
-      paragraphs: [
-        '迷你版 `spine` 的 `apply` 就是一连串的 `ctx.plugin(...)`：`LlmRuntime`、`SessionStore`、`ToolRuntime`、`SystemPrompt`、`toolTime`、`toolFs`、`AgentLoop`。没有条件分支，没有配置魔法，就是一份装机清单。',
-        'DSH 的 `agent-spine-demo` 是同一份清单的工业版：二十多个插件，每个都有说明。读 DSH 源码时，从这份清单入手，比从任意一个核心文件入手都快。',
-      ],
-      sourceDrawer: namiSrc(
-        'spine apply：装机清单',
-        'packages/agent-spine/src/index.ts',
-        'ts',
-        `export function apply(ctx: Context, config: Config) {
-  ctx.plugin(LlmRuntime)
-  ctx.plugin(SessionStore)
-  ctx.plugin(ToolRuntime)
-  ctx.plugin(SystemPrompt, { persona: config.persona })
-  ctx.plugin(toolTime)
-  ctx.plugin(toolFs, { root: config.workspace })
-  ctx.plugin(AgentLoop, config.agent)
-}`,
-        'DSH 的 agent-spine-demo 是同一思路：二十多个插件的装机清单，每个插件都有说明。',
-      ),
-      kpis: [kpi('迷你版 spine', '7 个插件', 'neutral'), kpi('DSH spine-demo', '20+ 个插件', 'neutral'), kpi('条件分支', '0', 'good')],
-      scene: swim('spine apply 的挂载顺序', [
-        { id: 's', label: 'spine apply', sublabel: '一连串 ctx.plugin()', tone: 'violet' },
-      ], [
-        { id: 'a', laneId: 's', start: 2, end: 16, label: 'LlmRuntime', tone: 'blue', status: 'done' },
-        { id: 'b', laneId: 's', start: 18, end: 32, label: 'SessionStore', tone: 'green', status: 'done' },
-        { id: 'c', laneId: 's', start: 34, end: 48, label: 'ToolRuntime', tone: 'orange', status: 'done' },
-        { id: 'd', laneId: 's', start: 50, end: 64, label: 'SystemPrompt', tone: 'rose', status: 'done' },
-        { id: 'e', laneId: 's', start: 66, end: 80, label: 'toolTime + toolFs', tone: 'green', status: 'done' },
-        { id: 'f', laneId: 's', start: 82, end: 96, label: 'AgentLoop', tone: 'violet', status: 'done' },
-      ], [], [{ pos: 0, label: '开始' }, { pos: 100, label: '装机完成' }]),
-    },
-    {
-      shortLabel: '三种角色',
-      badge: 'SOLUTION',
-      title: '三种角色：定义、提供、使用',
-      paragraphs: [
-        '看第 6 课那张表，插件可以分成三种角色，DSH 的设计文档把它叫做 Service Definition / Service Provider / Consumer：`定义服务`（`llm`、`tools` 只定义「模型调用长什么样」「工具长什么样」，自己不连任何模型，也不包含任何工具）、`提供实现`（`llm-deepseek`、`tool-fs` 往这些服务里注册具体的实现）、`使用服务`（`agent-loop`、`webserver` 只认服务名，用就行）。',
-        '拿模型来说，`llm` 服务的核心只有两个方法：`registerAdapter`（注册适配器）与 `stream`（调适配器，中间套 `llm/stream` 瀑布）。DeepSeek 适配器只做一件事：用 `ctx.effect` 把自己注册进去，卸载时自动注销。',
-      ],
-      kpis: [kpi('角色', '3 种', 'neutral'), kpi('llm 核心方法', '2 个', 'neutral'), kpi('适配器职责', '注册自己', 'good')],
-      scene: iso('定义 / 提供 / 使用', [
-        { id: 'def', x: 60, y: 200, label: '定义服务', sublabel: 'llm：registerAdapter + stream', tone: 'blue' },
-        { id: 'prov', x: 380, y: 200, label: '提供实现', sublabel: 'llm-deepseek 注册适配器', tone: 'green', active: true },
-        { id: 'use', x: 700, y: 200, label: '使用服务', sublabel: 'agent-loop：ctx.llm.stream()', tone: 'violet' },
-      ], [
-        { from: 'def', to: 'prov', label: '接口', packetCount: 1, packetLabel: '接口' },
-        { from: 'prov', to: 'use', label: '服务名', packetCount: 1, packetLabel: '服务名' },
-      ]),
-    },
-    {
-      shortLabel: '双端形态',
-      badge: 'INSIGHT',
-      title: 'web 与 headless：只差一个入口插件',
-      paragraphs: [
-        '同一套核心，换入口就是新产品：网页应用多挂一个 `webserver`，命令行多挂一个 CLI 入口，其余 7 个核心插件完全相同。`dsh --profile web` 与 `headless` 的差别不在核心，而在 profile 里列的 bundle 不同。',
-        '这也是第 2 课分层叠加的落地点：产品差异是配置差异，不是代码差异。',
-      ],
-      kpis: [kpi('核心插件', '相同', 'good'), kpi('差异', '入口插件 + profile', 'neutral'), kpi('产品形态', 'web / headless / SDK / ACP', 'neutral')],
-      scene: iso('同一核心，两个入口', [
-        { id: 'core', x: 400, y: 230, label: '同一套核心 spine', sublabel: '7 个核心插件', tone: 'violet', size: 'lg', active: true },
-        { id: 'web', x: 120, y: 60, label: 'webserver 入口', sublabel: 'dsh --profile web', tone: 'blue' },
-        { id: 'cli', x: 680, y: 60, label: 'CLI 入口', sublabel: 'headless profile', tone: 'green' },
-        { id: 'user', x: 400, y: 420, label: '用户', sublabel: '浏览器 / 终端', tone: 'neutral' },
-      ], [
-        { from: 'web', to: 'core', packetCount: 1, packetLabel: '请求' },
-        { from: 'cli', to: 'core', packetCount: 1, packetLabel: '命令' },
-        { from: 'user', to: 'web', dashed: true, packetCount: 1, packetLabel: '消息' },
-        { from: 'user', to: 'cli', dashed: true, packetCount: 1, packetLabel: '命令' },
-      ]),
-    },
-    {
-      shortLabel: 'dsh web',
-      badge: 'TECHNIQUE',
-      title: '跑起来：npx dsh web',
-      paragraphs: [
-        'DSH 的启动方式本身就是这套设计的演示：`npx @deepseek-ai/dsh web`，在 `127.0.0.1:3080` 上提供 Web UI。`web` 是 CLI 硬编码的两个子命令之一（另一个是 `plugin`），它做的事情就是：按 `web` 这个 profile 解析配置、挂插件、启动入口。',
-        '注意地址是 `127.0.0.1`：默认只监听本机。想让别人访问，需要显式改配置——又是 fail-closed 的影子：默认不对外暴露。',
-      ],
-      sourceDrawer: src(
-        '启动 Web UI',
-        '终端',
-        `${DSH_REPO}`,
-        'text',
-        `$ npx @deepseek-ai/dsh web
-# Web UI: http://127.0.0.1:3080`,
-        '基线 0.1.0-rc.5。npx 会下载并运行官方包；需要 Node.js ≥ 22。',
-      ),
-      kpis: [kpi('启动命令', 'npx @deepseek-ai/dsh web', 'good'), kpi('默认地址', '127.0.0.1:3080', 'neutral'), kpi('Node 要求', '≥ 22', 'neutral')],
-      scene: swim('npx dsh web 的启动', [
-        { id: 'cli', label: 'CLI', sublabel: 'npx @deepseek-ai/dsh web', tone: 'blue' },
-        { id: 'prof', label: 'profile 解析', sublabel: 'web profile → 配置树', tone: 'violet' },
-        { id: 'app', label: '应用', sublabel: '挂插件 → 启动入口', tone: 'green' },
-      ], [
-        { id: 'a', laneId: 'cli', start: 2, end: 26, label: '解析 web 子命令', tone: 'blue', status: 'done' },
-        { id: 'b', laneId: 'prof', start: 28, end: 56, label: '叠加 bundle + patch', tone: 'violet', status: 'done' },
-        { id: 'c', laneId: 'app', start: 58, end: 96, label: '监听 127.0.0.1:3080', tone: 'green', status: 'done' },
-      ], [{ id: 'ev', laneId: 'app', pos: 77, label: 'Web UI 就绪', tone: 'green', emphasized: true }]),
-    },
-    {
-      shortLabel: '组装复盘',
-      badge: 'RECAP',
-      title: '组装三句话',
-      paragraphs: [
-        '套件只装每个 Agent 都需要的东西，模型与入口留在外面；插件分定义、提供、使用三种角色，接口、实现、调用方彼此分开；同一核心换入口就是新产品，产品差异是配置差异。',
-        '最后一课回到起点：迷你版和真 Cordis 到底一样到什么程度，省掉的两千行在做什么。',
-      ],
-      recapTable: [
-        { question: '套件该装什么？', decision: '只装每个 Agent 都需要的', because: '套件越小，可复用面越广；模型与入口越晚决定越自由' },
-        { question: '怎么换模型 / 换入口？', decision: '换插件，不改核心', because: '定义、提供、使用三分工，调用方只认服务名' },
-        { question: 'web 与 headless 差在哪？', decision: '只差入口插件与 profile', because: '产品差异是配置差异' },
-      ],
-      kpis: [kpi('套件原则', '只装必需', 'good'), kpi('角色', '定义 / 提供 / 使用', 'neutral'), kpi('本课步骤', '6 步', 'neutral')],
-      scene: tree('从 spine 到产品', [
-        { id: 'spine', x: 500, y: 60, kind: 'root', label: 'spine 套件', sublabel: '7 个核心插件', status: 'active' },
-        { id: 'model', x: 200, y: 200, kind: 'service', label: '+ 模型适配器', sublabel: 'deepseek / mock' },
-        { id: 'entry', x: 500, y: 200, kind: 'plugin', label: '+ 入口', sublabel: 'webserver / CLI' },
-        { id: 'prod', x: 800, y: 200, kind: 'plugin', label: '产品', sublabel: 'web / headless / SDK / ACP', status: 'highlight' },
-      ], [
-        { from: 'spine', to: 'model' },
-        { from: 'spine', to: 'entry' },
-        { from: 'model', to: 'prod' },
-        { from: 'entry', to: 'prod' },
-      ]),
-    },
-  ]),
-);
-
-const L14 = lesson(
+export const L14 = lesson(
   'mini-vs-real',
-  'ch06',
-  6,
-  '组装与对照',
+  'ch05',
+  5,
+  '产品组装与源码对照',
   2,
   2,
   '迷你版 vs 真 Cordis：省了什么',
@@ -656,7 +484,4 @@ const { Context, Service } = lib`,
   ]),
 );
 
-export const CHAPTERS_05_06 = [
-  chapter('ch05', 5, '会话与提示词', 'coral', [L11, L12]),
-  chapter('ch06', 6, '组装与对照', 'teal', [L13, L14]),
-];
+// 章节装配已统一移至 src/data/curriculum.ts（原 L13 已与原 L2 合并为 CH5 product-assembly）。

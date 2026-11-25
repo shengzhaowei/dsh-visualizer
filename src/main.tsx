@@ -7,6 +7,7 @@ import './styles/stage.css';
 import './styles/inspector.css';
 import './styles/search.css';
 import './styles/cheatsheet.css';
+import './styles/holo.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

@@ -99,15 +99,21 @@ function isEventsTable(section: CheatsheetSection): boolean {
 }
 
 export function CheatsheetView({ data, onJumpToLesson, onBackToLearn }: CheatsheetViewProps) {
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(`cheatsheet-${id}`);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   return (
     <div className="cheatsheet">
       <section className="cheatsheet-hero">
-        <div className="cheatsheet-eyebrow">{data.hero.eyebrow}</div>
-        <h1 className="cheatsheet-title">{data.hero.title}</h1>
-        <p className="cheatsheet-subtitle">{data.hero.subtitle}</p>
-        <div className="cheatsheet-notes">
-          <div>{data.hero.repoNote}</div>
-          <div>{data.hero.scopeNote}</div>
+        <div className="cheatsheet-hero-top">
+          <div>
+            <h1 className="cheatsheet-title">{data.hero.title}</h1>
+          </div>
+          <button type="button" className="tactile-btn tactile-btn--primary cheatsheet-hero-back" onClick={onBackToLearn}>
+            <ArrowLeft size={14} /> 返回课程
+          </button>
         </div>
         <div className="cheatsheet-stats">
           {data.hero.stats.map((s, i) => (
@@ -121,10 +127,15 @@ export function CheatsheetView({ data, onJumpToLesson, onBackToLearn }: Cheatshe
 
       <nav className="cheatsheet-nav" aria-label="速查分区">
         {data.sections.map((section) => (
-          <a key={section.id} className="cheatsheet-nav-pill" href={`#cheatsheet-${section.id}`}>
+          <button
+            key={section.id}
+            type="button"
+            className="cheatsheet-nav-pill"
+            onClick={() => scrollToSection(section.id)}
+          >
             <span className="cheatsheet-nav-num mono">{section.number}</span>
             {section.title}
-          </a>
+          </button>
         ))}
       </nav>
 
@@ -135,10 +146,9 @@ export function CheatsheetView({ data, onJumpToLesson, onBackToLearn }: Cheatshe
             <span className="cheatsheet-section-title">{section.title}</span>
             {section.lessonSlug && section.kind !== 'map' && (
               <button type="button" className="cheatsheet-jump" onClick={() => onJumpToLesson(section.lessonSlug!, section.stepNumber)}>
-                去对应课程 <ArrowRight size={12} style={{ verticalAlign: -1 }} />
+                对应课程 <ArrowRight size={12} style={{ verticalAlign: -1 }} />
               </button>
             )}
-            <span className="cheatsheet-section-subtitle">{section.subtitle}</span>
           </div>
           {section.kind === 'map' ? (
             <div className="cheatsheet-section-body">

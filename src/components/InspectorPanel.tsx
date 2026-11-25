@@ -1,9 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, CheckCircle2, ChevronDown, Circle, Copy, ExternalLink, FileCode2, Lightbulb, ListChecks, TriangleAlert } from 'lucide-react';
 import type { Lesson, LessonStep } from '../types/lesson';
 import { renderInline } from '../utils/inlineCode';
 import { highlightLine } from '../utils/highlight';
-import { diffScenes } from '../utils/sceneDiff';
 
 interface InspectorPanelProps {
   lesson: Lesson;
@@ -13,6 +12,7 @@ interface InspectorPanelProps {
   nextLesson?: Lesson;
   canPrev: boolean;
   canNext: boolean;
+  onSelectStep: (stepIndex: number) => void;
   onPrevStep: () => void;
   onNextStep: () => void;
   onSelectLesson: (slug: string) => void;
@@ -25,16 +25,25 @@ const CALLOUT_STYLE: Record<string, { stroke: string; title: string; icon: 'idea
   warn: { stroke: 'var(--orange-stroke)', title: '注意', icon: 'warn' },
 };
 
-export function InspectorPanel({ lesson, step, stepIndex, totalSteps, nextLesson, canPrev, canNext, onPrevStep, onNextStep, onSelectLesson, onOpenCheatsheet }: InspectorPanelProps) {
+export function InspectorPanel({ lesson, step, stepIndex, totalSteps, nextLesson, canPrev, canNext, onSelectStep, onPrevStep, onNextStep, onSelectLesson, onOpenCheatsheet }: InspectorPanelProps) {
   const doneObjectives = lesson.objectives.filter((o) => stepIndex + 1 >= o.completedAtStep);
-  const [objectivesOpen, setObjectivesOpen] = useState(true);
+  const [objectivesOpen, setObjectivesOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const prevNavRef = useRef<{ slug: string; idx: number }>({ slug: lesson.slug, idx: stepIndex });
 
-  const prevScene = stepIndex > 0 ? lesson.steps[stepIndex - 1]?.scene : undefined;
-  const stateDiff = useMemo(() => diffScenes(prevScene, step.scene), [prevScene, step.scene]);
-  const shownDiff = stateDiff.slice(0, 6);
-  const hiddenDiffCount = stateDiff.length - shownDiff.length;
+  const slideDir =
+    prevNavRef.current.slug !== lesson.slug
+      ? 'next'
+      : stepIndex < prevNavRef.current.idx
+        ? 'prev'
+        : 'next';
+
+  useEffect(() => {
+    prevNavRef.current = { slug: lesson.slug, idx: stepIndex };
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [lesson.slug, stepIndex]);
 
   const copyCode = async () => {
     if (!step.sourceDrawer) return;
@@ -53,15 +62,25 @@ export function InspectorPanel({ lesson, step, stepIndex, totalSteps, nextLesson
 
   return (
     <aside className="inspector" aria-label="步骤解读">
-      <div key={`${lesson.slug}-${stepIndex}`} className="inspector-anim">
-        <div className="inspector-progress" aria-label={`步骤进度 ${stepIndex + 1} / ${totalSteps}`}>
-          {lesson.steps.map((_, i) => (
-            <span
-              key={i}
+      <div className="inspector-header">
+        <div className="inspector-progress" role="tablist" aria-label={`步骤进度 ${stepIndex + 1} / ${totalSteps}`}>
+          {lesson.steps.map((s, i) => (
+            <button
+              key={s.stepNumber}
+              type="button"
+              role="tab"
+              aria-selected={i === stepIndex}
+              aria-label={`跳到第 ${s.stepNumber} 步：${s.title}`}
+              title={`第 ${s.stepNumber} 步 · ${s.shortLabel}：${s.title}`}
               className={`inspector-progress-seg ${i < stepIndex ? 'inspector-progress-seg--done' : i === stepIndex ? 'inspector-progress-seg--current' : ''}`}
+              onClick={() => onSelectStep(i)}
             />
           ))}
         </div>
+      </div>
+
+      <div ref={scrollRef} className="inspector-scroll">
+        <div key={`${lesson.slug}-${stepIndex}`} className={`inspector-anim inspector-anim--${slideDir}`}>
         <div className="inspector-step-head">
           <span className={`step-badge step-badge--${step.badge}`}>{step.badge}</span>
           <span className="inspector-step-count mono">
@@ -86,50 +105,32 @@ export function InspectorPanel({ lesson, step, stepIndex, totalSteps, nextLesson
           </div>
         )}
 
-        {/* 本步变化：对比上一步场景自动算出，不编造文案 */}
-        <div className="state-diff" aria-label="本步变化">
-          <div className="state-diff-head">
-            <span className="state-diff-title">本步变化</span>
-            <span className="state-diff-title-en mono">STATE DIFF</span>
-          </div>
-          <ul className="state-diff-list">
-            {shownDiff.map((d, i) => (
-              <li key={i} className={`state-diff-line state-diff-line--${d.kind}`}>
-                <span className="state-diff-sign" aria-hidden="true">
-                  {d.kind === 'add' ? '+' : d.kind === 'remove' ? '−' : d.kind === 'change' ? '~' : '·'}
-                </span>
-                <span className="mono">{d.text}</span>
-              </li>
-            ))}
-          </ul>
-          {hiddenDiffCount > 0 && <div className="state-diff-more">还有 {hiddenDiffCount} 项变化</div>}
-        </div>
-
         <div className="objectives">
           <button type="button" className="objectives-head" onClick={() => setObjectivesOpen((o) => !o)} aria-expanded={objectivesOpen}>
             <span className="objectives-head-title">
               <ListChecks size={13} />
-              本课收获
-              <span className="objectives-head-en">YOU&rsquo;LL LEARN {doneObjectives.length}/{lesson.objectives.length}</span>
+              本课要点 · {doneObjectives.length}/{lesson.objectives.length}
             </span>
             <ChevronDown size={14} className={`objectives-chevron ${objectivesOpen ? 'objectives-chevron--open' : ''}`} />
           </button>
-          {objectivesOpen && (
-            <ul className="objectives-list">
-              {lesson.objectives.map((o) => {
-                const done = stepIndex + 1 >= o.completedAtStep;
-                return (
-                  <li key={o.id} className={done ? 'done' : ''}>
-                    <span className={`obj-check ${done ? '' : 'obj-check--pending'}`}>
-                      {done ? <CheckCircle2 size={15} /> : <Circle size={15} />}
-                    </span>
-                    <span className="obj-text">{o.text}</span>
-                    <span className="obj-step">第 {o.completedAtStep} 步</span>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          <div className={`objectives-body ${objectivesOpen ? 'objectives-body--open' : ''}`}>
+            <div className="objectives-body-inner">
+              <ul className="objectives-list">
+                {lesson.objectives.map((o) => {
+                  const done = stepIndex + 1 >= o.completedAtStep;
+                  return (
+                    <li key={o.id} className={done ? 'done' : ''}>
+                      <span className={`obj-check ${done ? '' : 'obj-check--pending'}`}>
+                        {done ? <CheckCircle2 size={15} /> : <Circle size={15} />}
+                      </span>
+                      <span className="obj-text">{o.text}</span>
+                      <span className="obj-step">第 {o.completedAtStep} 步</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
         </div>
 
         {step.sourceDrawer && (
@@ -149,9 +150,12 @@ export function InspectorPanel({ lesson, step, stepIndex, totalSteps, nextLesson
                 <ChevronDown size={13} className={`source-drawer-chevron ${drawerOpen ? 'source-drawer-chevron--open' : ''}`} />
               </button>
               <span className="source-drawer-actions">
-                <span className="source-lang-badge mono">{step.sourceDrawer.language}</span>
-                <span className="source-line-count mono">{codeLines.length} 行</span>
-                <button type="button" className="source-copy-btn" onClick={() => void copyCode()} aria-label="复制代码">
+                <button
+                  type="button"
+                  className={`source-copy-btn ${copied ? 'source-copy-btn--copied' : ''}`}
+                  onClick={() => void copyCode()}
+                  aria-label="复制代码"
+                >
                   {copied ? <Check size={13} /> : <Copy size={13} />}
                   {copied ? '已复制' : '复制'}
                 </button>
@@ -171,7 +175,6 @@ export function InspectorPanel({ lesson, step, stepIndex, totalSteps, nextLesson
                     </div>
                   ))}
                 </pre>
-                {step.sourceDrawer.caption && <div className="source-drawer-caption">{step.sourceDrawer.caption}</div>}
               </div>
             </div>
           </div>
@@ -219,30 +222,48 @@ export function InspectorPanel({ lesson, step, stepIndex, totalSteps, nextLesson
         )}
       </div>
 
-      <div className="inspector-nav">
-        <button type="button" className="tactile-btn" onClick={onPrevStep} disabled={!canPrev}>
-          ← 上一步
-        </button>
-        <button type="button" className="tactile-btn tactile-btn--primary" onClick={onNextStep} disabled={!canNext}>
-          下一步 →
-        </button>
+        {nextLesson && stepIndex === totalSteps - 1 && (
+          <div className="next-lesson-card">
+            <div className="next-lesson-title">{nextLesson.title}</div>
+            <button type="button" className="tactile-btn tactile-btn--primary next-lesson-btn" onClick={() => onSelectLesson(nextLesson.slug)}>
+              下一课：{nextLesson.title} <ArrowRight size={13} style={{ verticalAlign: -2 }} />
+            </button>
+          </div>
+        )}
       </div>
 
-      {nextLesson && stepIndex === totalSteps - 1 && (
-        <div className="next-lesson-card">
-          <div className="next-lesson-eyebrow">下一课预告</div>
-          <div className="next-lesson-title">{nextLesson.title}</div>
-          <div className="next-lesson-sub">{nextLesson.subtitle}</div>
-          <button type="button" className="tactile-btn tactile-btn--primary next-lesson-btn" onClick={() => onSelectLesson(nextLesson.slug)}>
-            继续：{nextLesson.title} <ArrowRight size={13} style={{ verticalAlign: -2 }} />
+      <div className="inspector-footer">
+        <div className="inspector-nav">
+          <button type="button" className="tactile-btn" onClick={onPrevStep} disabled={!canPrev}>
+            ← 上一步
+          </button>
+          {canNext ? (
+            <button type="button" className="tactile-btn tactile-btn--primary" onClick={onNextStep}>
+              下一步 →
+            </button>
+          ) : nextLesson ? (
+            <button
+              type="button"
+              className="tactile-btn tactile-btn--primary"
+              onClick={() => onSelectLesson(nextLesson.slug)}
+              title={`进入下一课：${nextLesson.title}`}
+            >
+              下一课 →
+            </button>
+          ) : (
+            <button type="button" className="tactile-btn tactile-btn--primary" onClick={onOpenCheatsheet}>
+              架构速查表 →
+            </button>
+          )}
+        </div>
+        <div className="inspector-footer-meta">
+          <span className="inspector-footer-step mono">
+            {stepIndex + 1} / {totalSteps}
+          </span>
+          <button type="button" className="inspector-cheatsheet-link" onClick={onOpenCheatsheet}>
+            打开架构速查表
           </button>
         </div>
-      )}
-
-      <div className="inspector-links">
-        <button type="button" className="tactile-btn" onClick={onOpenCheatsheet}>
-          打开架构速查表
-        </button>
       </div>
     </aside>
   );

@@ -1,42 +1,59 @@
 import type { MouseEvent } from 'react';
-import { BookOpen, Code2, ExternalLink, Menu, Moon, Play, Search, Sun, Waves } from 'lucide-react';
+import { ArrowLeft, BookOpen, Code2, ExternalLink, Menu, Moon, Search, Sparkles, Sun, Volume2, VolumeX, Waves } from 'lucide-react';
 
-export type AppMode = 'learn' | 'cheatsheet';
+export type DshMode = 'learn' | 'cheatsheet' | 'deck';
 
 interface TopBarProps {
-  mode: AppMode;
+  mode: DshMode;
   theme: 'light' | 'dark' | 'deepsea';
-  onChangeMode: (mode: AppMode) => void;
+  soundMuted: boolean;
+  unlockedCardsCount: number;
+  totalCardsCount: number;
+  onChangeMode: (mode: DshMode) => void;
   onOpenSearch: () => void;
+  onToggleSound: () => void;
   onToggleTheme: (e: MouseEvent<HTMLButtonElement>) => void;
   onOpenMobileDrawer: () => void;
-  onGoHome: () => void;
-  onShowGuide: () => void;
+  onBackToPortal: () => void;
+  onGoFirstLesson: () => void;
 }
 
-export function TopBar({ mode, theme, onChangeMode, onOpenSearch, onToggleTheme, onOpenMobileDrawer, onGoHome, onShowGuide }: TopBarProps) {
+export function TopBar({
+  mode,
+  theme,
+  soundMuted,
+  unlockedCardsCount,
+  totalCardsCount,
+  onChangeMode,
+  onOpenSearch,
+  onToggleSound,
+  onToggleTheme,
+  onOpenMobileDrawer,
+  onBackToPortal,
+  onGoFirstLesson,
+}: TopBarProps) {
   return (
     <header className="topbar">
       <button type="button" className="tactile-btn topbar-icon-btn topbar-menu-btn" onClick={onOpenMobileDrawer} aria-label="打开课程目录">
         <Menu size={15} />
       </button>
-      <div className="brand" onClick={onGoHome} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onGoHome()}>
-        <img className="brand-mark-img" src="/whale-girl-icon.png" alt="鲸鱼娘" />
-        <span>
-          <span className="brand-title">图解 DSH 源码</span>
-          <br />
-          <span className="brand-sub">一张图看懂 DeepSeek Harness · 一切皆插件</span>
-        </span>
+      <button type="button" className="topbar-pill" onClick={onBackToPortal} title="返回 Learn Agent 学习包">
+        <ArrowLeft size={13} /> Learn Agent
+      </button>
+      <div className="brand" onClick={onGoFirstLesson} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onGoFirstLesson()}>
+        <img className="brand-mark-img" src="/whale-girl-icon.png" alt="DeepSeek Harness" />
+        <span className="brand-title">DeepSeek Harness</span>
       </div>
       <nav className="topbar-modes" aria-label="视图切换">
-        <button type="button" className="topbar-pill topbar-pill--start" onClick={onShowGuide}>
-          <Play size={13} /> 开始
-        </button>
         <button type="button" className={`topbar-pill ${mode === 'learn' ? 'topbar-pill--active' : ''}`} onClick={() => onChangeMode('learn')}>
           <BookOpen size={13} /> 学习
         </button>
         <button type="button" className={`topbar-pill ${mode === 'cheatsheet' ? 'topbar-pill--active' : ''}`} onClick={() => onChangeMode('cheatsheet')}>
           速查表
+        </button>
+        <button type="button" className={`topbar-pill ${mode === 'deck' ? 'topbar-pill--active' : ''}`} onClick={() => onChangeMode('deck')}>
+          <Sparkles size={13} /> 卡册
+          <span className="topbar-deck-badge">{unlockedCardsCount}/{totalCardsCount}</span>
         </button>
       </nav>
       <div className="topbar-spacer" />
@@ -50,7 +67,23 @@ export function TopBar({ mode, theme, onChangeMode, onOpenSearch, onToggleTheme,
           <Code2 size={13} /> 本站源码 <ExternalLink size={11} />
         </a>
       </div>
-      <button type="button" className="tactile-btn topbar-icon-btn" onClick={onToggleTheme} aria-label={theme === 'light' ? '切换到深海主题' : theme === 'deepsea' ? '切换到深色主题' : '切换到浅色主题'}>
+      <button
+        type="button"
+        className="tactile-btn topbar-icon-btn"
+        onClick={onToggleSound}
+        title={soundMuted ? '开启音效' : '静音'}
+        aria-label={soundMuted ? '开启音效' : '静音'}
+        aria-pressed={!soundMuted}
+      >
+        {soundMuted ? <VolumeX size={15} /> : <Volume2 size={15} />}
+      </button>
+      <button
+        type="button"
+        className="tactile-btn topbar-icon-btn topbar-theme-btn"
+        onClick={onToggleTheme}
+        title={theme === 'light' ? '切换深海主题' : theme === 'deepsea' ? '切换深色主题' : '切换浅色主题'}
+        aria-label="切换主题"
+      >
         {theme === 'light' ? <Waves size={15} /> : theme === 'deepsea' ? <Moon size={15} /> : <Sun size={15} />}
       </button>
     </header>

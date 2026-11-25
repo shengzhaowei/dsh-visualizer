@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <defs>
+    <radialGradient id="parrotBody" cx="38%" cy="28%" r="72%">
+      <stop offset="0%" stop-color="#6ef2cb"/>
+      <stop offset="48%" stop-color="#25b892"/>
+      <stop offset="100%" stop-color="#0f745c"/>
+    </radialGradient>
+    <radialGradient id="parrotWing" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#45d8b2"/>
+      <stop offset="100%" stop-color="#0d634f"/>
+    </radialGradient>
+    <linearGradient id="chainLink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#c9d7e3"/>
+      <stop offset="100%" stop-color="#7c90a1"/>
+    </linearGradient>
+    <radialGradient id="cheek" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff7ea8" stop-opacity="0.78"/>
+      <stop offset="100%" stop-color="#ff7ea8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#0b4e3e" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <g filter="url(#softShadow)">
+    <path d="M114 56 C104 34, 118 28, 124 44 C132 30, 144 38, 132 58 Z" fill="url(#parrotBody)"/>
+    <ellipse cx="48" cy="134" rx="18" ry="26" transform="rotate(18 48 134)" fill="url(#parrotWing)"/>
+    <ellipse cx="192" cy="134" rx="18" ry="26" transform="rotate(-18 192 134)" fill="url(#parrotWing)"/>
+    <ellipse cx="120" cy="126" rx="70" ry="68" fill="url(#parrotBody)"/>
+    <ellipse cx="120" cy="158" rx="42" ry="30" fill="#e6fff6" opacity="0.88"/>
+    <ellipse cx="96" cy="78" rx="28" ry="12" transform="rotate(-18 96 78)" fill="#ffffff" opacity="0.45"/>
+    <g transform="translate(120, 166)">
+      <rect x="-24" y="-8" width="26" height="14" rx="7" fill="none" stroke="url(#chainLink)" stroke-width="5"/>
+      <rect x="-2" y="-8" width="26" height="14" rx="7" fill="none" stroke="url(#chainLink)" stroke-width="5"/>
+    </g>
+    <ellipse cx="76" cy="130" rx="13" ry="8.5" fill="url(#cheek)"/>
+    <ellipse cx="164" cy="130" rx="13" ry="8.5" fill="url(#cheek)"/>
+  </g>
+</svg>

@@ -70,10 +70,16 @@
   gap: 2px;
   min-width: 0;
   padding: 8px 10px;
-  border: 1px solid var(--line-strong);
+  border: 1.5px solid var(--line-strong);
   border-radius: var(--radius-md);
   background: var(--sheet);
   box-shadow: var(--pop-shadow-sm);
+  transition: transform 0.16s var(--ease-snappy), box-shadow 0.16s var(--ease-snappy), border-color 0.16s ease;
+}
+.stage-kpi:hover {
+  transform: translateY(-2px);
+  border-color: var(--edge);
+  box-shadow: var(--pop-shadow);
 }
 .stage-kpi-label {
   color: var(--muted);
@@ -96,11 +102,12 @@
   text-overflow: ellipsis;
 }
 @keyframes kpiFlash {
-  0% { background: var(--green); border-radius: 4px; }
-  100% { background: transparent; }
+  0% { background: var(--green); border-radius: 4px; transform: translateY(3px) scale(0.96); opacity: 0.7; }
+  45% { transform: translateY(-1px) scale(1.02); opacity: 1; }
+  100% { background: transparent; transform: translateY(0) scale(1); }
 }
 .stage-kpi-flash {
-  animation: kpiFlash 0.7s ease;
+  animation: kpiFlash 0.55s var(--ease-snappy);
 }
 
 /* 画布卡片 */
@@ -112,6 +119,28 @@
   box-shadow: var(--pop-shadow-lg);
   overflow: hidden;
   flex: 0 0 auto;
+}
+.stage-autoplay-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: transparent;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+}
+.stage-autoplay-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--green-stroke), var(--rust));
+  transform-origin: left center;
+  animation: autoplayProgress 6s linear both;
+}
+@keyframes autoplayProgress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 .stage-canvas-title {
   display: flex;
@@ -164,16 +193,32 @@
   width: auto;
   min-width: 28px;
   height: 28px;
-  padding: 0 6px;
-  border: none;
+  padding: 0 7px;
+  border: 1px solid transparent;
   border-radius: var(--radius-pill);
   background: transparent;
   color: var(--ink);
   cursor: pointer;
-  transition: background-color 0.14s ease;
+  transition: background-color 0.14s ease, border-color 0.14s ease, transform 0.14s var(--ease-snappy);
 }
 .stage-ctrl-btn:hover {
   background: var(--hover-bg);
+}
+.stage-ctrl-btn:active {
+  transform: scale(0.95);
+}
+.stage-ctrl-btn--playing {
+  background: var(--green);
+  border-color: var(--green-stroke);
+  color: var(--ink);
+  animation: playingPulse 2s ease-in-out infinite;
+}
+.stage-ctrl-btn--playing:hover {
+  background: var(--green-2);
+}
+@keyframes playingPulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green-stroke) 32%, transparent); }
+  50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--green-stroke) 0%, transparent); }
 }
 .stage-ctrl-btn .kbd {
   min-width: 16px;
@@ -218,10 +263,58 @@
   width: 1000px;
   will-change: transform;
 }
+.stage-zoom-layer--smooth {
+  transition: transform 0.24s var(--ease-snappy);
+}
 .stage-svg {
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* 悬浮画布微 HUD：鼠标悬停节点/边时展示详情 */
+.stage-hover-hud {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 5;
+  max-width: min(360px, calc(100% - 24px));
+  padding: 7px 11px;
+  border: 1.5px solid var(--edge);
+  border-radius: var(--radius-md);
+  background: var(--sheet);
+  box-shadow: var(--pop-shadow);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  animation: hudPop 0.18s var(--ease-snappy) both;
+}
+@keyframes hudPop {
+  from { opacity: 0; transform: translateY(5px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.stage-hover-hud-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.stage-hover-hud-badge {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--green);
+  border: 1px solid var(--green-stroke);
+  color: var(--ink);
+}
+.stage-hover-hud-sub {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 /* 图例行 + 蓝图印章 */
@@ -453,13 +546,27 @@
   border: 2px solid var(--edge);
   color: var(--ink);
   box-shadow: var(--pop-shadow-sm);
-  transform: translateY(-1px) scale(1.05);
-  animation: timelinePop 0.3s var(--ease-snappy) both;
+  transform: translateY(-1px) scale(1.06);
+  animation: timelinePop 0.34s var(--ease-spring) both;
+}
+.timeline-node--active .timeline-circle::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid var(--green-stroke);
+  opacity: 0;
+  animation: timelineRing 2.2s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes timelineRing {
+  0% { transform: scale(0.88); opacity: 0.65; }
+  100% { transform: scale(1.42); opacity: 0; }
 }
 @keyframes timelinePop {
-  0% { transform: translateY(-1px) scale(0.85); }
-  60% { transform: translateY(-1px) scale(1.14); }
-  100% { transform: translateY(-1px) scale(1.05); }
+  0% { transform: translateY(-1px) scale(0.82); }
+  60% { transform: translateY(-2px) scale(1.15); }
+  100% { transform: translateY(-1px) scale(1.06); }
 }
 .timeline-label {
   font-size: 10.5px;
@@ -475,7 +582,12 @@
 .timeline-node--done .timeline-label { color: var(--ink-2); }
 .timeline-node--active .timeline-label { color: var(--ink); font-weight: 800; }
 
-/* SVG 入场动画 */
+/* SVG 入场与交互动画 */
+@keyframes stageNodePop {
+  0% { opacity: 0; transform: translateY(7px) scale(0.97); }
+  65% { opacity: 1; transform: translateY(-1px) scale(1.008); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
 @keyframes stageFadeUp {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
@@ -484,39 +596,63 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
+@keyframes stageEdgeDraw {
+  from { stroke-dashoffset: 1.05; opacity: 0.25; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
 @keyframes stagePulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.25; }
 }
-/* 幽灵节点透明度平滑过渡（与入场动画分层，避免动画覆盖透明度） */
+/* 幽灵节点与聚焦高亮平滑过渡 */
 .stage-node-dim,
 .stage-edge-dim {
-  transition: opacity 0.35s ease;
+  transition: opacity 0.24s var(--ease-smooth);
+}
+.stage-interactive-node {
+  cursor: pointer;
+}
+.stage-interactive-node .stage-node-body {
+  transition: transform 0.2s var(--ease-snappy), filter 0.2s ease;
+}
+.stage-interactive-node:hover .stage-node-body,
+.stage-interactive-node--focused .stage-node-body {
+  transform: translateY(-2.5px);
+}
+.stage-interactive-edge {
+  cursor: pointer;
+}
+.stage-edge-draw {
+  stroke-dasharray: 1.05;
+  stroke-dashoffset: 0;
+  animation: stageEdgeDraw 0.62s var(--ease-snappy) both;
 }
 @keyframes nodeGlow {
-  0%, 100% { opacity: 0.18; }
-  50% { opacity: 0.5; }
+  0%, 100% { opacity: 0.16; }
+  50% { opacity: 0.54; }
 }
 .stage-node-glow {
-  animation: nodeGlow 1.8s ease-in-out infinite;
+  animation: nodeGlow 2s ease-in-out infinite;
 }
 .stage-node-enter {
-  animation: stageFadeUp 0.45s var(--ease-snappy) both;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: stageNodePop 0.46s var(--ease-snappy) both;
 }
 .stage-edge-enter {
-  animation: stageFade 0.5s ease both;
+  animation: stageFade 0.48s ease both;
 }
 .stage-zone-enter {
-  animation: stageFade 0.6s ease both;
+  animation: stageFade 0.56s ease both;
 }
 .stage-label-enter {
-  animation: stageFadeUp 0.4s ease both;
+  animation: stageFadeUp 0.38s var(--ease-snappy) both;
 }
 .stage-pulse {
   animation: stagePulse 1.4s ease-in-out infinite;
 }
 
-/* 数据包：激活虚线边的流动虚线 + 数据包入场淡入 */
+/* 数据包：激活虚线边的流动虚线 + CSS offset-path 粒子常驻流动（不依赖播放按钮） */
 .stage-dash-flow {
   animation: dashFlow 1s linear infinite;
 }
@@ -529,6 +665,28 @@
 @keyframes packetEnter {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+@keyframes packetTravel {
+  0% { offset-distance: 0%; opacity: 0; }
+  8% { opacity: 1; }
+  92% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+@keyframes packetHaloPulse {
+  0%, 100% { transform: scale(0.85); opacity: 0.34; }
+  50% { transform: scale(1.22); opacity: 0.14; }
+}
+.stage-packet-orb {
+  offset-rotate: auto;
+  animation-name: packetTravel;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  pointer-events: none;
+}
+.stage-packet-halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: packetHaloPulse 1.6s ease-in-out infinite;
 }
 
 [data-theme='dark'] .stage-viewport {
@@ -602,6 +760,14 @@
   background: var(--paper);
   font-size: 12.5px;
   line-height: 1.5;
+  cursor: pointer;
+  transition: transform 0.14s var(--ease-snappy), border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+}
+.stage-recap-steps li:hover:not(.stage-recap-step--current) {
+  transform: translateX(3px);
+  border-color: var(--edge);
+  background: var(--paper-2);
+  box-shadow: var(--pop-shadow-sm);
 }
 .stage-recap-step--current {
   border-color: var(--green-stroke);

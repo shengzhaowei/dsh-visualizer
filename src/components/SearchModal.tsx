@@ -33,6 +33,22 @@ const GROUP_ICON: Record<HitGroup, typeof BookOpen> = {
   步骤: FileText,
 };
 
+function highlightMatch(text: string, query: string) {
+  const q = query.trim();
+  if (!q) return text;
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const parts = text.split(new RegExp(`(${escaped})`, 'ig'));
+  return parts.map((part, idx) =>
+    part.toLowerCase() === q.toLowerCase() ? (
+      <mark key={idx} className="search-mark">
+        {part}
+      </mark>
+    ) : (
+      part
+    ),
+  );
+}
+
 export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: SearchModalProps) {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(0);
@@ -110,6 +126,18 @@ export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: Search
               else if (e.key === 'Escape') { onClose(); }
             }}
           />
+          {query && (
+            <button
+              type="button"
+              className="search-clear-btn"
+              onClick={() => {
+                setQuery('');
+                inputRef.current?.focus();
+              }}
+            >
+              清空
+            </button>
+          )}
           <button type="button" className="tactile-btn" style={{ width: 26, height: 26, padding: 0 }} onClick={onClose} aria-label="关闭搜索">
             <X size={13} />
           </button>
@@ -151,8 +179,8 @@ export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: Search
                         onClick={() => choose(hit)}
                       >
                         <span className="search-result-main">
-                          <span className="search-result-title">{hit.title}</span>
-                          <span className="search-result-meta">{hit.meta}</span>
+                          <span className="search-result-title">{highlightMatch(hit.title, query)}</span>
+                          <span className="search-result-meta">{highlightMatch(hit.meta, query)}</span>
                         </span>
                         <ArrowRight size={14} className="search-result-arrow" />
                       </button>

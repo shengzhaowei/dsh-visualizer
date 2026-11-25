@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <defs>
+    <radialGradient id="whaleBody" cx="38%" cy="30%" r="68%">
+      <stop offset="0%" stop-color="#76b8ff"/>
+      <stop offset="48%" stop-color="#3b7ef6"/>
+      <stop offset="100%" stop-color="#1b43b8"/>
+    </radialGradient>
+    <radialGradient id="whaleBelly" cx="50%" cy="25%" r="70%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#d7ebff"/>
+      <stop offset="100%" stop-color="#a8d0ff"/>
+    </radialGradient>
+    <radialGradient id="whaleFin" cx="35%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#5da5ff"/>
+      <stop offset="100%" stop-color="#1f49bf"/>
+    </radialGradient>
+    <radialGradient id="cheek" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff7ea8" stop-opacity="0.78"/>
+      <stop offset="100%" stop-color="#ff7ea8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="8" flood-color="#16358c" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <g filter="url(#softShadow)">
+    <path d="M114 48 C110 34, 98 28, 93 34 C88 40, 98 48, 108 52 Z" fill="#8ad8ff" opacity="0.9"/>
+    <path d="M126 48 C130 34, 142 28, 147 34 C152 40, 142 48, 132 52 Z" fill="#8ad8ff" opacity="0.9"/>
+    <circle cx="120" cy="30" r="4.5" fill="#bfe8ff"/>
+    <path d="M174 126 C198 106, 214 102, 214 114 C214 126, 200 134, 188 138 C202 142, 212 152, 206 160 C198 168, 182 156, 170 144 Z" fill="url(#whaleFin)"/>
+    <ellipse cx="52" cy="144" rx="22" ry="13" transform="rotate(-24 52 144)" fill="url(#whaleFin)"/>
+    <ellipse cx="182" cy="150" rx="20" ry="12" transform="rotate(22 182 150)" fill="url(#whaleFin)"/>
+    <path d="M46 130 C46 78, 76 54, 120 54 C164 54, 192 78, 192 130 C192 174, 162 194, 120 194 C78 194, 46 174, 46 130 Z" fill="url(#whaleBody)"/>
+    <path d="M62 152 C68 180, 92 191, 120 191 C148 191, 172 180, 178 152 C158 162, 140 165, 120 165 C100 165, 82 162, 62 152 Z" fill="url(#whaleBelly)"/>
+    <ellipse cx="96" cy="80" rx="34" ry="14" transform="rotate(-16 96 80)" fill="#ffffff" opacity="0.46"/>
+    <ellipse cx="76" cy="96" rx="8" ry="4.5" transform="rotate(-22 76 96)" fill="#ffffff" opacity="0.55"/>
+    <ellipse cx="76" cy="138" rx="14" ry="9" fill="url(#cheek)"/>
+    <ellipse cx="164" cy="138" rx="14" ry="9" fill="url(#cheek)"/>
+  </g>
+</svg>

@@ -1,0 +1,396 @@
+import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react';
+import { Code2, ExternalLink, X } from 'lucide-react';
+import { CHEATSHEET_DATA } from '../../data/cheatsheet';
+import { PLUGIN_HOLO_CARDS, getCardByChapterId, type PluginHoloCard } from '../../data/cards';
+import { ALL_LESSONS, CHAPTERS, getChapterForLesson, getLessonBySlug, getNextLesson } from '../../data/curriculum';
+import { CheatsheetView } from '../../components/CheatsheetView';
+import { DeckView } from '../../components/DeckView';
+import { InspectorPanel } from '../../components/InspectorPanel';
+import { PluginPackModal } from '../../components/PluginPackModal';
+import { SearchModal } from '../../components/SearchModal';
+import { Sidebar } from '../../components/Sidebar';
+import { StagePanel } from '../../components/StagePanel';
+import { TopBar, type DshMode } from '../../components/TopBar';
+import { isSoundMuted, playSoundEnabledPing, playStepTick, setSoundMuted } from '../../utils/sound';
+
+type Theme = 'light' | 'dark' | 'deepsea';
+
+export interface DshRouteState {
+  mode: DshMode;
+  lessonSlug: string;
+  stepIndex: number; // 0-based
+}
+
+interface DshAppProps {
+  route: DshRouteState;
+  onNavigate: (next: DshRouteState) => void;
+  onBackToPortal: () => void;
+}
+
+const STORAGE_THEME_KEY = 'dsh-visualizer-theme';
+const STORAGE_PROGRESS_KEY = 'dsh-visualizer-completed';
+const STORAGE_CLAIMED_PACKS_KEY = 'dsh-visualizer-claimed-packs';
+
+function getInitialTheme(): Theme {
+  try {
+    const saved = localStorage.getItem(STORAGE_THEME_KEY);
+    if (saved === 'dark' || saved === 'light' || saved === 'deepsea') return saved;
+  } catch {
+    // ignore
+  }
+  const attr = document.documentElement.getAttribute('data-theme');
+  return attr === 'dark' || attr === 'deepsea' ? attr : 'light';
+}
+
+function loadCompletedLessons(): Set<string> {
+  try {
+    const raw = localStorage.getItem(STORAGE_PROGRESS_KEY);
+    if (!raw) return new Set();
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) return new Set(parsed.filter((v): v is string => typeof v === 'string'));
+  } catch {
+    // ignore
+  }
+  return new Set();
+}
+
+function loadClaimedPacks(): Set<string> {
+  try {
+    const raw = localStorage.getItem(STORAGE_CLAIMED_PACKS_KEY);
+    if (!raw) return new Set();
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) return new Set(parsed.filter((v): v is string => typeof v === 'string'));
+  } catch {
+    // ignore
+  }
+  return new Set();
+}
+
+/** 独立的 DeepSeek Harness 交互式架构可视化子应用。 */
+export function DshApp({ route, onNavigate, onBackToPortal }: DshAppProps) {
+  const [lastLearnRoute, setLastLearnRoute] = useState({
+    lessonSlug: route.lessonSlug,
+    stepIndex: route.mode === 'learn' ? route.stepIndex : 0,
+  });
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const [completedLessons, setCompletedLessons] = useState<Set<string>>(loadCompletedLessons);
+  const [claimedPacks, setClaimedPacks] = useState<Set<string>>(loadClaimedPacks);
+  const [packModal, setPackModal] = useState<{ card: PluginHoloCard; isDemo?: boolean } | null>(null);
+  const [soundMutedState, setSoundMutedState] = useState<boolean>(isSoundMuted);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [replayKey, setReplayKey] = useState(0);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (route.mode === 'learn' && route.lessonSlug) {
+      setLastLearnRoute({ lessonSlug: route.lessonSlug, stepIndex: route.stepIndex });
+    }
+  }, [route]);
+
+  const currentLesson = useMemo(() => getLessonBySlug(route.lessonSlug) ?? ALL_LESSONS[0], [route.lessonSlug]);
+  const safeStepIndex = useMemo(() => {
+    if (!currentLesson) return 0;
+    return Math.max(0, Math.min(currentLesson.steps.length - 1, route.stepIndex));
+  }, [currentLesson, route.stepIndex]);
+  const currentStep = currentLesson?.steps[safeStepIndex];
+  const currentChapter = currentLesson ? getChapterForLesson(currentLesson) : undefined;
+  const nextLesson = currentLesson ? getNextLesson(currentLesson.slug) : undefined;
+
+  useEffect(() => {
+    if (route.mode !== 'learn' || !currentLesson) return;
+    if (safeStepIndex !== currentLesson.steps.length - 1) return;
+    if (completedLessons.has(currentLesson.slug)) return;
+
+    const nextCompleted = new Set(completedLessons);
+    nextCompleted.add(currentLesson.slug);
+    setCompletedLessons(nextCompleted);
+    try { localStorage.setItem(STORAGE_PROGRESS_KEY, JSON.stringify([...nextCompleted])); } catch { /* ignore */ }
+
+    const chapter = getChapterForLesson(currentLesson);
+    const newlyCompletedChapter = chapter && chapter.lessons.every((l) => nextCompleted.has(l.slug));
+    const allCompleted = ALL_LESSONS.every((l) => nextCompleted.has(l.slug));
+
+    let unlockedCard: PluginHoloCard | undefined;
+    let claimKey: string | undefined;
+    if (newlyCompletedChapter && chapter && !claimedPacks.has(chapter.id)) {
+      unlockedCard = getCardByChapterId(chapter.id);
+      claimKey = chapter.id;
+    } else if (allCompleted && !claimedPacks.has('all')) {
+      unlockedCard = getCardByChapterId('all');
+      claimKey = 'all';
+    }
+
+    if (unlockedCard && claimKey) {
+      const nextClaimed = new Set(claimedPacks);
+      nextClaimed.add(claimKey);
+      setClaimedPacks(nextClaimed);
+      try { localStorage.setItem(STORAGE_CLAIMED_PACKS_KEY, JSON.stringify([...nextClaimed])); } catch { /* ignore */ }
+      setIsPlaying(false);
+      setPackModal({ card: unlockedCard, isDemo: false });
+    }
+  }, [route.mode, currentLesson, safeStepIndex, completedLessons, claimedPacks]);
+
+  const unlockedCardsCount = useMemo(() => {
+    return PLUGIN_HOLO_CARDS.filter((card) => {
+      if (card.chapterId === 'all') return ALL_LESSONS.every((l) => completedLessons.has(l.slug));
+      const ch = CHAPTERS.find((c) => c.id === card.chapterId);
+      return Boolean(ch && ch.lessons.length > 0 && ch.lessons.every((l) => completedLessons.has(l.slug)));
+    }).length;
+  }, [completedLessons]);
+
+  const handleToggleSound = useCallback(() => {
+    setSoundMutedState((prev) => {
+      const next = !prev;
+      setSoundMuted(next);
+      if (!next) playSoundEnabledPing();
+      return next;
+    });
+  }, []);
+
+  const applyThemeDom = useCallback((nextTheme: Theme) => {
+    if (nextTheme === 'light') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', nextTheme);
+    try { localStorage.setItem(STORAGE_THEME_KEY, nextTheme); } catch { /* ignore */ }
+  }, []);
+
+  const handleToggleTheme = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    const nextTheme: Theme = theme === 'light' ? 'deepsea' : theme === 'deepsea' ? 'dark' : 'light';
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const startViewTransition = (document as Document & { startViewTransition?: (cb: () => void) => { ready: Promise<void> } }).startViewTransition?.bind(document);
+    if (!startViewTransition || prefersReducedMotion) {
+      setTheme(nextTheme);
+      applyThemeDom(nextTheme);
+      return;
+    }
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+    const transition = startViewTransition(() => {
+      setTheme(nextTheme);
+      applyThemeDom(nextTheme);
+    });
+    transition.ready.then(() => {
+      document.documentElement.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
+        { duration: 420, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', pseudoElement: '::view-transition-new(root)' },
+      );
+    }).catch(() => { /* fallback already applied */ });
+  }, [theme, applyThemeDom]);
+
+  const handleSelectLesson = useCallback((slug: string, stepNumber = 1) => {
+    const lesson = getLessonBySlug(slug);
+    const maxIdx = lesson ? lesson.steps.length - 1 : 0;
+    onNavigate({ mode: 'learn', lessonSlug: slug, stepIndex: Math.max(0, Math.min(maxIdx, stepNumber - 1)) });
+    setIsPlaying(false);
+    setReplayKey((k) => k + 1);
+    setMobileDrawerOpen(false);
+  }, [onNavigate]);
+
+  const handleSelectStep = useCallback((stepIdx: number) => {
+    if (!currentLesson) return;
+    const clamped = Math.max(0, Math.min(currentLesson.steps.length - 1, stepIdx));
+    if (clamped !== safeStepIndex) playStepTick();
+    onNavigate({ mode: 'learn', lessonSlug: currentLesson.slug, stepIndex: clamped });
+  }, [currentLesson, safeStepIndex, onNavigate]);
+
+  const handlePrevStep = useCallback(() => { if (safeStepIndex > 0) handleSelectStep(safeStepIndex - 1); }, [safeStepIndex, handleSelectStep]);
+  const handleNextStep = useCallback(() => { if (currentLesson && safeStepIndex < currentLesson.steps.length - 1) handleSelectStep(safeStepIndex + 1); }, [currentLesson, safeStepIndex, handleSelectStep]);
+  const handleTogglePlay = useCallback(() => setIsPlaying((p) => !p), []);
+  const handleReplay = useCallback(() => { setIsPlaying(true); setReplayKey((k) => k + 1); }, []);
+
+  const handleChangeMode = useCallback((nextMode: DshMode) => {
+    if (nextMode === 'cheatsheet' || nextMode === 'deck') {
+      onNavigate({ mode: nextMode, lessonSlug: lastLearnRoute.lessonSlug, stepIndex: lastLearnRoute.stepIndex });
+    } else {
+      onNavigate({ mode: 'learn', lessonSlug: lastLearnRoute.lessonSlug || ALL_LESSONS[0]?.slug || '', stepIndex: lastLearnRoute.stepIndex });
+    }
+    setMobileDrawerOpen(false);
+  }, [onNavigate, lastLearnRoute]);
+
+  const handleContinue = useCallback(() => {
+    const next = ALL_LESSONS.find((l) => !completedLessons.has(l.slug)) ?? ALL_LESSONS[0];
+    if (next) handleSelectLesson(next.slug, 1);
+  }, [completedLessons, handleSelectLesson]);
+
+  const handleResetProgress = useCallback(() => {
+    setCompletedLessons(new Set());
+    setClaimedPacks(new Set());
+    try {
+      localStorage.removeItem(STORAGE_PROGRESS_KEY);
+      localStorage.removeItem(STORAGE_CLAIMED_PACKS_KEY);
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.isComposing || event.keyCode === 229) return;
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setSearchOpen((prev) => !prev);
+        return;
+      }
+      if (event.key === 'Escape' && mobileDrawerOpen && !searchOpen) { setMobileDrawerOpen(false); return; }
+      if (searchOpen || mobileDrawerOpen || packModal || route.mode !== 'learn') return;
+      const target = event.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key === 'ArrowLeft') { event.preventDefault(); handlePrevStep(); }
+      else if (event.key === 'ArrowRight') { event.preventDefault(); handleNextStep(); }
+      else if (event.key === ' ') {
+        if (target && (target.tagName === 'BUTTON' || target.tagName === 'A')) return;
+        event.preventDefault();
+        handleTogglePlay();
+      } else if (event.key === 'r' || event.key === 'R') { event.preventDefault(); handleReplay(); }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [searchOpen, mobileDrawerOpen, packModal, route.mode, handlePrevStep, handleNextStep, handleTogglePlay, handleReplay]);
+
+  const canPrev = safeStepIndex > 0;
+  const canNext = currentLesson ? safeStepIndex < currentLesson.steps.length - 1 : false;
+
+  return (
+    <div className="app-shell">
+      <TopBar
+        mode={route.mode}
+        theme={theme}
+        soundMuted={soundMutedState}
+        unlockedCardsCount={unlockedCardsCount}
+        totalCardsCount={PLUGIN_HOLO_CARDS.length}
+        onChangeMode={handleChangeMode}
+        onOpenSearch={() => setSearchOpen(true)}
+        onToggleSound={handleToggleSound}
+        onToggleTheme={handleToggleTheme}
+        onOpenMobileDrawer={() => setMobileDrawerOpen(true)}
+        onBackToPortal={onBackToPortal}
+        onGoFirstLesson={() => {
+          const first = ALL_LESSONS[0];
+          if (first) handleSelectLesson(first.slug, 1);
+        }}
+      />
+
+      {route.mode === 'cheatsheet' ? (
+        <div className="cheatsheet-scroll-container">
+          <CheatsheetView
+            data={CHEATSHEET_DATA}
+            onJumpToLesson={(slug, stepNumber) => handleSelectLesson(slug, stepNumber)}
+            onBackToLearn={() => handleChangeMode('learn')}
+          />
+        </div>
+      ) : route.mode === 'deck' ? (
+        <div className="cheatsheet-scroll-container">
+          <DeckView
+            chapters={CHAPTERS}
+            completedLessons={completedLessons}
+            onOpenPack={(card, isDemo) => setPackModal({ card, isDemo })}
+            onJumpToLesson={(slug) => handleSelectLesson(slug, 1)}
+            onBackToLearn={() => handleChangeMode('learn')}
+          />
+        </div>
+      ) : currentLesson && currentStep ? (
+        <div className={sidebarCollapsed ? 'workspace-grid workspace-grid--sidebar-collapsed' : 'workspace-grid'}>
+          <Sidebar
+            chapters={CHAPTERS}
+            activeLessonSlug={currentLesson.slug}
+            completedLessons={completedLessons}
+            onSelectLesson={(slug) => handleSelectLesson(slug, 1)}
+            onContinue={handleContinue}
+            onResetProgress={handleResetProgress}
+            collapsed={sidebarCollapsed}
+            onToggleCollapsed={() => setSidebarCollapsed((c) => !c)}
+          />
+          <div className="stage-slot">
+            <StagePanel
+              lesson={currentLesson}
+              step={currentStep}
+              stepIndex={safeStepIndex}
+              totalSteps={currentLesson.steps.length}
+              chapterColor={currentChapter?.color ?? 'sage'}
+              isPlaying={isPlaying}
+              replayKey={replayKey}
+              canPrev={canPrev}
+              canNext={canNext}
+              onTogglePlay={handleTogglePlay}
+              onReplay={handleReplay}
+              onSelectStep={handleSelectStep}
+              onPrevStep={handlePrevStep}
+              onNextStep={handleNextStep}
+            />
+          </div>
+          <InspectorPanel
+            lesson={currentLesson}
+            step={currentStep}
+            stepIndex={safeStepIndex}
+            totalSteps={currentLesson.steps.length}
+            nextLesson={nextLesson}
+            canPrev={canPrev}
+            canNext={canNext}
+            onSelectStep={handleSelectStep}
+            onPrevStep={handlePrevStep}
+            onNextStep={handleNextStep}
+            onSelectLesson={(slug) => handleSelectLesson(slug, 1)}
+            onOpenCheatsheet={() => handleChangeMode('cheatsheet')}
+          />
+        </div>
+      ) : null}
+
+      {route.mode === 'learn' && (
+        <footer className="keyboard-hint-bar" aria-label="键盘快捷键">
+          <span><span className="kbd">←</span> <span className="kbd">→</span> 切换步骤</span>
+          <span><span className="kbd">Space</span> 自动翻步 / 暂停</span>
+          <span><span className="kbd">R</span> 重播</span>
+          <span><span className="kbd">Ctrl K</span> 搜索</span>
+        </footer>
+      )}
+
+      {mobileDrawerOpen && (
+        <div className="mobile-drawer-backdrop" role="dialog" aria-modal="true" aria-label="课程目录抽屉" onClick={(e) => { if (e.target === e.currentTarget) setMobileDrawerOpen(false); }}>
+          <div className="mobile-drawer">
+            <div className="mobile-drawer-top">
+              <span className="brand-title">DeepSeek Harness</span>
+              <button type="button" className="tactile-btn" style={{ width: 30, height: 30, padding: 0 }} onClick={() => setMobileDrawerOpen(false)} aria-label="关闭目录">
+                <X size={15} />
+              </button>
+            </div>
+            <div className="mobile-drawer-content">
+              <Sidebar
+                chapters={CHAPTERS}
+                activeLessonSlug={currentLesson?.slug ?? ''}
+                completedLessons={completedLessons}
+                onSelectLesson={(slug) => handleSelectLesson(slug, 1)}
+                onContinue={handleContinue}
+                onResetProgress={handleResetProgress}
+              />
+            </div>
+            <div className="mobile-drawer-links">
+              <a className="topbar-pill" href="https://github.com/shengzhaowei/dsh-visualizer" target="_blank" rel="noopener noreferrer">
+                <Code2 size={13} /> 本站源码 <ExternalLink size={11} />
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <PluginPackModal
+        card={packModal?.card ?? null}
+        isDemo={packModal?.isDemo}
+        onClose={() => setPackModal(null)}
+        onJumpToLesson={(slug) => handleSelectLesson(slug, 1)}
+        onOpenDeck={() => handleChangeMode('deck')}
+      />
+
+      <SearchModal
+        isOpen={searchOpen}
+        lessons={ALL_LESSONS}
+        onClose={() => setSearchOpen(false)}
+        onSelectTarget={({ mode, lessonSlug, stepNumber }) => {
+          if (mode === 'cheatsheet') handleChangeMode('cheatsheet');
+          else if (lessonSlug) handleSelectLesson(lessonSlug, stepNumber ?? 1);
+        }}
+      />
+    </div>
+  );
+}

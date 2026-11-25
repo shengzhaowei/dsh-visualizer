@@ -1,15 +1,14 @@
-// 第 3–4 章：Agent 循环、工具与审批
+// 第 2–4 章部分课程：服务/事件、全景旅程（提前至 CH1）、Agent 循环、工具与沙箱
 // 内容依据：NamiDSH docs/04、05、06 与 DSH 公开资料；示意数字已在文内注明。
-import { chapter, dshSrc, iso, kpi, lesson, namiSrc, steps, swim, tree } from '../helpers';
-import { L3, L4 } from './ch01_02';
+import { dshSrc, iso, kpi, lesson, namiSrc, steps, swim, tree } from '../helpers';
 
-const L5 = lesson(
+export const L5 = lesson(
   'service-inject',
   'ch02',
   2,
-  'Cordis 主板',
+  'Cordis 主板与作用域',
   3,
-  4,
+  5,
   '服务与依赖注入：ctx.llm 是怎么来的',
   'Agent 循环里写着 ctx.llm、ctx.tools，却没有 import 任何模型或工具的代码。这篇讲这背后的机制。',
   14,
@@ -203,13 +202,13 @@ declare module '@nami/cordis' {
   ]),
 );
 
-const L6 = lesson(
+export const L6 = lesson(
   'events-bus',
   'ch02',
   2,
-  'Cordis 主板',
+  'Cordis 主板与作用域',
   4,
-  4,
+  5,
   '五种事件与 waterfall 陷阱',
   '服务是「我要用你」，事件是「我广播一下，谁感兴趣谁来」。审批、沙箱、重试都挂在事件上。',
   14,
@@ -366,14 +365,14 @@ const L6 = lesson(
   ]),
 );
 
-const L7 = lesson(
+export const L7 = lesson(
   'ask-journey',
-  'ch03',
-  3,
-  'Agent 循环',
+  'ch01',
   1,
+  '整机全景与核心理念',
   2,
-  '一次提问「现在几点？」完整旅程',
+  2,
+  '全景旅程：一次提问「现在几点？」的 16 步',
   '在网页上问一句「现在几点？」，请求从浏览器进来，经过哪些插件，又怎么一个字一个字流回去？本课跟着它走完全程。',
   16,
   '核心',
@@ -569,14 +568,14 @@ app.plugin(webserver, { port: Number(env.PORT ?? 3000), staticDir })`,
   ]),
 );
 
-const L8 = lesson(
+export const L8 = lesson(
   'agent-loop',
   'ch03',
   3,
-  'Agent 循环',
-  2,
-  2,
-  'AgentLoop 与 setFactory',
+  'Agent 循环与记忆',
+  1,
+  3,
+  'AgentLoop 与 setFactory：turn 套 step 双层循环',
   'Agent 循环本身也是插件：它用 setFactory 把自己登记成 Agent 工厂，循环内部是 turn 套 step 的两层结构。',
   14,
   '进阶',
@@ -736,14 +735,14 @@ const L8 = lesson(
   ]),
 );
 
-const L9 = lesson(
+export const L9 = lesson(
   'tools-preexecute',
   'ch04',
   4,
-  '工具与审批',
+  '工具管线与安全审批',
   1,
-  2,
-  'tools/pre-execute 审批门',
+  3,
+  'tools/pre-execute 策略门与三道瀑布',
   '工具执行前有一道门：tools/pre-execute 瀑布。审批、权限、沙箱都挂在这里，不改工具、不改循环。',
   12,
   '核心',
@@ -882,7 +881,7 @@ const L9 = lesson(
       title: '审批门三句话',
       paragraphs: [
         '工具执行有三道瀑布，审批挂在第一道 `tools/pre-execute` 上；审批插件只做一件事——监听事件，放行调 `next()`，拦截直接返回拒绝结果；卸载审批插件，审批立刻消失，因为监听是记在插件账本上的 effect。',
-        '下一课讲执行本身的安全：工具跑在哪里，跑坏了怎么办。',
+        '下一课把视野拉到完整安全审批链路：`allow / ask / deny` 三态分流、`dsh-user-approval` 人工挂起、与沙箱的双闸门叠加，以及子 Agent 审批如何经 `dsh-scope` 冒泡。',
       ],
       recapTable: [
         { question: '加审批要改哪里？', decision: '哪都不改：写个插件监听 tools/pre-execute', because: '瀑布的默认实现是最里层，监听在外层决定放行或拦截' },
@@ -905,14 +904,14 @@ const L9 = lesson(
   ]),
 );
 
-const L10 = lesson(
+export const L10 = lesson(
   'sandbox-failclosed',
   'ch04',
   4,
-  '工具与审批',
-  2,
-  2,
-  '沙箱 fail-closed',
+  '工具管线与安全审批',
+  3,
+  3,
+  '沙箱与 fail-closed：操作系统级硬边界',
   '工具能跑 shell 命令，跑在哪里、跑坏了怎么办？DSH 的答案是沙箱与 fail-closed：不确定就拒绝。',
   12,
   '进阶',
@@ -945,8 +944,8 @@ const L10 = lesson(
       badge: 'TECHNIQUE',
       title: '本地执行器 vs E2B 沙箱',
       paragraphs: [
-        '本地执行器直接跑在本机上，方便调试，但权限就是本机的权限，适合可信的开发环境。E2B 沙箱把命令跑在隔离的云端沙箱里，文件系统、网络都与本机隔离，适合不可信的模型输出。',
-        '两种环境对工具来说接口相同，切换不需要改工具代码——又是「定义、提供、使用」三分工：工具定义「跑命令」，执行环境提供「在哪里跑」，循环只负责调用。',
+        '本地执行器直接跑在本机上，方便调试，但权限就是本机的权限，适合可信的开发环境。本机 OS 级沙箱（如 Linux `bwrap`/`Landlock`、macOS `Seatbelt`）与 E2B 云端沙箱则把文件系统、进程和网络锁在硬边界内，适合不可信的模型输出。',
+        '这些执行后端对工具来说接口相同，切换不需要改工具代码——又是「定义、提供、使用」三分工：工具定义「跑命令」，执行环境提供「在哪里跑、能碰什么」，循环只负责调用。',
       ],
       kpis: [kpi('本地执行器', '方便 · 本机权限', 'warn'), kpi('E2B 沙箱', '隔离 · 推荐', 'good'), kpi('切换成本', '改配置，不改工具', 'good')],
       scene: tree('执行环境：同接口，不同隔离级别', [
@@ -1029,8 +1028,8 @@ const L10 = lesson(
       badge: 'RECAP',
       title: '沙箱三句话',
       paragraphs: [
-        '工具能跑 shell，但跑在哪里由执行环境决定：本地执行器方便调试，E2B 沙箱隔离更彻底；不确定就拒绝，这是 fail-closed；审批与沙箱都挂在工具执行管线上，换能力不需要改工具、改循环。',
-        '下一章讲会话：模型看到的东西，是怎么被记录下来的。',
+        '工具能跑 shell，但跑在哪里由执行环境决定：本地执行器方便调试，OS 级沙箱（`bwrap`/`Landlock`/`Seatbelt`）与 E2B 沙箱隔离更彻底；不确定就拒绝，这是 fail-closed；审批与沙箱叠加挂在工具管线上，换能力不需要改工具、改循环。',
+        '下一章进入产品组装与源码对照：把 `spine` 套件与 `profile / bundle / patch` 装机清单合在一起看。',
       ],
       recapTable: [
         { question: '命令跑在哪里？', decision: '执行环境决定：本地或 E2B 沙箱', because: '工具只说跑什么，部署决定跑在哪' },
@@ -1054,8 +1053,4 @@ const L10 = lesson(
   ]),
 );
 
-export const CHAPTERS_03_04 = [
-  chapter('ch02', 2, 'Cordis 主板', 'blue', [L3, L4, L5, L6]),
-  chapter('ch03', 3, 'Agent 循环', 'violet', [L7, L8]),
-  chapter('ch04', 4, '工具与审批', 'amber', [L9, L10]),
-];
+// 章节装配已统一移至 src/data/curriculum.ts。

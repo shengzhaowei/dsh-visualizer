@@ -1,15 +1,15 @@
-// 第 1–2 章：理念与分层、Cordis 主板（前半）
+// 第 1–2 章：整机全景与核心理念、Cordis 主板（前半）
 // 内容依据：NamiDSH docs/01、02、03 与 DSH 公开资料；示意数字已在文内注明。
-import { chapter, dshSrc, DSH_REPO, iso, kpi, lesson, namiSrc, src, steps, swim, tree } from '../helpers';
+import { dshSrc, iso, kpi, lesson, namiSrc, steps, swim, tree } from '../helpers';
 
-const L1 = lesson(
+export const L1 = lesson(
   'plugin-everything',
   'ch01',
   1,
-  '理念与分层',
+  '整机全景与核心理念',
   1,
   2,
-  '一切皆插件',
+  '一切皆插件：无特权内核的主板架构',
   'DeepSeek Harness 最核心的设计：模型、工具、会话、提示词，连 Agent 循环本身，都是插在同一块主板上的插件。',
   12,
   '入门',
@@ -200,205 +200,13 @@ const { Context, Service } = lib`,
   ]),
 );
 
-const L2 = lesson(
-  'profile-bundle-patch',
-  'ch01',
-  1,
-  '理念与分层',
-  2,
-  2,
-  '分层叠加：profile / bundle / patch',
-  '同一套核心怎么变出 web、headless、SDK、ACP 多种产品？答案不是改代码，而是把组合写成配置，再一层一层叠上去。',
-  14,
-  '核心',
-  [
-    { text: '区分 profile、bundle、patch 三个概念', completedAtStep: 2 },
-    { text: '说出四层叠加顺序，并解释 patch 为何是整行替换', completedAtStep: 4 },
-    { text: '用 dsh --profile web --dump-config 验算解析结果', completedAtStep: 6 },
-  ],
-  steps([
-    {
-      shortLabel: '同一核心多产品',
-      badge: 'PROBLEM',
-      title: '同一套核心，怎么变出多种产品',
-      paragraphs: [
-        'DSH 的同一套核心，可以组装成命令行工具、网页应用、编辑器插件等多种产品。如果每种产品都靠改代码、fork 分支来做，核心很快会分叉，改一处 bug 要同步多处。',
-        'DSH 的解法是把「组装」本身变成配置：`profile` 是一份命名的组合清单，`bundle` 是一组插件的打包，`patch` 是对组合的修改。三者都是数据，不是代码。',
-      ],
-      kpis: [kpi('产品形态', 'web / headless / SDK / ACP', 'neutral'), kpi('组装方式', '配置，不是代码', 'good'), kpi('核心分叉', '0', 'good')],
-      scene: iso('一套核心，多种产品', [
-        { id: 'core', x: 400, y: 230, label: '同一套核心', sublabel: 'agent-loop · llm · tools · sessions · system-prompt', tone: 'violet', size: 'lg', active: true, icon: 'refresh-cw' },
-        { id: 'web', x: 60, y: 60, label: 'dsh-web-app', sublabel: '网页应用', tone: 'blue', size: 'sm', icon: 'globe' },
-        { id: 'head', x: 340, y: 60, label: 'dsh-headless', sublabel: '命令行', tone: 'green', size: 'sm', icon: 'terminal' },
-        { id: 'sdk', x: 620, y: 60, label: 'dsh-sdk-app', sublabel: 'SDK', tone: 'orange', size: 'sm', icon: 'package' },
-        { id: 'acp', x: 800, y: 60, label: 'dsh-acp-app', sublabel: 'ACP 协议', tone: 'rose', size: 'sm', icon: 'plug' },
-        { id: 'base', x: 180, y: 420, label: 'dsh-base（第一层）', sublabel: '约 90 个插件', tone: 'dark', size: 'platform', icon: 'layers', meter: { value: 90, label: '插件规模' } },
-      ], [
-        { from: 'core', to: 'web', packetCount: 1, packetLabel: 'bundle' },
-        { from: 'core', to: 'head', packetCount: 1, packetLabel: 'bundle' },
-        { from: 'core', to: 'sdk', packetCount: 1, packetLabel: 'bundle' },
-        { from: 'core', to: 'acp', packetCount: 1, packetLabel: 'bundle' },
-        { from: 'base', to: 'core', label: '先装 base', packetCount: 2, packetLabel: '插件' },
-      ], undefined, [{ x: 40, y: 40, w: 920, h: 100, label: '产品层', tone: 'blue' }, { x: 160, y: 400, w: 680, h: 104, label: 'dsh-base', tone: 'dark' }]),
-    },
-    {
-      shortLabel: '三个概念',
-      badge: 'TECHNIQUE',
-      title: '三个概念：profile、bundle、patch',
-      paragraphs: [
-        '`profile` 是一份命名的组合：在 harness home（家目录配置）里列出若干 bundle，再加上自己的一份 `cordis.patch.yml`。`bundle` 是 Cordis 的配置行加代码：每行配置声明挂哪个插件、带什么参数。',
-        '`patch` 是对组合的修改：按 `id` 替换一整行配置，或者插入一行新配置。profile、bundle、patch 三者分工明确：profile 说「用什么」，bundle 说「有什么」，patch 说「改什么」。',
-      ],
-      callout: { kind: 'tip', title: '记忆口诀', text: 'profile 是菜单，bundle 是菜，patch 是「这道菜不要香菜」——改的是整道菜，不是调料。' },
-      kpis: [kpi('概念数', '3 个', 'neutral'), kpi('dsh-base 插件', '约 90 个', 'neutral'), kpi('默认部署插件', '约 159 个', 'neutral')],
-      scene: tree('profile → bundle → 插件', [
-        { id: 'profile', x: 500, y: 60, kind: 'root', label: 'profile: web', sublabel: '命名的组合', status: 'active' },
-        { id: 'b1', x: 240, y: 190, kind: 'plugin', label: 'dsh-base', sublabel: 'bundle · 约 90 插件' },
-        { id: 'b2', x: 500, y: 190, kind: 'plugin', label: 'dsh-web-app', sublabel: 'bundle · 网页入口' },
-        { id: 'b3', x: 760, y: 190, kind: 'plugin', label: 'cordis.patch.yml', sublabel: 'profile 自身的 patch' },
-        { id: 'p1', x: 120, y: 320, kind: 'service', label: '模型适配器', sublabel: 'llm-deepseek' },
-        { id: 'p2', x: 360, y: 320, kind: 'service', label: '工具与沙箱', sublabel: 'tools · sandbox' },
-        { id: 'p3', x: 620, y: 320, kind: 'service', label: '审批与凭据', sublabel: 'approval · credentials' },
-        { id: 'p4', x: 860, y: 320, kind: 'service', label: '持久化与遥测', sublabel: 'session · telemetry' },
-      ], [
-        { from: 'profile', to: 'b1' },
-        { from: 'profile', to: 'b2' },
-        { from: 'profile', to: 'b3' },
-        { from: 'b1', to: 'p1' },
-        { from: 'b1', to: 'p2' },
-        { from: 'b2', to: 'p3' },
-        { from: 'b2', to: 'p4' },
-      ]),
-    },
-    {
-      shortLabel: '叠加顺序',
-      badge: 'SOLUTION',
-      title: '叠加顺序：bundle 在先，patch 在后',
-      paragraphs: [
-        '解析一层一层来，顺序是固定的：先按 profile 里的顺序装各个 bundle，再叠 profile 自身的 patch，然后是 home（家目录）的 patch，最后是命令行 `--patch` 带来的覆盖。',
-        '这个顺序就是优先级：越靠后的层，越能改写前面的结果。想知道最终装了什么，不用猜，看解析结果就行。',
-      ],
-      sourceDrawer: src(
-        '四层叠加顺序（示意）',
-        'harness home / profile 配置（示意）',
-        `${DSH_REPO}`,
-        'text',
-        `叠加顺序（后者覆盖前者）：
-1. bundles —— 按 profile 里的顺序
-2. profile patch —— cordis.patch.yml
-3. home patch —— 家目录级 patch
-4. --patch —— 命令行覆盖`,
-        '示意文本：顺序来自 DSH 公开的组合机制说明，具体字段以仓库实际配置为准。',
-      ),
-      kpis: [kpi('叠加层', '4 层', 'good'), kpi('替换粒度', '整行配置', 'neutral'), kpi('优先级', '越后越高', 'neutral')],
-      scene: swim('四层叠加：越靠后，优先级越高', [
-        { id: 'l1', label: '1 · bundles', sublabel: '按 profile 顺序', tone: 'blue' },
-        { id: 'l2', label: '2 · profile patch', sublabel: 'cordis.patch.yml', tone: 'violet' },
-        { id: 'l3', label: '3 · home patch', sublabel: '家目录级', tone: 'orange' },
-        { id: 'l4', label: '4 · --patch', sublabel: '命令行覆盖', tone: 'rose' },
-      ], [
-        { id: 'b1', laneId: 'l1', start: 2, end: 60, label: '装 bundle：dsh-base → dsh-web-app', tone: 'blue', status: 'done' },
-        { id: 'b2', laneId: 'l2', start: 60, end: 74, label: '替换 / 插入配置行', tone: 'violet', status: 'done' },
-        { id: 'b3', laneId: 'l3', start: 74, end: 86, label: '家目录级改写', tone: 'orange', status: 'done' },
-        { id: 'b4', laneId: 'l4', start: 86, end: 98, label: '命令行最终覆盖', tone: 'rose', status: 'done' },
-      ], [{ id: 'e1', laneId: 'l4', pos: 98, label: '最终配置', tone: 'rose', emphasized: true }], [{ pos: 0, label: '低优先级' }, { pos: 100, label: '高优先级' }]),
-    },
-    {
-      shortLabel: 'patch 语义',
-      badge: 'INSIGHT',
-      title: 'patch 的语义：整行替换，不是字段合并',
-      paragraphs: [
-        '`patch` 按 `id` 找到一行配置，整行替换掉；或者在指定位置插入一行新配置。它不做字段级合并——这正是它可预测的原因：你看到 patch，就知道最终是哪一行配置生效，不用在心里做多层合并运算。',
-        '代价是 patch 写起来要完整：一行配置被替换后，旧行里的字段不会自动保留。改一行之前，先看清它原来的全部内容。',
-      ],
-      callout: { kind: 'warn', title: '常见坑', text: '以为 patch 是「只改一个字段」的人，经常在替换后丢掉旧行的其他字段。替换前先 dump 出来对照。' },
-      kpis: [kpi('替换单位', '整行', 'neutral'), kpi('字段合并', '不做', 'warn'), kpi('可预测性', '高', 'good')],
-      scene: iso('patch：按 id 整行替换', [
-        { id: 'old', x: 120, y: 200, label: '旧配置行 id: llm', sublabel: 'provider: deepseek · model: v4', tone: 'neutral', dimmed: true },
-        { id: 'patch', x: 420, y: 200, label: 'patch', sublabel: 'id: llm → 整行新内容', tone: 'rose', active: true },
-        { id: 'new', x: 720, y: 200, label: '新配置行 id: llm', sublabel: 'provider: deepseek · model: 新模型', tone: 'green' },
-      ], [
-        { from: 'old', to: 'patch', label: '按 id 找到', dashed: true, packetCount: 1, packetLabel: 'id' },
-        { from: 'patch', to: 'new', label: '整行替换', status: 'active', packetCount: 2, packetLabel: '新配置' },
-      ], [{ x: 500, y: 120, text: '旧行字段不会自动保留', tone: 'rose' }]),
-    },
-    {
-      shortLabel: 'dsh-base',
-      badge: 'TECHNIQUE',
-      title: 'dsh-base：第一层装了什么',
-      paragraphs: [
-        '`dsh-base` 是叠加的第一层，约 90 个插件：模型适配器、工具、持久化、沙箱、审批、凭据、遥测。它们是每种产品形态都需要的公共能力。',
-        '然后才是产品层：`dsh-web-app`、`dsh-headless`、`dsh-sdk-app`、`dsh-acp-app` 各自只加自己那份入口与形态相关的插件。默认部署大约 159 个插件——这个数字会随版本变化，重要的是分层思路，而不是具体数字。',
-      ],
-      kpis: [kpi('dsh-base', '约 90 个插件', 'neutral'), kpi('默认部署', '约 159 个插件', 'neutral'), kpi('产品层', '4 个', 'neutral')],
-      scene: iso('分层：base 在下，产品在上', [
-        { id: 'web', x: 120, y: 60, label: 'dsh-web-app', sublabel: '网页入口', tone: 'blue', size: 'sm', icon: 'globe' },
-        { id: 'head', x: 300, y: 60, label: 'dsh-headless', sublabel: '命令行', tone: 'green', size: 'sm', icon: 'terminal' },
-        { id: 'sdk', x: 480, y: 60, label: 'dsh-sdk-app', sublabel: 'SDK', tone: 'orange', size: 'sm', icon: 'package' },
-        { id: 'acp', x: 660, y: 60, label: 'dsh-acp-app', sublabel: 'ACP', tone: 'rose', size: 'sm', icon: 'plug' },
-        { id: 'base', x: 180, y: 200, label: 'dsh-base', sublabel: '模型适配器 · 工具 · 持久化 · 沙箱 · 审批 · 凭据 · 遥测', tone: 'dark', size: 'platform', icon: 'layers' },
-        { id: 'cordis', x: 180, y: 330, label: 'Cordis 主板', sublabel: 'vendor/cordis', tone: 'dark', size: 'platform', icon: 'cpu' },
-      ], [
-        { from: 'web', to: 'base', packetCount: 1 },
-        { from: 'head', to: 'base', packetCount: 1 },
-        { from: 'sdk', to: 'base', packetCount: 1 },
-        { from: 'acp', to: 'base', packetCount: 1 },
-        { from: 'base', to: 'cordis', label: '都挂在 Cordis 上', packetCount: 2, packetLabel: '挂载' },
-      ], undefined, [{ x: 100, y: 40, w: 800, h: 92, label: '产品层', tone: 'blue' }, { x: 160, y: 180, w: 680, h: 104, label: 'dsh-base', tone: 'dark' }, { x: 160, y: 310, w: 680, h: 104, label: 'Cordis', tone: 'dark' }]),
-    },
-    {
-      shortLabel: '导出配置',
-      badge: 'RECAP',
-      title: 'dump-config 是真相来源',
-      paragraphs: [
-        '组合写得再清楚，也可能和实际生效的不一致。DSH 提供了验算命令：`dsh --profile web --dump-config`，打印解析后的完整配置树。调不通时先看它，而不是猜。',
-        '顺带一提，CLI 只硬编码了 `web` 和 `plugin` 两个子命令；`headless`、`run` 这些只是 profile 的名字，不是写死在 CLI 里的命令——这本身就是「组合是配置」的证据。',
-      ],
-      sourceDrawer: src(
-        '验算解析结果',
-        '终端（示意）',
-        `${DSH_REPO}`,
-        'text',
-        `$ dsh --profile web --dump-config
-# 打印解析后的完整配置树：
-# bundles → profile patch → home patch → --patch
-# 逐层叠加后的最终结果`,
-        '命令名来自 DSH 公开说明；输出为示意，实际输出以所装版本为准。',
-      ),
-      recapTable: [
-        { question: '一套核心怎么变出多种产品？', decision: 'profile + bundle + patch，三层配置叠加', because: '组装是数据，改组合不用改代码、不产生分叉' },
-        { question: '两层 patch 冲突了谁赢？', decision: '越靠后的层赢：--patch > home > profile > bundle', because: '叠加顺序固定，优先级就是层的位置' },
-        { question: '最终到底装了什么？', decision: '跑 dsh --profile web --dump-config 看解析树', because: '配置是真相来源，猜测不是' },
-      ],
-      kpis: [kpi('硬编码子命令', '2 个：web / plugin', 'good'), kpi('headless / run', '只是 profile 名', 'neutral'), kpi('验算命令', '1 条', 'good')],
-      scene: tree('从 profile 到最终配置树', [
-        { id: 'cmd', x: 500, y: 60, kind: 'root', label: 'dsh --profile web --dump-config', sublabel: '验算命令', status: 'active' },
-        { id: 'b', x: 200, y: 190, kind: 'plugin', label: 'bundles', sublabel: 'dsh-base → dsh-web-app' },
-        { id: 'p', x: 500, y: 190, kind: 'plugin', label: 'patches', sublabel: 'profile → home → --patch' },
-        { id: 't', x: 800, y: 190, kind: 'service', label: '最终配置树', sublabel: '约 159 个插件', status: 'highlight' },
-        { id: 'web', x: 800, y: 330, kind: 'plugin', label: 'web 子命令', sublabel: 'CLI 硬编码' },
-        { id: 'plug', x: 500, y: 330, kind: 'plugin', label: 'plugin 子命令', sublabel: 'CLI 硬编码' },
-        { id: 'head', x: 200, y: 330, kind: 'plugin', label: 'headless / run', sublabel: '只是 profile 名', status: 'dimmed' },
-      ], [
-        { from: 'cmd', to: 'b' },
-        { from: 'cmd', to: 'p' },
-        { from: 'b', to: 't' },
-        { from: 'p', to: 't', label: '逐层叠加', animated: true },
-        { from: 't', to: 'web' },
-        { from: 't', to: 'plug' },
-        { from: 't', to: 'head', label: '不是子命令' },
-      ]),
-    },
-  ]),
-);
-
 export const L3 = lesson(
   'context-plugin',
   'ch02',
   2,
-  'Cordis 主板',
+  'Cordis 主板与作用域',
   1,
-  4,
+  5,
   'Context 与插件三种写法',
   '插件拿到的 ctx 到底是什么？ctx.plugin() 那一瞬间发生了什么？本课从最底层开始拆。',
   12,
@@ -597,9 +405,9 @@ export const L4 = lesson(
   'fiber-lifecycle',
   'ch02',
   2,
-  'Cordis 主板',
+  'Cordis 主板与作用域',
   2,
-  4,
+  5,
   'Fiber 一生六态',
   '每挂载一次插件，框架就创建一个 Fiber。它的一生只有六种状态，但记账、隔离与自动重启的全部秘密都在这六态之间。',
   14,
@@ -787,6 +595,4 @@ export const L4 = lesson(
   ]),
 );
 
-export const CHAPTERS_01_02 = [
-  chapter('ch01', 1, '理念与分层', 'sage', [L1, L2]),
-];
+// 章节装配已统一移至 src/data/curriculum.ts（原 L2 已与原 L13 合并为 CH5 product-assembly）。

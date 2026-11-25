@@ -51,17 +51,13 @@ export function Sidebar({ chapters, activeLessonSlug, completedLessons, onSelect
   return (
     <aside className="sidebar" aria-label="课程目录">
       <div className="sidebar-head">
-        <span className="sidebar-head-title">
-          课程目录
-          <span className="sidebar-head-en">COURSE</span>
-        </span>
+        <span className="sidebar-head-title">课程目录</span>
         <button type="button" className="sidebar-reset-ghost" onClick={onResetProgress} title="清空已完成标记">
           重置
         </button>
       </div>
       {chapters.map((chapter) => {
         const open = openChapters.has(chapter.id);
-        const activeInChapter = chapter.lessons.some((l) => l.slug === activeLessonSlug);
         const doneInChapter = chapter.lessons.filter((l) => completedLessons.has(l.slug)).length;
         return (
           <div key={chapter.id} className="sidebar-chapter">
@@ -74,37 +70,36 @@ export function Sidebar({ chapters, activeLessonSlug, completedLessons, onSelect
               <span className="sidebar-chapter-num">CH {chapter.number}</span>
               <span className={`ch-color--${chapter.color}`}>{chapter.title}</span>
               <span className="sidebar-chapter-count mono">
-                {doneInChapter}/{chapter.lessons.length} 课
+                {doneInChapter}/{chapter.lessons.length}
               </span>
-              {activeInChapter && <span className="sidebar-meta-pill" style={{ marginLeft: 2 }}>在学</span>}
               <ChevronDown size={13} className={`sidebar-chapter-chevron ${open ? 'sidebar-chapter-chevron--open' : ''}`} />
             </button>
-            {open && chapter.lessons.map((lesson) => {
-              const isActive = lesson.slug === activeLessonSlug;
-              const isDone = completedLessons.has(lesson.slug);
-              return (
-                <button
-                  key={lesson.id}
-                  type="button"
-                  className={`sidebar-lesson ${isActive ? 'sidebar-lesson--active' : ''}`}
-                  onClick={() => onSelectLesson(lesson.slug)}
-                  aria-current={isActive ? 'true' : undefined}
-                >
-                  <span className="sidebar-lesson-check">
-                    {isDone ? <CheckCircle2 size={15} /> : <Circle size={15} />}
-                  </span>
-                  <span>
-                    <span className="sidebar-lesson-num">{lesson.lessonIndexInChapter}.</span>
-                    <span className="sidebar-lesson-title">{lesson.title}</span>
-                    <span className="sidebar-lesson-meta">
-                      <span className="sidebar-meta-pill">{lesson.steps.length} 步</span>
-                      <span className="sidebar-meta-pill">{lesson.durationMin} 分钟</span>
-                      <span className="sidebar-meta-pill">{lesson.level}</span>
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
+            <div className={`sidebar-chapter-body ${open ? 'sidebar-chapter-body--open' : ''}`}>
+              <div className="sidebar-chapter-body-inner">
+                {chapter.lessons.map((lesson) => {
+                  const isActive = lesson.slug === activeLessonSlug;
+                  const isDone = completedLessons.has(lesson.slug);
+                  return (
+                    <button
+                      key={lesson.id}
+                      type="button"
+                      className={`sidebar-lesson ${isActive ? 'sidebar-lesson--active' : ''}`}
+                      onClick={() => onSelectLesson(lesson.slug)}
+                      aria-current={isActive ? 'true' : undefined}
+                      tabIndex={open ? 0 : -1}
+                    >
+                      <span className="sidebar-lesson-check">
+                        {isDone ? <CheckCircle2 size={15} /> : <Circle size={15} />}
+                      </span>
+                      <span>
+                        <span className="sidebar-lesson-num">{lesson.lessonIndexInChapter}.</span>
+                        <span className="sidebar-lesson-title">{lesson.title}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         );
       })}
