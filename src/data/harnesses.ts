@@ -39,8 +39,7 @@ export const HARNESS_ENTRIES: HarnessEntry[] = [
     icon: 'refresh-cw',
     coreMechanism: '双层循环 · Steering / Follow-up 队列',
     primitives: ['agentLoop', 'steering', 'followUp'],
-    status: 'external',
-    href: 'https://pi-visualizer-lemon.vercel.app/#/learn/steering-followup/1',
+    status: 'interactive',
     repoUrl: 'https://github.com/badlogic/pi-mono',
     decisions: [
       { q: '打断机制', a: 'Steering 在当前工具边界立即转向，不丢上下文。' },
@@ -55,7 +54,7 @@ export const HARNESS_ENTRIES: HarnessEntry[] = [
     icon: 'terminal',
     coreMechanism: 'Turn 循环 · 分级审批 · OS 沙箱',
     primitives: ['TurnLoop', 'ApprovalPolicy', 'Seatbelt/Landlock'],
-    status: 'soon',
+    status: 'interactive',
     repoUrl: 'https://github.com/openai/codex',
     decisions: [
       { q: '执行隔离', a: '按 read-only / workspace-write / full-access 锁定 OS 边界。' },
@@ -70,7 +69,7 @@ export const HARNESS_ENTRIES: HarnessEntry[] = [
     icon: 'shield',
     coreMechanism: '单主循环 · Hooks 拦截 · Subagent 分治',
     primitives: ['PreToolUse', 'Task Subagent', 'CLAUDE.md'],
-    status: 'soon',
+    status: 'interactive',
     repoUrl: 'https://github.com/anthropics/claude-code',
     decisions: [
       { q: '扩展点', a: '通过 PreToolUse / PostToolUse Hooks 注入确定性校验。' },
@@ -85,7 +84,7 @@ export const HARNESS_ENTRIES: HarnessEntry[] = [
     icon: 'git-branch',
     coreMechanism: 'StateGraph 状态图 · Checkpoint 持久化',
     primitives: ['StateGraph', 'ToolNode', 'Checkpointer'],
-    status: 'soon',
+    status: 'interactive',
     repoUrl: 'https://github.com/langchain-ai/langgraph',
     decisions: [
       { q: '编排模型', a: '将 Agent 建模为有向状态图，节点读写共享 State。' },

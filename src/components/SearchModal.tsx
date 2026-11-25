@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, BookOpen, FileText, ListChecks, Search, SearchX, X } from 'lucide-react';
 import type { Lesson } from '../types/lesson';
 
-const SUGGESTIONS = ['Cordis', 'waterfall', 'agentLoop', 'sessions.jsonl', '审批', '沙箱'];
+const DEFAULT_SUGGESTIONS = ['Cordis', 'waterfall', 'agentLoop', 'sessions.jsonl', '审批', '沙箱'];
 
 export interface SearchTarget {
   mode: 'learn' | 'cheatsheet';
@@ -13,6 +13,8 @@ export interface SearchTarget {
 interface SearchModalProps {
   isOpen: boolean;
   lessons: Lesson[];
+  suggestions?: string[];
+  cheatsheetMeta?: string;
   onClose: () => void;
   onSelectTarget: (target: SearchTarget) => void;
 }
@@ -49,7 +51,14 @@ function highlightMatch(text: string, query: string) {
   );
 }
 
-export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: SearchModalProps) {
+export function SearchModal({
+  isOpen,
+  lessons,
+  suggestions = DEFAULT_SUGGESTIONS,
+  cheatsheetMeta = '一页速查表 · 核心架构 / 执行链路 / 设计决策',
+  onClose,
+  onSelectTarget,
+}: SearchModalProps) {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -65,7 +74,7 @@ export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: Search
   const hits = useMemo<SearchHit[]>(() => {
     const q = query.trim().toLowerCase();
     const all: SearchHit[] = [
-      { key: 'cheatsheet', title: '架构速查表（一页总览）', meta: '6 个速查区 · 插件树 / 事件 / 循环 / 分层 / 会话 / 决策', group: '速查表', target: { mode: 'cheatsheet' } },
+      { key: 'cheatsheet', title: '架构速查表（一页总览）', meta: cheatsheetMeta, group: '速查表', target: { mode: 'cheatsheet' } },
       ...lessons.flatMap((lesson) => [
         {
           key: `lesson-${lesson.slug}`,
@@ -88,7 +97,7 @@ export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: Search
       return all.filter((h) => h.group !== '步骤');
     }
     return all.filter((h) => `${h.title} ${h.meta}`.toLowerCase().includes(q)).slice(0, 20);
-  }, [query, lessons]);
+  }, [query, lessons, cheatsheetMeta]);
 
   useEffect(() => {
     setSelected(0);
@@ -117,7 +126,7 @@ export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: Search
             ref={inputRef}
             className="search-input"
             value={query}
-            placeholder="搜索课程、概念或命令… 例如：waterfall、agentLoop、sessions.jsonl"
+            placeholder={`搜索课程、概念或原语… 例如：${suggestions.slice(0, 3).join('、')}`}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'ArrowDown') { e.preventDefault(); setSelected((s) => Math.min(hits.length - 1, s + 1)); }
@@ -149,7 +158,7 @@ export function SearchModal({ isOpen, lessons, onClose, onSelectTarget }: Search
               <div className="search-empty-title">没有找到「{query}」相关的内容</div>
               <div className="search-empty-sub">换个关键词试试：</div>
               <div className="search-suggestions">
-                {SUGGESTIONS.map((s) => (
+                {suggestions.map((s) => (
                   <button key={s} type="button" className="search-suggestion mono" onClick={() => setQuery(s)}>
                     {s}
                   </button>

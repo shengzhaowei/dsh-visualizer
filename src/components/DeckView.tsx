@@ -1,9 +1,12 @@
 import { ArrowLeft, ArrowRight, Lock, Sparkles } from 'lucide-react';
 import type { Chapter } from '../types/lesson';
-import { PLUGIN_HOLO_CARDS, type PluginHoloCard } from '../data/cards';
+import type { PluginHoloCard } from '../data/cards';
 import { HoloCard } from './HoloCard';
 
 interface DeckViewProps {
+  deckTitle: string;
+  brandIcon?: string;
+  cards: PluginHoloCard[];
   chapters: Chapter[];
   completedLessons: Set<string>;
   onOpenPack: (card: PluginHoloCard, isDemo?: boolean) => void;
@@ -11,13 +14,23 @@ interface DeckViewProps {
   onBackToLearn: () => void;
 }
 
-/** 插件全息卡册：展示 5 张章节插件卡 + 1 张全课通关 EX 架构师卡，支持体验拆包、3D 把玩与重温拆包。 */
-export function DeckView({ chapters, completedLessons, onOpenPack, onJumpToLesson, onBackToLearn }: DeckViewProps) {
+/** 通用全息卡册：展示各章节核心机制卡 + 1 张全课通关 EX 架构师卡，支持体验拆包、3D 把玩与重温拆包。 */
+export function DeckView({
+  deckTitle,
+  brandIcon,
+  cards,
+  chapters,
+  completedLessons,
+  onOpenPack,
+  onJumpToLesson,
+  onBackToLearn,
+}: DeckViewProps) {
   const chapterMap = new Map(chapters.map((c) => [c.id, c]));
+  const firstFallbackSlug = chapters[0]?.lessons[0]?.slug ?? '';
 
   const isCardUnlocked = (card: PluginHoloCard): boolean => {
     if (card.chapterId === 'all') {
-      return chapters.every((ch) => ch.lessons.every((l) => completedLessons.has(l.slug)));
+      return chapters.length > 0 && chapters.every((ch) => ch.lessons.every((l) => completedLessons.has(l.slug)));
     }
     const ch = chapterMap.get(card.chapterId);
     if (!ch || ch.lessons.length === 0) return false;
@@ -29,7 +42,7 @@ export function DeckView({ chapters, completedLessons, onOpenPack, onJumpToLesso
       const allLessons = chapters.flatMap((c) => c.lessons);
       const done = allLessons.filter((l) => completedLessons.has(l.slug)).length;
       const firstUnfinished = allLessons.find((l) => !completedLessons.has(l.slug)) ?? allLessons[0];
-      return { done, total: allLessons.length, firstLessonSlug: firstUnfinished?.slug ?? 'plugin-everything' };
+      return { done, total: allLessons.length, firstLessonSlug: firstUnfinished?.slug ?? firstFallbackSlug };
     }
     const ch = chapterMap.get(card.chapterId);
     if (!ch) return { done: 0, total: 0, firstLessonSlug: card.lessonSlug };
@@ -38,7 +51,9 @@ export function DeckView({ chapters, completedLessons, onOpenPack, onJumpToLesso
     return { done, total: ch.lessons.length, firstLessonSlug: firstUnfinished?.slug ?? card.lessonSlug };
   };
 
-  const unlockedCount = PLUGIN_HOLO_CARDS.filter(isCardUnlocked).length;
+  const unlockedCount = cards.filter(isCardUnlocked).length;
+  const demoCardPrimary = cards[1] ?? cards[0];
+  const demoCardSecondary = cards.find((c) => c.rarity === 'UR') ?? cards[Math.min(2, cards.length - 1)];
 
   return (
     <div className="deck-page">
@@ -48,39 +63,43 @@ export function DeckView({ chapters, completedLessons, onOpenPack, onJumpToLesso
             <ArrowLeft size={14} /> 返回学习
           </button>
           <span className="deck-counter mono">
-            已收集 {unlockedCount} / {PLUGIN_HOLO_CARDS.length} 张全息卡
+            已收集 {unlockedCount} / {cards.length} 张全息卡
           </span>
         </div>
 
-        <h1 className="deck-title">DSH 插件全息卡册</h1>
+        <h1 className="deck-title">{deckTitle}</h1>
 
         <div className="deck-hero-actions">
-          <button
-            type="button"
-            className="tactile-btn tactile-btn--primary"
-            onClick={() => onOpenPack(PLUGIN_HOLO_CARDS[1], true)}
-          >
-            <Sparkles size={14} /> 试拆体验卡包（dsh-scope）
-          </button>
-          <button
-            type="button"
-            className="tactile-btn"
-            onClick={() => onOpenPack(PLUGIN_HOLO_CARDS[3], true)}
-          >
-            <Sparkles size={14} /> 试拆 UR 安全审批卡包
-          </button>
+          {demoCardPrimary && (
+            <button
+              type="button"
+              className="tactile-btn tactile-btn--primary"
+              onClick={() => onOpenPack(demoCardPrimary, true)}
+            >
+              <Sparkles size={14} /> 试拆体验卡包（{demoCardPrimary.title}）
+            </button>
+          )}
+          {demoCardSecondary && demoCardSecondary.id !== demoCardPrimary?.id && (
+            <button
+              type="button"
+              className="tactile-btn"
+              onClick={() => onOpenPack(demoCardSecondary, true)}
+            >
+              <Sparkles size={14} /> 试拆 {demoCardSecondary.rarity} 卡包（{demoCardSecondary.title}）
+            </button>
+          )}
         </div>
       </div>
 
       <div className="deck-grid">
-        {PLUGIN_HOLO_CARDS.map((card) => {
+        {cards.map((card) => {
           const unlocked = isCardUnlocked(card);
           const prog = chapterProgress(card);
           return (
             <div key={card.id} className="deck-slot">
               {unlocked ? (
                 <>
-                  <HoloCard card={card} size="md" onJumpToLesson={onJumpToLesson} />
+                  <HoloCard card={card} size="md" exIcon={brandIcon} onJumpToLesson={onJumpToLesson} />
                   <div className="deck-slot-bar">
                     <span className="deck-slot-status deck-slot-status--unlocked">已解锁</span>
                     <button

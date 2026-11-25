@@ -15,6 +15,10 @@ import type {
 
 export const DSH_REPO = 'https://github.com/deepseek-ai/deepseek-harness';
 export const NAMI_REPO = 'https://github.com/aa1143/NamiDSH';
+export const PI_REPO = 'https://github.com/badlogic/pi-mono';
+export const CODEX_REPO = 'https://github.com/openai/codex';
+export const CLAUDE_CODE_REPO = 'https://github.com/anthropics/claude-code';
+export const LANGGRAPH_REPO = 'https://github.com/langchain-ai/langgraph';
 
 export function src(
   title: string,
@@ -45,6 +49,46 @@ export function namiSrc(
   caption?: string,
 ): SourceDrawer {
   return src(title, filePath, `${NAMI_REPO}/blob/main/${filePath}`, language, code, caption);
+}
+
+export function piSrc(
+  title: string,
+  filePath: string,
+  language: SourceDrawer['language'],
+  code: string,
+  caption?: string,
+): SourceDrawer {
+  return src(title, filePath, `${PI_REPO}/blob/main/${filePath}`, language, code, caption);
+}
+
+export function codexSrc(
+  title: string,
+  filePath: string,
+  language: SourceDrawer['language'],
+  code: string,
+  caption?: string,
+): SourceDrawer {
+  return src(title, filePath, `${CODEX_REPO}/blob/main/${filePath}`, language, code, caption);
+}
+
+export function ccSrc(
+  title: string,
+  filePath: string,
+  language: SourceDrawer['language'],
+  code: string,
+  caption?: string,
+): SourceDrawer {
+  return src(title, filePath, `${CLAUDE_CODE_REPO}`, language, code, caption);
+}
+
+export function lgSrc(
+  title: string,
+  filePath: string,
+  language: SourceDrawer['language'],
+  code: string,
+  caption?: string,
+): SourceDrawer {
+  return src(title, filePath, `${LANGGRAPH_REPO}/blob/main/${filePath}`, language, code, caption);
 }
 
 export function kpi(label: string, value: string, status?: StepKpi['status']): StepKpi {

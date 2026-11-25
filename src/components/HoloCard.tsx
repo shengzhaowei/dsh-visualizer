@@ -7,6 +7,7 @@ import { playCardFlip } from '../utils/sound';
 interface HoloCardProps {
   card: PluginHoloCard;
   size?: 'md' | 'lg';
+  exIcon?: string;
   onJumpToLesson?: (slug: string) => void;
   /** 是否默认显示正面（可控或非受控） */
   initialFlipped?: boolean;
@@ -30,7 +31,7 @@ function prefersReducedMotion(): boolean {
 }
 
 /** 通用 3D 全息插件卡：Spring 弹簧物理驱动倾角与回弹，多层纯 CSS 全息箔片反光，点击 3D 翻转看设计决策。 */
-export function HoloCard({ card, size = 'md', onJumpToLesson, initialFlipped = false }: HoloCardProps) {
+export function HoloCard({ card, size = 'md', exIcon = '/whale-girl-icon.png', onJumpToLesson, initialFlipped = false }: HoloCardProps) {
   const [flipped, setFlipped] = useState(initialFlipped);
   const [hovered, setHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -163,7 +164,7 @@ export function HoloCard({ card, size = 'md', onJumpToLesson, initialFlipped = f
             <div className="holo-emblem-wrap">
               <div className="holo-emblem-ring">
                 {card.rarity === 'EX' ? (
-                  <img src="/whale-girl-icon.png" alt="鲸鱼娘" className="holo-whale-img" />
+                  <img src={exIcon} alt={card.title} className="holo-whale-img" />
                 ) : (
                   <Icon size={size === 'lg' ? 40 : 32} strokeWidth={1.9} />
                 )}

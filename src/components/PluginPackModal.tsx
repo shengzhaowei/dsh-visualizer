@@ -7,6 +7,8 @@ import { playPackBurst, playPackRip } from '../utils/sound';
 interface PluginPackModalProps {
   card: PluginHoloCard | null;
   isDemo?: boolean;
+  packLabel?: string;
+  brandIcon?: string;
   onClose: () => void;
   onJumpToLesson?: (slug: string) => void;
   onOpenDeck?: () => void;
@@ -49,7 +51,15 @@ function prefersReducedMotion(): boolean {
 }
 
 /** 拆插件卡包弹窗：支持拖动铝箔封条撕开（带实时 Web Audio 撕裂声）或一键/回车拆包，完成后粒子绽放并弹出 3D 全息卡。 */
-export function PluginPackModal({ card, isDemo = false, onClose, onJumpToLesson, onOpenDeck }: PluginPackModalProps) {
+export function PluginPackModal({
+  card,
+  isDemo = false,
+  packLabel = 'DEEPSEEK HARNESS · PLUGIN PACK',
+  brandIcon = '/whale-girl-icon.png',
+  onClose,
+  onJumpToLesson,
+  onOpenDeck,
+}: PluginPackModalProps) {
   const [phase, setPhase] = useState<'sealed' | 'ripping' | 'revealed'>('sealed');
   const [ripProgress, setRipProgress] = useState(0);
   const draggingRef = useRef(false);
@@ -262,9 +272,9 @@ export function PluginPackModal({ card, isDemo = false, onClose, onJumpToLesson,
 
               <div className="foil-pack-body">
                 <div className="foil-pack-sheen" aria-hidden="true" />
-                <div className="foil-pack-label mono">DEEPSEEK HARNESS · PLUGIN PACK</div>
+                <div className="foil-pack-label mono">{packLabel}</div>
                 <div className="foil-pack-emblem">
-                  <img src="/whale-girl-icon.png" alt="DSH" />
+                  <img src={brandIcon} alt={card.title} />
                 </div>
                 <div className="foil-pack-chapter">{card.subtitle}</div>
                 <div className="foil-pack-rarity mono">含 1 张 {card.rarity} 级架构全息卡</div>
@@ -292,6 +302,7 @@ export function PluginPackModal({ card, isDemo = false, onClose, onJumpToLesson,
               <HoloCard
                 card={card}
                 size="lg"
+                exIcon={brandIcon}
                 onJumpToLesson={
                   onJumpToLesson
                     ? (slug) => {

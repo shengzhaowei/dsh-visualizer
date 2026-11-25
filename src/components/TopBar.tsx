@@ -2,14 +2,19 @@ import type { MouseEvent } from 'react';
 import { ArrowLeft, BookOpen, Code2, ExternalLink, Menu, Moon, Search, Sparkles, Sun, Volume2, VolumeX, Waves } from 'lucide-react';
 
 export type DshMode = 'learn' | 'cheatsheet' | 'deck';
+export type HarnessMode = DshMode;
 
 interface TopBarProps {
-  mode: DshMode;
+  brandName: string;
+  brandIcon: string;
+  repoUrl: string;
+  repoLabel?: string;
+  mode: HarnessMode;
   theme: 'light' | 'dark' | 'deepsea';
   soundMuted: boolean;
   unlockedCardsCount: number;
   totalCardsCount: number;
-  onChangeMode: (mode: DshMode) => void;
+  onChangeMode: (mode: HarnessMode) => void;
   onOpenSearch: () => void;
   onToggleSound: () => void;
   onToggleTheme: (e: MouseEvent<HTMLButtonElement>) => void;
@@ -19,6 +24,10 @@ interface TopBarProps {
 }
 
 export function TopBar({
+  brandName,
+  brandIcon,
+  repoUrl,
+  repoLabel = '源码仓库',
   mode,
   theme,
   soundMuted,
@@ -41,8 +50,8 @@ export function TopBar({
         <ArrowLeft size={13} /> Learn Agent
       </button>
       <div className="brand" onClick={onGoFirstLesson} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onGoFirstLesson()}>
-        <img className="brand-mark-img" src="/whale-girl-icon.png" alt="DeepSeek Harness" />
-        <span className="brand-title">DeepSeek Harness</span>
+        <img className="brand-mark-img" src={brandIcon} alt={brandName} />
+        <span className="brand-title">{brandName}</span>
       </div>
       <nav className="topbar-modes" aria-label="视图切换">
         <button type="button" className={`topbar-pill ${mode === 'learn' ? 'topbar-pill--active' : ''}`} onClick={() => onChangeMode('learn')}>
@@ -63,8 +72,8 @@ export function TopBar({
         <span className="kbd">Ctrl K</span>
       </button>
       <div className="topbar-links">
-        <a className="topbar-pill" href="https://github.com/shengzhaowei/dsh-visualizer" target="_blank" rel="noopener noreferrer">
-          <Code2 size={13} /> 本站源码 <ExternalLink size={11} />
+        <a className="topbar-pill" href={repoUrl} target="_blank" rel="noopener noreferrer">
+          <Code2 size={13} /> {repoLabel} <ExternalLink size={11} />
         </a>
       </div>
       <button

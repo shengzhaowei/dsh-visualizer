@@ -6,7 +6,8 @@ export type LessonLevel = '入门' | '核心' | '进阶';
 export type StepBadge = 'PROBLEM' | 'TECHNIQUE' | 'SOLUTION' | 'INSIGHT' | 'RECAP';
 export type CalloutKind = 'idea' | 'tip' | 'warn';
 export type KpiStatus = 'neutral' | 'good' | 'warn' | 'bad';
-export type SourceLanguage = 'ts' | 'json' | 'text';
+export type SourceLanguage = 'ts' | 'json' | 'text' | 'rs' | 'py' | 'sh' | 'toml';
+export type HarnessId = 'dsh' | 'pi' | 'codex' | 'claude-code' | 'langchain';
 export type StageTone = 'neutral' | 'green' | 'violet' | 'blue' | 'orange' | 'rose';
 export type IsoNodeTone = StageTone | 'dark';
 

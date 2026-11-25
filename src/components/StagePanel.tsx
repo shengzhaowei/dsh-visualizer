@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, FlaskConical, Minus, Pause, Play, Plus, RotateCcw } from 'lucide-react';
 import type { ChapterColor, Lesson, LessonStep, StageScene } from '../types/lesson';
-import { InteractiveLab, hasInteractiveLab } from './InteractiveLab';
+import { InteractiveLab, hasInteractiveLab, type LabKind } from './InteractiveLab';
 import { StageCanvas, type ViewState } from './stage/StageCanvas';
 import { KIND_LABEL, KIND_STROKE, TONE_LABEL, TONE_STROKE } from './stage/tones';
 
@@ -165,7 +165,7 @@ export function StagePanel({ lesson, step, stepIndex, totalSteps, chapterColor, 
 
       {labSupported && labMode ? (
         <div className="stage-canvas-wrap stage-lab-wrap">
-          <InteractiveLab kind={lesson.slug as 'plugin-everything' | 'dsh-scope' | 'approval-pipeline'} />
+          <InteractiveLab kind={lesson.slug as LabKind} />
         </div>
       ) : isRecap ? (
         <div className="stage-recap-overview" aria-label="本课总览">

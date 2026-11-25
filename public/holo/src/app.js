@@ -41,10 +41,10 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v)), rand = (a, b) => a + Mat
 /* ---------- 5 Agent Harnesses in the pack ---------- */
 const DATA = [
   { id: 'dsh', art: 'nova', name: 'DeepSeek Harness', type: 'Cordis', no: '01', tier: 'ultra', label: '开始学习', mark: '★' },
-  { id: 'pi', art: 'ringo', name: 'Pi', type: 'Agent Loop', no: '02', tier: 'rare', label: '打开教程', mark: '◆◆' },
-  { id: 'codex', art: 'facet', name: 'Codex', type: 'Sandbox', no: '03', tier: 'rare', label: '核心机制', mark: '◆' },
-  { id: 'claude-code', art: 'cubit', name: 'Claude Code', type: 'Hooks', no: '04', tier: 'common', label: '核心机制', mark: '●' },
-  { id: 'langchain', art: 'blip', name: 'LangChain', type: 'StateGraph', no: '05', tier: 'common', label: '核心机制', mark: '●' },
+  { id: 'pi', art: 'ringo', name: 'Pi', type: 'Agent Loop', no: '02', tier: 'rare', label: '开始学习', mark: '◆◆' },
+  { id: 'codex', art: 'facet', name: 'Codex', type: 'Sandbox', no: '03', tier: 'rare', label: '开始学习', mark: '◆' },
+  { id: 'claude-code', art: 'cubit', name: 'Claude Code', type: 'Hooks', no: '04', tier: 'common', label: '开始学习', mark: '●' },
+  { id: 'langchain', art: 'blip', name: 'LangChain', type: 'StateGraph', no: '05', tier: 'common', label: '开始学习', mark: '●' },
 ];
 /* every pack is its own: colourway, the shapes of its light and shade, tear line and the order of the cards inside */
 const SKINS = [['Cobalt', '#2b3ff0'], ['Ember', '#f0542c'], ['Grape', '#7a42f0'], ['Pine', '#0e9c79'], ['Night', '#23273d'], ['Bubblegum', '#ec4f9a']];
