@@ -78,11 +78,15 @@ export function StageCanvas({ scene, view, onViewChange, onResetView }: StageCan
     return () => ro.disconnect();
   }, []);
 
-  // fit-to-view：按场景包围盒算缩放并居中。
+  // fit-to-view：按场景真实包围盒算缩放并严格居中，四周留出呼吸边距。
   const fit: Fit = useMemo(() => {
     if (vp.w <= 0 || vp.h <= 0) return { scale: 1, tx: 0, ty: 0 };
     const b = sceneBounds(scene);
-    const scale = Math.max(0.2, Math.min(2, Math.min(vp.w / b.w, vp.h / b.h) * 0.96));
+    const padX = Math.min(48, vp.w * 0.06);
+    const padY = Math.min(52, vp.h * 0.08);
+    const availW = Math.max(120, vp.w - padX * 2);
+    const availH = Math.max(120, vp.h - padY * 2);
+    const scale = Math.max(0.25, Math.min(1.25, Math.min(availW / b.w, availH / b.h)));
     const tx = (vp.w - b.w * scale) / 2 - b.x * scale;
     const ty = (vp.h - b.h * scale) / 2 - b.y * scale;
     return { scale, tx, ty };

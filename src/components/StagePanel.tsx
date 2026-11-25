@@ -3,7 +3,6 @@ import { Check, ChevronLeft, ChevronRight, FlaskConical, Minus, Pause, Play, Plu
 import type { ChapterColor, Lesson, LessonStep, StageScene } from '../types/lesson';
 import { InteractiveLab, hasInteractiveLab, type LabKind } from './InteractiveLab';
 import { StageCanvas, type ViewState } from './stage/StageCanvas';
-import { KIND_LABEL, KIND_STROKE, TONE_LABEL, TONE_STROKE } from './stage/tones';
 
 interface StagePanelProps {
   lesson: Lesson;
@@ -22,30 +21,6 @@ interface StagePanelProps {
   onNextStep: () => void;
 }
 
-interface LegendItem {
-  color: string;
-  label: string;
-  dashed?: 'dash' | 'dot';
-}
-
-/** 从 scene 数据派生图例（节点语义色 / 泳道 / 树节点角色 + 边的线型）。 */
-function legendForScene(scene: StageScene): LegendItem[] {
-  const out: LegendItem[] = [];
-  const push = (color: string, label: string, dashed?: 'dash' | 'dot') => {
-    if (!out.some((o) => o.label === label)) out.push({ color, label, dashed });
-  };
-  if (scene.kind === 'iso-flow') {
-    for (const n of scene.nodes) push(n.tone === 'dark' ? 'var(--ink)' : TONE_STROKE[n.tone], TONE_LABEL[n.tone]);
-    if (scene.edges.some((e) => e.dashed)) push('var(--orange-stroke)', '可选 / 依赖', 'dash');
-    if (scene.edges.some((e) => e.dotted)) push('var(--green-stroke)', '可替换', 'dot');
-  } else if (scene.kind === 'swimlane') {
-    for (const lane of scene.lanes) push(TONE_STROKE[lane.tone ?? 'neutral'], lane.label);
-  } else {
-    for (const kind of [...new Set(scene.nodes.map((n) => n.kind))]) push(KIND_STROKE[kind], KIND_LABEL[kind]);
-  }
-  return out;
-}
-
 /** 从上一步场景提取关键节点标签（RECAP 总览用）。 */
 function keyNodeLabels(scene: StageScene): string[] {
   if (scene.kind === 'iso-flow') {
@@ -57,7 +32,7 @@ function keyNodeLabels(scene: StageScene): string[] {
   return scene.nodes.map((n) => n.label).slice(0, 6);
 }
 
-export function StagePanel({ lesson, step, stepIndex, totalSteps, chapterColor, isPlaying, replayKey, canPrev, canNext, onTogglePlay, onReplay, onSelectStep, onPrevStep, onNextStep }: StagePanelProps) {
+export function StagePanel({ lesson, step, stepIndex, totalSteps, isPlaying, replayKey, canPrev, canNext, onTogglePlay, onReplay, onSelectStep, onPrevStep, onNextStep }: StagePanelProps) {
   const [view, setView] = useState<ViewState>({ zoom: 1, pan: { x: 0, y: 0 } });
   const [labMode, setLabMode] = useState(false);
   const labSupported = hasInteractiveLab(lesson.slug);
@@ -82,62 +57,16 @@ export function StagePanel({ lesson, step, stepIndex, totalSteps, chapterColor, 
   const resetView = () => setView({ zoom: 1, pan: { x: 0, y: 0 } });
   const zoomBy = (factor: number) =>
     setView((v) => ({ ...v, zoom: Math.max(0.5, Math.min(2.2, v.zoom * factor)) }));
-  const legend = legendForScene(step.scene);
   const isRecap = step.badge === 'RECAP';
   const prevScene = stepIndex > 0 ? lesson.steps[stepIndex - 1]?.scene : undefined;
   const recapKeys = prevScene ? keyNodeLabels(prevScene) : keyNodeLabels(step.scene);
+  const chapterNum = String(lesson.chapterNumber).padStart(2, '0');
 
   return (
     <section className="stage-panel" aria-label="可视化舞台">
       <div className="stage-head">
-        <div>
-          <div className="stage-eyebrow">
-            <span className={`ch-color--${chapterColor}`}>第 {lesson.chapterNumber} 章 · {lesson.chapterTitle}</span>
-          </div>
-          <h1 className="stage-title">{lesson.title}</h1>
-        </div>
-      </div>
-
-      {step.kpis.length > 0 && (
-        <div className="stage-kpi-strip" aria-label="本步关键指标">
-          {step.kpis.slice(0, 4).map((k) => (
-            <div key={k.label} className="stage-kpi" title={`${k.label}：${k.value}`}>
-              <span className="stage-kpi-label">{k.label}</span>
-              <span key={`${lesson.slug}-${stepIndex}-${k.label}`} className="stage-kpi-value stage-kpi-flash">{k.value}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* 画布工具条：舞台上方独立行，永不遮挡图 */}
-      {!isRecap && (
-        <div className="stage-toolbar-row" role="toolbar" aria-label="画布工具">
-          <div className="stage-toolbar">
-            <button type="button" className="stage-ctrl-btn" onClick={onReplay} aria-label="重播本课" title="重播（R）">
-              <RotateCcw size={14} />
-              <span className="kbd">R</span>
-            </button>
-            <button
-              type="button"
-              className={`stage-ctrl-btn ${isPlaying ? 'stage-ctrl-btn--playing' : ''}`}
-              onClick={onTogglePlay}
-              aria-label={isPlaying ? '暂停自动翻步' : '开始自动翻步'}
-              title={isPlaying ? '暂停自动翻步（空格）' : '自动翻步（空格）'}
-            >
-              {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-              <span className="kbd">Space</span>
-            </button>
-            <span className="stage-toolbar-sep" />
-            <button type="button" className="stage-ctrl-btn" onClick={() => zoomBy(1 / 1.25)} aria-label="缩小" title="缩小">
-              <Minus size={14} />
-            </button>
-            <button type="button" className="stage-ctrl-btn stage-ctrl-zoom" onClick={resetView} aria-label="复位缩放" title="点击复位到适配视图">
-              {Math.round(view.zoom * 100)}%
-            </button>
-            <button type="button" className="stage-ctrl-btn" onClick={() => zoomBy(1.25)} aria-label="放大" title="放大">
-              <Plus size={14} />
-            </button>
-          </div>
+        <h1 className="stage-title">{lesson.title}</h1>
+        <div className="stage-head-right">
           {labSupported && (
             <div className="stage-lab-switch" role="tablist" aria-label="舞台模式">
               <button
@@ -156,21 +85,29 @@ export function StagePanel({ lesson, step, stepIndex, totalSteps, chapterColor, 
                 className={`stage-lab-btn ${labMode ? 'stage-lab-btn--active' : ''}`}
                 onClick={() => setLabMode(true)}
               >
-                <FlaskConical size={13} /> 实验台
+                <FlaskConical size={12} /> 实验台
               </button>
             </div>
           )}
+          <div className="stage-chapter-crumb">
+            <span className="stage-chapter-badge mono">{chapterNum}</span>
+            <span className="stage-chapter-meta">
+              <span className="stage-chapter-title">{lesson.chapterTitle}</span>
+              <span className="stage-lesson-idx mono">LESSON {lesson.lessonIndexInChapter}</span>
+            </span>
+          </div>
         </div>
-      )}
+      </div>
 
       {labSupported && labMode ? (
-        <div className="stage-canvas-wrap stage-lab-wrap">
-          <InteractiveLab kind={lesson.slug as LabKind} />
+        <div className="stage-canvas-wrap stage-canvas-wrap--lab">
+          <div className="stage-lab-wrap">
+            <InteractiveLab kind={lesson.slug as LabKind} />
+          </div>
         </div>
       ) : isRecap ? (
         <div className="stage-recap-overview" aria-label="本课总览">
           <div className="stage-recap-card">
-            <div className="stage-recap-title">{lesson.title}</div>
             <ol className="stage-recap-steps">
               {lesson.steps.map((s, i) => (
                 <li
@@ -180,7 +117,6 @@ export function StagePanel({ lesson, step, stepIndex, totalSteps, chapterColor, 
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelectStep(i)}
-                  title={`点击跳回第 ${s.stepNumber} 步`}
                 >
                   <span className="stage-recap-num">{i < stepIndex ? <Check size={12} /> : s.stepNumber}</span>
                   <span className="stage-recap-label">{s.shortLabel}</span>
@@ -190,7 +126,6 @@ export function StagePanel({ lesson, step, stepIndex, totalSteps, chapterColor, 
             </ol>
             {recapKeys.length > 0 && (
               <div className="stage-recap-keys">
-                <span className="stage-recap-keys-label">关键节点</span>
                 {recapKeys.map((k) => (
                   <span key={k} className="stage-recap-key mono">{k}</span>
                 ))}
@@ -205,24 +140,31 @@ export function StagePanel({ lesson, step, stepIndex, totalSteps, chapterColor, 
               <div className="stage-autoplay-bar" />
             </div>
           )}
-          <div className="stage-canvas-title">
-            <span>{step.scene.title ?? step.title}</span>
+          <div className="stage-floating-tools" role="toolbar" aria-label="画布控制">
+            <button type="button" className="stage-ctrl-btn" onClick={onReplay} aria-label="重播" title="重播 (R)">
+              <RotateCcw size={13} />
+            </button>
+            <button
+              type="button"
+              className={`stage-ctrl-btn ${isPlaying ? 'stage-ctrl-btn--playing' : ''}`}
+              onClick={onTogglePlay}
+              aria-label={isPlaying ? '暂停' : '自动翻步'}
+              title={isPlaying ? '暂停 (Space)' : '自动翻步 (Space)'}
+            >
+              {isPlaying ? <Pause size={13} /> : <Play size={13} />}
+            </button>
+            <span className="stage-toolbar-sep" />
+            <button type="button" className="stage-ctrl-btn" onClick={() => zoomBy(1 / 1.25)} aria-label="缩小" title="缩小">
+              <Minus size={13} />
+            </button>
+            <button type="button" className="stage-ctrl-btn stage-ctrl-zoom" onClick={resetView} aria-label="复位缩放" title="复位缩放">
+              {Math.round(view.zoom * 100)}%
+            </button>
+            <button type="button" className="stage-ctrl-btn" onClick={() => zoomBy(1.25)} aria-label="放大" title="放大">
+              <Plus size={13} />
+            </button>
           </div>
           <StageCanvas scene={step.scene} view={view} onViewChange={setView} onResetView={resetView} />
-          <div className="stage-legend-row">
-            <div className="stage-legend" aria-label="图例">
-              {legend.map((item) => (
-                <span key={item.label} className="stage-legend-item">
-                  {item.dashed ? (
-                    <span className={`stage-legend-dash ${item.dashed === 'dot' ? 'stage-legend-dash--dot' : ''}`} style={{ color: item.color }} />
-                  ) : (
-                    <span className="stage-legend-dot" style={{ backgroundColor: item.color }} />
-                  )}
-                  {item.label}
-                </span>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 
@@ -230,37 +172,41 @@ export function StagePanel({ lesson, step, stepIndex, totalSteps, chapterColor, 
         <div className="timeline-header">
           <span className="timeline-heading">本课步骤</span>
           <span className="timeline-header-right">
-            <span className="timeline-step-counter">步骤 {stepIndex + 1} / {totalSteps}</span>
-            <button type="button" className="timeline-nudge-btn" onClick={onPrevStep} disabled={!canPrev} aria-label="上一步">
-              <ChevronLeft size={14} />
+            <span className="timeline-kbd-hint">
               <span className="kbd">←</span>
-            </button>
-            <button type="button" className="timeline-nudge-btn" onClick={onNextStep} disabled={!canNext} aria-label="下一步">
-              <ChevronRight size={14} />
               <span className="kbd">→</span>
-            </button>
+            </span>
+            <span className="timeline-step-counter mono">{stepIndex + 1} / {totalSteps}</span>
           </span>
         </div>
-        <div className="timeline-track-scroll">
-          <div className="timeline-track" role="tablist" aria-label="步骤时间线">
-            {lesson.steps.map((s, i) => {
-              const state = i < stepIndex ? 'done' : i === stepIndex ? 'active' : 'todo';
-              return (
-                <button
-                  key={s.stepNumber}
-                  type="button"
-                  role="tab"
-                  aria-selected={i === stepIndex}
-                  className={`timeline-node timeline-node--${state}`}
-                  onClick={() => onSelectStep(i)}
-                  title={s.title}
-                >
-                  <span className="timeline-circle">{i < stepIndex ? '✓' : s.stepNumber}</span>
-                  <span className="timeline-label">{s.shortLabel}</span>
-                </button>
-              );
-            })}
+        <div className="timeline-row">
+          <button type="button" className="timeline-nudge-btn" onClick={onPrevStep} disabled={!canPrev} aria-label="上一步">
+            <ChevronLeft size={14} />
+          </button>
+          <div className="timeline-track-scroll">
+            <div className="timeline-track" role="tablist" aria-label="步骤时间线">
+              {lesson.steps.map((s, i) => {
+                const state = i < stepIndex ? 'done' : i === stepIndex ? 'active' : 'todo';
+                return (
+                  <button
+                    key={s.stepNumber}
+                    type="button"
+                    role="tab"
+                    aria-selected={i === stepIndex}
+                    className={`timeline-node timeline-node--${state}`}
+                    onClick={() => onSelectStep(i)}
+                    title={s.title}
+                  >
+                    <span className="timeline-circle">{i < stepIndex ? '✓' : s.stepNumber}</span>
+                    <span className="timeline-label">{s.shortLabel}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
+          <button type="button" className="timeline-nudge-btn" onClick={onNextStep} disabled={!canNext} aria-label="下一步">
+            <ChevronRight size={14} />
+          </button>
         </div>
       </div>
     </section>

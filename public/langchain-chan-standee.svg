@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 740" width="420" height="740">
+  <defs>
+    <linearGradient id="lgHair" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38a39d"/>
+      <stop offset="55%" stop-color="#1e6f73"/>
+      <stop offset="100%" stop-color="#12454c"/>
+    </linearGradient>
+    <linearGradient id="lgHairShade" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#17585e"/>
+      <stop offset="100%" stop-color="#0d353b"/>
+    </linearGradient>
+    <linearGradient id="lgDress" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1c6c70"/>
+      <stop offset="100%" stop-color="#10444a"/>
+    </linearGradient>
+    <linearGradient id="lgEye" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0f4c5c"/>
+      <stop offset="58%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#fde047"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Floating Pixel Emerald Parrot Companion -->
+  <g transform="translate(306, 134)">
+    <ellipse cx="26" cy="28" rx="16" ry="18" fill="#10b981" stroke="#133a36" stroke-width="2.4"/>
+    <path d="M18 10 C20 2 28 2 30 10" fill="#34d399" stroke="#133a36" stroke-width="2"/>
+    <circle cx="20" cy="22" r="3" fill="#133a36"/>
+    <circle cx="32" cy="22" r="3" fill="#133a36"/>
+    <polygon points="26,25 31,30 26,33 21,30" fill="#fbbf24" stroke="#133a36" stroke-width="1.6"/>
+    <path d="M-6 12 l2.5 -5.5 l2.5 5.5 l5.5 2.5 l-5.5 2.5 l-2.5 5.5 l-2.5 -5.5 l-5.5 -2.5 z" fill="#2dd4bf"/>
+  </g>
+  <path d="M74 196 l3 -7 l3 7 l7 3 l-7 3 l-3 7 l-3 -7 l-7 -3 z" fill="#2dd4bf" opacity="0.88"/>
+  <circle cx="96" cy="170" r="3" fill="#fbbf24"/>
+
+  <!-- Long Wavy Deep-Teal Back Hair -->
+  <path d="M138 136 C116 208 112 318 128 408 C144 432 276 432 292 408 C308 318 304 208 282 136 C264 78 156 78 138 136 Z" fill="url(#lgHairShade)" stroke="#12292d" stroke-width="2.8" stroke-linejoin="round"/>
+
+  <!-- Legs, White Socks, Deep-Teal Mary Janes -->
+  <g stroke="#12292d" stroke-width="2.6" stroke-linejoin="round">
+    <path d="M168 424 L162 544 L172 670 L196 670 L198 542 L204 424 Z" fill="#ffe7dc"/>
+    <path d="M164 552 L172 670 L196 670 L198 552 Z" fill="#ffffff"/>
+    <path d="M165 562 L198 562" stroke="#1c6c70" stroke-width="3"/>
+    <path d="M164 666 C158 686 154 704 174 708 C194 712 203 700 200 666 Z" fill="#10444a"/>
+    <path d="M164 674 Q182 682 199 674" fill="none" stroke="#2dd4bf" stroke-width="2.2"/>
+
+    <path d="M216 424 L222 544 L236 666 L260 662 L254 538 L252 424 Z" fill="#ffe7dc"/>
+    <path d="M225 550 L236 666 L260 662 L255 548 Z" fill="#ffffff"/>
+    <path d="M226 560 L256 557" stroke="#1c6c70" stroke-width="3"/>
+    <path d="M232 660 C230 682 234 702 256 700 C276 698 276 682 262 658 Z" fill="#10444a"/>
+    <path d="M234 668 Q250 676 264 666" fill="none" stroke="#2dd4bf" stroke-width="2.2"/>
+  </g>
+
+  <!-- Arms -->
+  <g stroke="#12292d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M162 246 C140 282 126 320 118 354 C116 366 128 376 138 366 C148 348 156 312 172 276" fill="#ffe7dc"/>
+    <path d="M258 246 C282 268 302 284 320 258 C330 242 344 248 336 266 C318 298 288 304 252 276" fill="#ffe7dc"/>
+  </g>
+
+  <!-- Ivory Ruffled Blouse + Tailored Deep-Teal Suspender Dress -->
+  <g stroke="#12292d" stroke-width="2.6" stroke-linejoin="round">
+    <path d="M164 232 C142 236 134 264 148 282 L168 278 Z" fill="#fffdf9"/>
+    <path d="M256 232 C278 236 286 264 272 282 L252 278 Z" fill="#fffdf9"/>
+    <path d="M166 232 L254 232 L248 314 L172 314 Z" fill="#fffdf9"/>
+    <!-- Suspender straps -->
+    <path d="M180 232 L191 232 L195 314 L182 314 Z" fill="url(#lgDress)"/>
+    <path d="M240 232 L229 232 L225 314 L238 314 Z" fill="url(#lgDress)"/>
+    <!-- Emerald cravat ribbon -->
+    <path d="M210 246 L192 240 L195 260 Z M210 246 L228 240 L225 260 Z" fill="#10b981"/>
+    <path d="M206 250 L198 284 L210 278 L222 284 L214 250 Z" fill="#059669"/>
+    <circle cx="210" cy="248" r="4.5" fill="#fde047"/>
+    <!-- Waist & Pleated Teal Skirt -->
+    <path d="M168 310 L252 310 L254 332 L166 332 Z" fill="#0f3d42"/>
+    <circle cx="190" cy="321" r="3" fill="#fde047" stroke="none"/>
+    <circle cx="230" cy="321" r="3" fill="#fde047" stroke="none"/>
+    <path d="M166 332 L114 446 C158 462 262 462 306 446 L254 332 Z" fill="url(#lgDress)"/>
+    <path d="M186 332 L156 452 M206 332 L198 456 M222 332 L234 456 M238 332 L270 450" stroke="#0d353a" stroke-width="2"/>
+    <!-- Gold State-Graph Node & Edge Embroidery on Hem -->
+    <path d="M126 432 C164 446 256 446 294 432" fill="none" stroke="#fbbf24" stroke-width="2.6" stroke-linecap="round"/>
+    <circle cx="154" cy="437" r="3.5" fill="#2dd4bf" stroke="#fbbf24" stroke-width="1.5"/>
+    <circle cx="210" cy="442" r="3.5" fill="#2dd4bf" stroke="#fbbf24" stroke-width="1.5"/>
+    <circle cx="266" cy="437" r="3.5" fill="#2dd4bf" stroke="#fbbf24" stroke-width="1.5"/>
+  </g>
+
+  <!-- Neck & Head -->
+  <path d="M198 206 L198 234 Q210 242 222 234 L222 206 Z" fill="#ffd9cc" stroke="#12292d" stroke-width="2.4"/>
+  <path d="M164 134 C164 96 256 96 256 134 C256 178 242 212 210 216 C178 212 164 178 164 134 Z" fill="#ffe8df" stroke="#12292d" stroke-width="2.6"/>
+
+  <!-- Eyes & Smile -->
+  <g>
+    <ellipse cx="187" cy="164" rx="11.5" ry="13.5" fill="#ffffff"/>
+    <ellipse cx="188" cy="165" rx="9.5" ry="11.5" fill="url(#lgEye)"/>
+    <ellipse cx="188" cy="167" rx="4.5" ry="5.5" fill="#0d2f36"/>
+    <circle cx="184" cy="160" r="3.4" fill="#ffffff"/>
+    <circle cx="192" cy="171" r="1.8" fill="#fef08a"/>
+    <path d="M174 156 Q187 148 200 156" fill="none" stroke="#12292d" stroke-width="3.2" stroke-linecap="round"/>
+
+    <ellipse cx="233" cy="164" rx="11.5" ry="13.5" fill="#ffffff"/>
+    <ellipse cx="232" cy="165" rx="9.5" ry="11.5" fill="url(#lgEye)"/>
+    <ellipse cx="232" cy="167" rx="4.5" ry="5.5" fill="#0d2f36"/>
+    <circle cx="228" cy="160" r="3.4" fill="#ffffff"/>
+    <circle cx="236" cy="171" r="1.8" fill="#fef08a"/>
+    <path d="M220 156 Q233 148 246 156" fill="none" stroke="#12292d" stroke-width="3.2" stroke-linecap="round"/>
+
+    <ellipse cx="177" cy="180" rx="8" ry="4" fill="#ff9bb0" opacity="0.48"/>
+    <ellipse cx="243" cy="180" rx="8" ry="4" fill="#ff9bb0" opacity="0.48"/>
+    <path d="M202 192 Q210 199 218 192" fill="none" stroke="#8c5460" stroke-width="2.2" stroke-linecap="round"/>
+  </g>
+
+  <!-- Half-up Ribbon Bow & Front Hair -->
+  <g stroke="#12292d" stroke-width="2.6" stroke-linejoin="round">
+    <path d="M210 76 L176 58 L184 88 Z M210 76 L244 58 L236 88 Z" fill="#10b981"/>
+    <circle cx="210" cy="76" r="7" fill="#34d399"/>
+    <path d="M150 144 C148 94 176 74 210 74 C244 74 272 94 270 144 C264 128 258 116 250 112 L248 158 L236 124 L224 162 L212 120 L198 160 L186 122 L172 156 L168 114 C160 120 154 130 150 144 Z" fill="url(#lgHair)"/>
+    <path d="M174 106 Q210 96 246 106" fill="none" stroke="#a7f3d0" stroke-width="3.6" stroke-linecap="round" opacity="0.65"/>
+  </g>
+</svg>

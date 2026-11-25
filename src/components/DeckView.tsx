@@ -53,41 +53,29 @@ export function DeckView({
 
   const unlockedCount = cards.filter(isCardUnlocked).length;
   const demoCardPrimary = cards[1] ?? cards[0];
-  const demoCardSecondary = cards.find((c) => c.rarity === 'UR') ?? cards[Math.min(2, cards.length - 1)];
 
   return (
     <div className="deck-page">
       <div className="deck-hero">
         <div className="deck-hero-top">
-          <button type="button" className="tactile-btn" onClick={onBackToLearn}>
-            <ArrowLeft size={14} /> 返回学习
-          </button>
-          <span className="deck-counter mono">
-            已收集 {unlockedCount} / {cards.length} 张全息卡
-          </span>
-        </div>
-
-        <h1 className="deck-title">{deckTitle}</h1>
-
-        <div className="deck-hero-actions">
-          {demoCardPrimary && (
-            <button
-              type="button"
-              className="tactile-btn tactile-btn--primary"
-              onClick={() => onOpenPack(demoCardPrimary, true)}
-            >
-              <Sparkles size={14} /> 试拆体验卡包（{demoCardPrimary.title}）
+          <h1 className="deck-title">{deckTitle}</h1>
+          <div className="deck-hero-actions">
+            <span className="deck-counter mono">
+              {unlockedCount} / {cards.length}
+            </span>
+            {demoCardPrimary && (
+              <button
+                type="button"
+                className="tactile-btn tactile-btn--primary"
+                onClick={() => onOpenPack(demoCardPrimary, true)}
+              >
+                <Sparkles size={14} /> 试拆体验
+              </button>
+            )}
+            <button type="button" className="tactile-btn" onClick={onBackToLearn}>
+              <ArrowLeft size={14} /> 返回课程
             </button>
-          )}
-          {demoCardSecondary && demoCardSecondary.id !== demoCardPrimary?.id && (
-            <button
-              type="button"
-              className="tactile-btn"
-              onClick={() => onOpenPack(demoCardSecondary, true)}
-            >
-              <Sparkles size={14} /> 试拆 {demoCardSecondary.rarity} 卡包（{demoCardSecondary.title}）
-            </button>
-          )}
+          </div>
         </div>
       </div>
 
@@ -119,12 +107,11 @@ export function DeckView({
                   </div>
                   <div className="holo-locked-center">
                     <div className="holo-locked-icon">
-                      <Lock size={24} />
+                      <Lock size={22} />
                     </div>
                     <h3 className="holo-locked-title">{card.title}</h3>
-                    <div className="holo-locked-sub">{card.subtitle}</div>
                     <div className="holo-locked-prog mono">
-                      进度 {prog.done} / {prog.total} 课
+                      {prog.done} / {prog.total}
                     </div>
                     <div className="holo-locked-bar">
                       <div
@@ -139,14 +126,14 @@ export function DeckView({
                       className="tactile-btn tactile-btn--primary"
                       onClick={() => onJumpToLesson(prog.firstLessonSlug)}
                     >
-                      去完成本章 <ArrowRight size={13} />
+                      进入本章 <ArrowRight size={13} />
                     </button>
                     <button
                       type="button"
                       className="deck-replay-btn"
                       onClick={() => onOpenPack(card, true)}
                     >
-                      试拆预览
+                      预览
                     </button>
                   </div>
                 </div>

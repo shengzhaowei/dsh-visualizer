@@ -1,7 +1,7 @@
 import type { MouseEvent } from 'react';
-import { ArrowLeft, BookOpen, Code2, ExternalLink, Menu, Moon, Search, Sparkles, Sun, Volume2, VolumeX, Waves } from 'lucide-react';
+import { ArrowLeft, BookOpen, Code2, ExternalLink, Home, Menu, Moon, Network, Search, Sparkles, Sun, Volume2, VolumeX, Waves } from 'lucide-react';
 
-export type DshMode = 'learn' | 'cheatsheet' | 'deck';
+export type DshMode = 'studio' | 'learn' | 'mindmap' | 'cheatsheet' | 'deck';
 export type HarnessMode = DshMode;
 
 interface TopBarProps {
@@ -54,6 +54,12 @@ export function TopBar({
         <span className="brand-title">{brandName}</span>
       </div>
       <nav className="topbar-modes" aria-label="视图切换">
+        <button type="button" className={`topbar-pill ${mode === 'studio' ? 'topbar-pill--active' : ''}`} onClick={() => onChangeMode('studio')}>
+          <Home size={13} /> 欢迎画室
+        </button>
+        <button type="button" className={`topbar-pill ${mode === 'mindmap' ? 'topbar-pill--active' : ''}`} onClick={() => onChangeMode('mindmap')}>
+          <Network size={13} /> 源码脑图
+        </button>
         <button type="button" className={`topbar-pill ${mode === 'learn' ? 'topbar-pill--active' : ''}`} onClick={() => onChangeMode('learn')}>
           <BookOpen size={13} /> 学习
         </button>

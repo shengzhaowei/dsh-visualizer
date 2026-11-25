@@ -4,12 +4,16 @@ import type { PluginHoloCard } from '../../data/cards';
 import type { HarnessBundle } from '../../types/harnessBundle';
 import { CheatsheetView } from '../../components/CheatsheetView';
 import { DeckView } from '../../components/DeckView';
+import { HarnessStudioView } from '../../components/HarnessStudioView';
 import { InspectorPanel } from '../../components/InspectorPanel';
 import { PluginPackModal } from '../../components/PluginPackModal';
 import { SearchModal } from '../../components/SearchModal';
 import { Sidebar } from '../../components/Sidebar';
+import { SourceMindmapView } from '../../components/SourceMindmapView';
 import { StagePanel } from '../../components/StagePanel';
 import { TopBar, type HarnessMode } from '../../components/TopBar';
+import { HARNESS_STUDIOS } from '../../data/studios';
+import { findMindNodeByLesson } from '../../types/mindmap';
 import { isSoundMuted, playSoundEnabledPing, playStepTick, setSoundMuted } from '../../utils/sound';
 
 type Theme = 'light' | 'dark' | 'deepsea';
@@ -18,6 +22,7 @@ export interface HarnessRouteState {
   mode: HarnessMode;
   lessonSlug: string;
   stepIndex: number; // 0-based
+  mindNodeId?: string;
 }
 
 interface HarnessAppProps {
@@ -220,13 +225,23 @@ export function HarnessApp({ bundle, route, onNavigate, onBackToPortal }: Harnes
   const handleReplay = useCallback(() => { setIsPlaying(true); setReplayKey((k) => k + 1); }, []);
 
   const handleChangeMode = useCallback((nextMode: HarnessMode) => {
-    if (nextMode === 'cheatsheet' || nextMode === 'deck') {
+    if (nextMode === 'studio') {
+      onNavigate({ mode: 'studio', lessonSlug: lastLearnRoute.lessonSlug, stepIndex: lastLearnRoute.stepIndex });
+    } else if (nextMode === 'mindmap') {
+      const matched = currentLesson ? findMindNodeByLesson(bundle.mindmap, currentLesson.slug) : null;
+      onNavigate({
+        mode: 'mindmap',
+        lessonSlug: lastLearnRoute.lessonSlug,
+        stepIndex: lastLearnRoute.stepIndex,
+        mindNodeId: matched?.id ?? 'root',
+      });
+    } else if (nextMode === 'cheatsheet' || nextMode === 'deck') {
       onNavigate({ mode: nextMode, lessonSlug: lastLearnRoute.lessonSlug, stepIndex: lastLearnRoute.stepIndex });
     } else {
       onNavigate({ mode: 'learn', lessonSlug: lastLearnRoute.lessonSlug || allLessons[0]?.slug || '', stepIndex: lastLearnRoute.stepIndex });
     }
     setMobileDrawerOpen(false);
-  }, [onNavigate, lastLearnRoute, allLessons]);
+  }, [onNavigate, lastLearnRoute, allLessons, bundle.mindmap, currentLesson]);
 
   const handleContinue = useCallback(() => {
     const next = allLessons.find((l) => !completedLessons.has(l.slug)) ?? allLessons[0];
@@ -288,13 +303,27 @@ export function HarnessApp({ bundle, route, onNavigate, onBackToPortal }: Harnes
         onToggleTheme={handleToggleTheme}
         onOpenMobileDrawer={() => setMobileDrawerOpen(true)}
         onBackToPortal={onBackToPortal}
-        onGoFirstLesson={() => {
-          const first = allLessons[0];
-          if (first) handleSelectLesson(first.slug, 1);
-        }}
+        onGoFirstLesson={() => handleChangeMode('studio')}
       />
 
-      {route.mode === 'cheatsheet' ? (
+      {route.mode === 'studio' && bundle.id !== 'claude-code' ? (
+        <HarnessStudioView
+          config={HARNESS_STUDIOS[bundle.id]}
+          chapters={bundle.chapters}
+          completedLessons={completedLessons}
+          onJumpToLesson={(slug, stepNumber) => handleSelectLesson(slug, stepNumber)}
+          onOpenMindmap={() => handleChangeMode('mindmap')}
+          onOpenDeck={() => handleChangeMode('deck')}
+        />
+      ) : route.mode === 'mindmap' ? (
+        <SourceMindmapView
+          root={bundle.mindmap}
+          repoUrl={bundle.repoUrl}
+          initialNodeId={route.mindNodeId}
+          searchPlaceholder={`搜索 ${bundle.name} 节点、源码…`}
+          onJumpToLesson={(slug, stepNumber) => handleSelectLesson(slug, stepNumber)}
+        />
+      ) : route.mode === 'cheatsheet' ? (
         <div className="cheatsheet-scroll-container">
           <CheatsheetView
             data={bundle.cheatsheet}
@@ -361,15 +390,6 @@ export function HarnessApp({ bundle, route, onNavigate, onBackToPortal }: Harnes
           />
         </div>
       ) : null}
-
-      {route.mode === 'learn' && (
-        <footer className="keyboard-hint-bar" aria-label="键盘快捷键">
-          <span><span className="kbd">←</span> <span className="kbd">→</span> 切换步骤</span>
-          <span><span className="kbd">Space</span> 自动翻步 / 暂停</span>
-          <span><span className="kbd">R</span> 重播</span>
-          <span><span className="kbd">Ctrl K</span> 搜索</span>
-        </footer>
-      )}
 
       {mobileDrawerOpen && (
         <div className="mobile-drawer-backdrop" role="dialog" aria-modal="true" aria-label="课程目录抽屉" onClick={(e) => { if (e.target === e.currentTarget) setMobileDrawerOpen(false); }}>

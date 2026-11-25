@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, CheckCircle2, ChevronDown, Circle, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronRight, FileText, Folder, FolderOpen, PanelLeftClose, PanelLeftOpen, RotateCcw } from 'lucide-react';
 import type { Chapter } from '../types/lesson';
 
 interface SidebarProps {
@@ -7,13 +7,13 @@ interface SidebarProps {
   activeLessonSlug: string;
   completedLessons: Set<string>;
   onSelectLesson: (slug: string) => void;
-  onContinue: () => void;
+  onContinue?: () => void;
   onResetProgress: () => void;
   collapsed?: boolean;
   onToggleCollapsed?: () => void;
 }
 
-export function Sidebar({ chapters, activeLessonSlug, completedLessons, onSelectLesson, onContinue, onResetProgress, collapsed, onToggleCollapsed }: SidebarProps) {
+export function Sidebar({ chapters, activeLessonSlug, completedLessons, onSelectLesson, onResetProgress, collapsed, onToggleCollapsed }: SidebarProps) {
   const allLessons = useMemo(() => chapters.flatMap((c) => c.lessons), [chapters]);
   const totalLessons = allLessons.length;
   const doneLessons = useMemo(() => allLessons.filter((l) => completedLessons.has(l.slug)).length, [allLessons, completedLessons]);
@@ -41,7 +41,7 @@ export function Sidebar({ chapters, activeLessonSlug, completedLessons, onSelect
   if (collapsed) {
     return (
       <aside className="sidebar sidebar--collapsed" aria-label="课程目录（已折叠）">
-        <button type="button" className="tactile-btn topbar-icon-btn" onClick={onToggleCollapsed} aria-label="展开目录">
+        <button type="button" className="sidebar-icon-btn" onClick={onToggleCollapsed} aria-label="展开目录" title="展开目录">
           <PanelLeftOpen size={15} />
         </button>
       </aside>
@@ -51,76 +51,85 @@ export function Sidebar({ chapters, activeLessonSlug, completedLessons, onSelect
   return (
     <aside className="sidebar" aria-label="课程目录">
       <div className="sidebar-head">
-        <span className="sidebar-head-title">课程目录</span>
-        <button type="button" className="sidebar-reset-ghost" onClick={onResetProgress} title="清空已完成标记">
-          重置
-        </button>
-      </div>
-      {chapters.map((chapter) => {
-        const open = openChapters.has(chapter.id);
-        const doneInChapter = chapter.lessons.filter((l) => completedLessons.has(l.slug)).length;
-        return (
-          <div key={chapter.id} className="sidebar-chapter">
-            <button
-              type="button"
-              className="sidebar-chapter-head"
-              onClick={() => toggleChapter(chapter.id)}
-              aria-expanded={open}
-            >
-              <span className="sidebar-chapter-num">CH {chapter.number}</span>
-              <span className={`ch-color--${chapter.color}`}>{chapter.title}</span>
-              <span className="sidebar-chapter-count mono">
-                {doneInChapter}/{chapter.lessons.length}
-              </span>
-              <ChevronDown size={13} className={`sidebar-chapter-chevron ${open ? 'sidebar-chapter-chevron--open' : ''}`} />
+        <span className="sidebar-head-title">
+          <Folder size={14} />
+          <span>课程</span>
+        </span>
+        <span className="sidebar-head-right">
+          <span className="sidebar-lesson-total">{totalLessons} 课</span>
+          {doneLessons > 0 && (
+            <button type="button" className="sidebar-icon-btn" onClick={onResetProgress} title="清空进度" aria-label="清空进度">
+              <RotateCcw size={12} />
             </button>
-            <div className={`sidebar-chapter-body ${open ? 'sidebar-chapter-body--open' : ''}`}>
-              <div className="sidebar-chapter-body-inner">
-                {chapter.lessons.map((lesson) => {
-                  const isActive = lesson.slug === activeLessonSlug;
-                  const isDone = completedLessons.has(lesson.slug);
-                  return (
-                    <button
-                      key={lesson.id}
-                      type="button"
-                      className={`sidebar-lesson ${isActive ? 'sidebar-lesson--active' : ''}`}
-                      onClick={() => onSelectLesson(lesson.slug)}
-                      aria-current={isActive ? 'true' : undefined}
-                      tabIndex={open ? 0 : -1}
-                    >
-                      <span className="sidebar-lesson-check">
-                        {isDone ? <CheckCircle2 size={15} /> : <Circle size={15} />}
-                      </span>
-                      <span>
-                        <span className="sidebar-lesson-num">{lesson.lessonIndexInChapter}.</span>
+          )}
+          {onToggleCollapsed && (
+            <button type="button" className="sidebar-icon-btn" onClick={onToggleCollapsed} title="收起目录" aria-label="收起目录">
+              <PanelLeftClose size={14} />
+            </button>
+          )}
+        </span>
+      </div>
+
+      <div className="sidebar-tree">
+        {chapters.map((chapter) => {
+          const open = openChapters.has(chapter.id);
+          const doneInChapter = chapter.lessons.filter((l) => completedLessons.has(l.slug)).length;
+          const chapterNum = String(chapter.number).padStart(2, '0');
+          return (
+            <div key={chapter.id} className="sidebar-chapter">
+              <button
+                type="button"
+                className="sidebar-chapter-head"
+                onClick={() => toggleChapter(chapter.id)}
+                aria-expanded={open}
+              >
+                <span className="sidebar-chapter-chevron">
+                  {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+                </span>
+                <span className={`sidebar-chapter-folder ch-color--${chapter.color}`}>
+                  {open ? <FolderOpen size={14} /> : <Folder size={14} />}
+                </span>
+                <span className="sidebar-chapter-name">
+                  {chapterNum}. {chapter.title}
+                </span>
+                <span className="sidebar-chapter-count mono">
+                  {doneInChapter}/{chapter.lessons.length}
+                </span>
+              </button>
+              <div className={`sidebar-chapter-body ${open ? 'sidebar-chapter-body--open' : ''}`}>
+                <div className="sidebar-chapter-body-inner">
+                  {chapter.lessons.map((lesson) => {
+                    const isActive = lesson.slug === activeLessonSlug;
+                    const isDone = completedLessons.has(lesson.slug);
+                    return (
+                      <button
+                        key={lesson.id}
+                        type="button"
+                        className={`sidebar-lesson ${isActive ? 'sidebar-lesson--active' : ''}`}
+                        onClick={() => onSelectLesson(lesson.slug)}
+                        aria-current={isActive ? 'true' : undefined}
+                        tabIndex={open ? 0 : -1}
+                      >
+                        <span className={`sidebar-lesson-icon ${isDone ? 'sidebar-lesson-icon--done' : ''}`}>
+                          {isDone ? <CheckCircle2 size={13} /> : <FileText size={13} />}
+                        </span>
                         <span className="sidebar-lesson-title">{lesson.title}</span>
-                      </span>
-                    </button>
-                  );
-                })}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
+
       <div className="sidebar-footer">
-        <div className="sidebar-progress">
-          <div className="sidebar-progress-label">
-            <span>学习进度</span>
-            <span className="mono">{doneLessons} / {totalLessons} · {pct}%</span>
-          </div>
-          <div className="sidebar-progress-bar">
-            <div className="sidebar-progress-fill" style={{ width: `${pct}%` }} />
-          </div>
+        <span className="sidebar-progress-text">进度</span>
+        <div className="sidebar-progress-bar">
+          <div className="sidebar-progress-fill" style={{ width: `${pct}%` }} />
         </div>
-        <button type="button" className="tactile-btn tactile-btn--primary sidebar-continue" onClick={onContinue}>
-          继续学习 <ArrowRight size={13} />
-        </button>
-        {onToggleCollapsed && (
-          <button type="button" className="tactile-btn sidebar-collapse" onClick={onToggleCollapsed}>
-            <PanelLeftClose size={13} /> 收起目录
-          </button>
-        )}
+        <span className="sidebar-progress-count mono">{doneLessons} / {totalLessons}</span>
       </div>
     </aside>
   );

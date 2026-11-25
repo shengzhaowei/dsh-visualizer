@@ -196,10 +196,6 @@ export function CheatsheetView({ data, onJumpToLesson, onBackToLearn }: Cheatshe
           )}
         </section>
       ))}
-
-      <button type="button" className="tactile-btn cheatsheet-back" onClick={onBackToLearn}>
-        <ArrowLeft size={14} /> 回到学习
-      </button>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { CHAPTERS } from './curriculum';
 import { CHEATSHEET_DATA } from './cheatsheet';
 import { PLUGIN_HOLO_CARDS } from './cards';
+import { DSH_MINDMAP_DATA } from './harnesses/dsh/mindmap';
 import { PI_BUNDLE } from './harnesses/pi';
 import { CODEX_BUNDLE } from './harnesses/codex';
 import { CLAUDE_CODE_BUNDLE } from './harnesses/claude-code';
@@ -22,6 +23,7 @@ export const DSH_BUNDLE: HarnessBundle = {
   chapters: CHAPTERS,
   cheatsheet: CHEATSHEET_DATA,
   cards: PLUGIN_HOLO_CARDS,
+  mindmap: DSH_MINDMAP_DATA,
   legacySlugRedirect: {
     'profile-bundle-patch': 'product-assembly',
     'spine-to-products': 'product-assembly',

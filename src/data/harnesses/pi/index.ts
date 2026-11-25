@@ -3,6 +3,7 @@ import type { PluginHoloCard } from '../../cards';
 import type { HarnessBundle } from '../../../types/harnessBundle';
 import { PI_REPO } from '../../helpers';
 import { PI_CHAPTERS } from './lessons';
+import { PI_MINDMAP_DATA } from './mindmap';
 
 const PI_CHEATSHEET: CheatsheetData = {
   hero: {
@@ -247,4 +248,5 @@ export const PI_BUNDLE: HarnessBundle = {
   chapters: PI_CHAPTERS,
   cheatsheet: PI_CHEATSHEET,
   cards: PI_CARDS,
+  mindmap: PI_MINDMAP_DATA,
 };

@@ -160,14 +160,26 @@ export function isoSceneBBox(scene: IsoFlowScene): { x: number; y: number; w: nu
     maxX = Math.max(maxX, x + w);
     maxY = Math.max(maxY, y + h);
   };
-  for (const z of scene.zones ?? []) eat(z.x, z.y, z.w, z.h);
+  const byId = new Map(scene.nodes.map((n) => [n.id, n]));
+  for (const z of scene.zones ?? []) eat(z.x - 4, z.y - 4, z.w + 8, z.h + 8);
   for (const n of scene.nodes) {
     const { w, h } = isoNodeSize(n);
-    eat(n.x - 4, n.y - 14, w + 8, h + 20);
+    eat(n.x - 10, n.y - 16, w + 20, h + 28);
   }
-  for (const c of scene.callouts ?? []) eat(c.x - 8, c.y - 18, textWidth(c.text, 12) + 18, 26);
+  for (const e of scene.edges) {
+    const from = byId.get(e.from);
+    const to = byId.get(e.to);
+    if (!from || !to) continue;
+    const fs = isoNodeSize(from);
+    const ts = isoNodeSize(to);
+    const mx = (from.x + fs.w / 2 + to.x + ts.w / 2) / 2;
+    const my = (from.y + fs.h / 2 + to.y + ts.h / 2) / 2 - 20;
+    const lw = e.label ? textWidth(e.label, 11) + 20 : 12;
+    eat(mx - lw / 2, my - 14, lw, 24);
+  }
+  for (const c of scene.callouts ?? []) eat(c.x - 10, c.y - 20, textWidth(c.text, 12) + 22, 28);
   if (!Number.isFinite(minX)) return { x: 0, y: 0, w: 1000, h: 560 };
-  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+  return { x: minX, y: minY, w: Math.max(120, maxX - minX), h: Math.max(80, maxY - minY) };
 }
 
 /** 2.5D isometric-style plugin / layer diagram in a 0..1000 x 0..560 space.

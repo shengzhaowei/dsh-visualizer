@@ -1,18 +1,19 @@
-// OpenAI Codex（openai/codex · codex-rs）交互式源码教程：4 章 · 8 课 · 48 步
+// OpenAI Codex（openai/codex · codex-rs）交互式源码教程：6 章 · 10 课 · 60 步（与源码思维导图 6 大分支 1:1 对齐）
 // 对应仓库：https://github.com/openai/codex
 import { chapter, codexSrc, iso, kpi, lesson, steps, swim, tree } from '../../helpers';
 import type { Chapter } from '../../../types/lesson';
+import { L_CODEX_APP_SERVER, L_CODEX_CONFIG_MCP } from './ch06';
 
 // ---------------------------------------------------------------------------
-// CH1 · 1/2 · SQ / EQ 双队列协议（Op 提交与 EventMsg 事件流）
+// CH1 · 1/1 · SQ / EQ 双队列协议（Op 提交与 EventMsg 事件流）
 // ---------------------------------------------------------------------------
 const L_CODEX_SQ_EQ = lesson(
   'codex-sq-eq',
   'codex-ch01',
   1,
-  'Rust 核心与双队列协议',
+  'Workspace 与双队列协议',
   1,
-  2,
+  1,
   'SQ / EQ 双队列架构：Op 与 EventMsg',
   'OpenAI 将 Codex CLI 用 Rust（codex-rs）重写后，最核心的架构契约不是函数调用，而是异步通道对：提交队列 SQ（Op）与事件队列 EQ（EventMsg）。',
   11,
@@ -236,11 +237,11 @@ pub enum Op {
 // ---------------------------------------------------------------------------
 const L_CODEX_TURN = lesson(
   'codex-turn-loop',
-  'codex-ch01',
+  'codex-ch02',
+  2,
+  'Core 控制面与 Turn 循环',
   1,
-  'Rust 核心与双队列协议',
-  2,
-  2,
+  1,
   'submission_loop 与 Turn 执行生命周期',
   '深入 codex-rs/core/src/codex.rs：看清一次 UserTurn 如何派生独立 Tokio 任务、流式消费 Responses API、并行调度工具并在打断时干净清理。',
   11,
@@ -447,9 +448,9 @@ const L_CODEX_TURN = lesson(
 // ---------------------------------------------------------------------------
 const L_CODEX_POLICY = lesson(
   'codex-approval-policy',
-  'codex-ch02',
-  2,
-  '审批策略与策略分离',
+  'codex-ch03',
+  3,
+  '二维正交策略与 ExecPolicy',
   1,
   2,
   'AskForApproval × SandboxPolicy 正交安全矩阵',
@@ -662,9 +663,9 @@ pub enum SandboxPolicy {
 // ---------------------------------------------------------------------------
 const L_CODEX_EXEC_POLICY = lesson(
   'codex-exec-policy',
-  'codex-ch02',
-  2,
-  '审批策略与策略分离',
+  'codex-ch03',
+  3,
+  '二维正交策略与 ExecPolicy',
   2,
   2,
   'ExecPolicy 规则引擎：命令语法树解析与前缀放行',
@@ -870,9 +871,9 @@ const L_CODEX_EXEC_POLICY = lesson(
 // ---------------------------------------------------------------------------
 const L_CODEX_SANDBOX = lesson(
   'codex-seatbelt-landlock',
-  'codex-ch03',
-  3,
-  'OS 级物理沙箱',
+  'codex-ch04',
+  4,
+  'OS 原生内核沙箱与零信任',
   1,
   2,
   'OS 级物理沙箱：Seatbelt 与 Landlock/seccomp',
@@ -1072,9 +1073,9 @@ if let SandboxPolicy::WorkspaceWrite { writable_roots, network_access } = sandbo
 // ---------------------------------------------------------------------------
 const L_CODEX_ESCALATION = lesson(
   'codex-sandbox-escalation',
-  'codex-ch03',
-  3,
-  'OS 级物理沙箱',
+  'codex-ch04',
+  4,
+  'OS 原生内核沙箱与零信任',
   2,
   2,
   '沙箱拒绝后的升级重试与网络零信任',
@@ -1276,9 +1277,9 @@ if is_likely_sandbox_denied(&output) && approval_policy.allows_escalation() {
 // ---------------------------------------------------------------------------
 const L_CODEX_PATCH = lesson(
   'codex-apply-patch',
-  'codex-ch04',
-  4,
-  '补丁应用与长程压缩',
+  'codex-ch05',
+  5,
+  '代码补丁与长程上下文压缩',
   1,
   2,
   'apply_patch 补丁引擎与 TurnDiffTracker 变更追踪',
@@ -1470,12 +1471,12 @@ const L_CODEX_PATCH = lesson(
 // ---------------------------------------------------------------------------
 const L_CODEX_COMPACT = lesson(
   'codex-auto-compact',
-  'codex-ch04',
-  4,
-  '补丁应用与长程压缩',
+  'codex-ch05',
+  5,
+  '代码补丁与长程上下文压缩',
   2,
   2,
-  'compact.rs 长会话压缩与多端生态',
+  'compact.rs 抗漂移三段压缩',
   '长程重构跑满上下文窗口时，codex-rs/core/src/compact.rs 如何通过服务端/本地摘要压缩重建紧凑历史，并配合 AGENTS.md 保持目标不漂移。',
   10,
   '进阶',
@@ -1671,8 +1672,10 @@ const L_CODEX_COMPACT = lesson(
 );
 
 export const CODEX_CHAPTERS: Chapter[] = [
-  chapter('codex-ch01', 1, 'Rust 核心与双队列协议', 'violet', [L_CODEX_SQ_EQ, L_CODEX_TURN]),
-  chapter('codex-ch02', 2, '审批策略与策略分离', 'amber', [L_CODEX_POLICY, L_CODEX_EXEC_POLICY]),
-  chapter('codex-ch03', 3, 'OS 级物理沙箱', 'blue', [L_CODEX_SANDBOX, L_CODEX_ESCALATION]),
-  chapter('codex-ch04', 4, '补丁应用与长程压缩', 'teal', [L_CODEX_PATCH, L_CODEX_COMPACT]),
+  chapter('codex-ch01', 1, 'Workspace 与双队列协议', 'violet', [L_CODEX_SQ_EQ]),
+  chapter('codex-ch02', 2, 'Core 控制面与 Turn 循环', 'blue', [L_CODEX_TURN]),
+  chapter('codex-ch03', 3, '二维正交策略与 ExecPolicy', 'amber', [L_CODEX_POLICY, L_CODEX_EXEC_POLICY]),
+  chapter('codex-ch04', 4, 'OS 原生内核沙箱与零信任', 'sage', [L_CODEX_SANDBOX, L_CODEX_ESCALATION]),
+  chapter('codex-ch05', 5, '代码补丁与长程上下文压缩', 'coral', [L_CODEX_PATCH, L_CODEX_COMPACT]),
+  chapter('codex-ch06', 6, '配置层、MCP 与多端协作生态', 'teal', [L_CODEX_CONFIG_MCP, L_CODEX_APP_SERVER]),
 ];

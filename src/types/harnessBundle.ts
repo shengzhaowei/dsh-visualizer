@@ -1,4 +1,5 @@
 import type { Chapter, CheatsheetData, HarnessId } from './lesson';
+import type { MindNode } from './mindmap';
 import type { PluginHoloCard } from '../data/cards';
 
 export interface HarnessBundle {
@@ -15,5 +16,6 @@ export interface HarnessBundle {
   chapters: Chapter[];
   cheatsheet: CheatsheetData;
   cards: PluginHoloCard[];
+  mindmap: MindNode;
   legacySlugRedirect?: Record<string, string>;
 }

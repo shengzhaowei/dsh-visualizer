@@ -3,6 +3,7 @@ import type { PluginHoloCard } from '../../cards';
 import type { HarnessBundle } from '../../../types/harnessBundle';
 import { CLAUDE_CODE_REPO } from '../../helpers';
 import { CLAUDE_CODE_CHAPTERS } from './lessons';
+import { CLAUDE_CODE_MINDMAP_DATA } from './mindmap';
 
 const CLAUDE_CODE_CHEATSHEET: CheatsheetData = {
   hero: {
@@ -224,7 +225,7 @@ const CLAUDE_CODE_CARDS: PluginHoloCard[] = [
 export const CLAUDE_CODE_BUNDLE: HarnessBundle = {
   id: 'claude-code',
   name: 'Claude Code',
-  brandIcon: '/holo/assets/characters/mascot-claude-body.svg',
+  brandIcon: '/claude-chan-avatar.png',
   repoUrl: CLAUDE_CODE_REPO,
   repoLabel: 'claude-code 仓库',
   storagePrefix: 'claude-code-visualizer',
@@ -235,4 +236,5 @@ export const CLAUDE_CODE_BUNDLE: HarnessBundle = {
   chapters: CLAUDE_CODE_CHAPTERS,
   cheatsheet: CLAUDE_CODE_CHEATSHEET,
   cards: CLAUDE_CODE_CARDS,
+  mindmap: CLAUDE_CODE_MINDMAP_DATA,
 };

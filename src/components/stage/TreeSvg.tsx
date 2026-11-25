@@ -48,11 +48,11 @@ export function treeSceneBBox(scene: TreeScene): { x: number; y: number; w: numb
   };
   for (const n of scene.nodes) {
     const { w, h } = treeNodeSize(n);
-    eat(n.x - w / 2 - 4, n.y - h / 2 - 12, w + 8, h + 18);
+    eat(n.x - w / 2 - 10, n.y - h / 2 - 14, w + 20, h + 24);
   }
   for (const a of scene.annotations ?? []) eat(a.x - 10, a.y - 19, textWidth(a.text, 11.5) + 28, 26);
   if (!Number.isFinite(minX)) return { x: 0, y: 0, w: 1000, h: 560 };
-  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+  return { x: minX, y: minY, w: Math.max(120, maxX - minX), h: Math.max(80, maxY - minY) };
 }
 
 /** Tree diagram: nodes positioned by lesson data, edges drawn parent → child. */

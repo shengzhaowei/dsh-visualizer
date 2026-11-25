@@ -8,6 +8,8 @@ import './styles/inspector.css';
 import './styles/search.css';
 import './styles/cheatsheet.css';
 import './styles/holo.css';
+import './styles/codex.css';
+import './styles/claude-code.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

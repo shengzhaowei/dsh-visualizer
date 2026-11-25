@@ -3,6 +3,7 @@ import type { PluginHoloCard } from '../../cards';
 import type { HarnessBundle } from '../../../types/harnessBundle';
 import { LANGGRAPH_REPO } from '../../helpers';
 import { LANGCHAIN_CHAPTERS } from './lessons';
+import { LANGCHAIN_MINDMAP_DATA } from './mindmap';
 
 const LANGCHAIN_CHEATSHEET: CheatsheetData = {
   hero: {
@@ -232,4 +233,5 @@ export const LANGCHAIN_BUNDLE: HarnessBundle = {
   chapters: LANGCHAIN_CHAPTERS,
   cheatsheet: LANGCHAIN_CHEATSHEET,
   cards: LANGCHAIN_CARDS,
+  mindmap: LANGCHAIN_MINDMAP_DATA,
 };

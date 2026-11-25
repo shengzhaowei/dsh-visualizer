@@ -21,13 +21,13 @@ interface InspectorPanelProps {
 
 const CALLOUT_STYLE: Record<string, { stroke: string; title: string; icon: 'idea' | 'tip' | 'warn' }> = {
   idea: { stroke: 'var(--violet-stroke)', title: '关键判断', icon: 'idea' },
-  tip: { stroke: 'var(--green-stroke)', title: '小提示', icon: 'tip' },
+  tip: { stroke: 'var(--green-stroke)', title: '提示', icon: 'tip' },
   warn: { stroke: 'var(--orange-stroke)', title: '注意', icon: 'warn' },
 };
 
-export function InspectorPanel({ lesson, step, stepIndex, totalSteps, nextLesson, canPrev, canNext, onSelectStep, onPrevStep, onNextStep, onSelectLesson, onOpenCheatsheet }: InspectorPanelProps) {
+export function InspectorPanel({ lesson, step, stepIndex, totalSteps, nextLesson, canPrev, canNext, onPrevStep, onNextStep, onSelectLesson, onOpenCheatsheet }: InspectorPanelProps) {
   const doneObjectives = lesson.objectives.filter((o) => stepIndex + 1 >= o.completedAtStep);
-  const [objectivesOpen, setObjectivesOpen] = useState(false);
+  const [objectivesOpen, setObjectivesOpen] = useState(true);
   const [copied, setCopied] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -59,210 +59,192 @@ export function InspectorPanel({ lesson, step, stepIndex, totalSteps, nextLesson
   const codeLines = step.sourceDrawer ? step.sourceDrawer.code.replace(/\n$/, '').split('\n') : [];
   const filePreview = step.scene.kind === 'tree' ? step.scene.filePreview : undefined;
   const calloutStyle = step.callout ? CALLOUT_STYLE[step.callout.kind] : undefined;
+  const nextStep = canNext ? lesson.steps[stepIndex + 1] : undefined;
 
   return (
     <aside className="inspector" aria-label="步骤解读">
-      <div className="inspector-header">
-        <div className="inspector-progress" role="tablist" aria-label={`步骤进度 ${stepIndex + 1} / ${totalSteps}`}>
-          {lesson.steps.map((s, i) => (
-            <button
-              key={s.stepNumber}
-              type="button"
-              role="tab"
-              aria-selected={i === stepIndex}
-              aria-label={`跳到第 ${s.stepNumber} 步：${s.title}`}
-              title={`第 ${s.stepNumber} 步 · ${s.shortLabel}：${s.title}`}
-              className={`inspector-progress-seg ${i < stepIndex ? 'inspector-progress-seg--done' : i === stepIndex ? 'inspector-progress-seg--current' : ''}`}
-              onClick={() => onSelectStep(i)}
-            />
-          ))}
-        </div>
-      </div>
-
       <div ref={scrollRef} className="inspector-scroll">
         <div key={`${lesson.slug}-${stepIndex}`} className={`inspector-anim inspector-anim--${slideDir}`}>
-        <div className="inspector-step-head">
-          <span className={`step-badge step-badge--${step.badge}`}>{step.badge}</span>
-          <span className="inspector-step-count mono">
-            STEP {step.stepNumber} / {totalSteps}
-          </span>
-        </div>
-        <h2 className="inspector-step-title">{step.title}</h2>
-
-        <div className="inspector-body">
-          {step.paragraphs.map((p, i) => (
-            <p key={i}>{renderInline(p, `p-${i}`)}</p>
-          ))}
-        </div>
-
-        {step.callout && calloutStyle && (
-          <div className={`callout callout--${step.callout.kind}`} style={{ borderLeftColor: calloutStyle.stroke }}>
-            <div className="callout-title" style={{ color: calloutStyle.stroke }}>
-              {step.callout.kind === 'warn' ? <TriangleAlert size={14} /> : step.callout.kind === 'tip' ? <CheckCircle2 size={14} /> : <Lightbulb size={14} />}
-              {step.callout.title ?? calloutStyle.title}
-            </div>
-            <div>{renderInline(step.callout.text, 'callout')}</div>
-          </div>
-        )}
-
-        <div className="objectives">
-          <button type="button" className="objectives-head" onClick={() => setObjectivesOpen((o) => !o)} aria-expanded={objectivesOpen}>
-            <span className="objectives-head-title">
-              <ListChecks size={13} />
-              本课要点 · {doneObjectives.length}/{lesson.objectives.length}
-            </span>
-            <ChevronDown size={14} className={`objectives-chevron ${objectivesOpen ? 'objectives-chevron--open' : ''}`} />
-          </button>
-          <div className={`objectives-body ${objectivesOpen ? 'objectives-body--open' : ''}`}>
-            <div className="objectives-body-inner">
-              <ul className="objectives-list">
-                {lesson.objectives.map((o) => {
-                  const done = stepIndex + 1 >= o.completedAtStep;
-                  return (
-                    <li key={o.id} className={done ? 'done' : ''}>
-                      <span className={`obj-check ${done ? '' : 'obj-check--pending'}`}>
-                        {done ? <CheckCircle2 size={15} /> : <Circle size={15} />}
-                      </span>
-                      <span className="obj-text">{o.text}</span>
-                      <span className="obj-step">第 {o.completedAtStep} 步</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        {step.sourceDrawer && (
-          <div className="source-drawer">
-            <div className="source-drawer-head">
-              <button
-                type="button"
-                className="source-drawer-toggle"
-                onClick={() => setDrawerOpen((o) => !o)}
-                aria-expanded={drawerOpen}
-                aria-label={drawerOpen ? '折叠源码' : '展开源码'}
-              >
-                <span className="source-drawer-title">
-                  <FileCode2 size={13} style={{ verticalAlign: -2, marginRight: 5 }} />
-                  {step.sourceDrawer.title}
-                </span>
-                <ChevronDown size={13} className={`source-drawer-chevron ${drawerOpen ? 'source-drawer-chevron--open' : ''}`} />
-              </button>
-              <span className="source-drawer-actions">
-                <button
-                  type="button"
-                  className={`source-copy-btn ${copied ? 'source-copy-btn--copied' : ''}`}
-                  onClick={() => void copyCode()}
-                  aria-label="复制代码"
-                >
-                  {copied ? <Check size={13} /> : <Copy size={13} />}
-                  {copied ? '已复制' : '复制'}
-                </button>
-                <a className="source-link" href={step.sourceDrawer.githubUrl} target="_blank" rel="noopener noreferrer">
-                  GitHub <ExternalLink size={11} />
-                </a>
+          {/* Card 1: Step Explanation + Navigation */}
+          <article className="inspector-card inspector-step-card">
+            <div className="inspector-step-head">
+              <span className="inspector-step-count mono">
+                STEP {step.stepNumber} / {totalSteps}
               </span>
+              <span className={`step-badge step-badge--${step.badge}`}>{step.badge}</span>
             </div>
-            <div className={`source-drawer-body ${drawerOpen ? 'source-drawer-body--open' : ''}`}>
-              <div>
-                <div className="source-drawer-path mono">{step.sourceDrawer.filePath}</div>
-                <pre className="code-block">
-                  {codeLines.map((line, i) => (
-                    <div key={i} className="code-line">
-                      <span className="code-ln">{i + 1}</span>
-                      <span className="code-text">{highlightLine(line, step.sourceDrawer!.language)}</span>
-                    </div>
-                  ))}
-                </pre>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {filePreview && (
-          <div className="inspector-terminal" aria-label="会话日志文件预览">
-            <div className="inspector-terminal-head">
-              <span className="inspector-terminal-dots" aria-hidden="true">
-                <i />
-                <i />
-                <i />
-              </span>
-              <span className="inspector-terminal-title">{filePreview.title}</span>
-              <span className="inspector-terminal-badge">APPEND-ONLY</span>
-            </div>
-            <div className="inspector-terminal-body">
-              {filePreview.lines.map((line, i) => (
-                <div key={i} className={`inspector-terminal-line ${line.highlight ? 'inspector-terminal-line--highlight' : ''} ${line.muted ? 'inspector-terminal-line--muted' : ''}`}>
-                  <span className="inspector-terminal-ln">{i + 1}</span>
-                  <span className="inspector-terminal-text">{line.text}</span>
-                </div>
+            <h2 className="inspector-step-title">{step.title}</h2>
+
+            <div className="inspector-body">
+              {step.paragraphs.map((p, i) => (
+                <p key={i}>{renderInline(p, `p-${i}`)}</p>
               ))}
             </div>
-          </div>
-        )}
 
-        {step.recapTable && (
-          <div className="recap">
-            <div className="recap-head">复盘：问题 / 决策 / 原因</div>
-            {step.recapTable.map((r, i) => (
-              <div key={i} className="recap-row">
-                <div className="recap-q">
-                  <span className="recap-q-label">Q:</span>
-                  {r.question}
+            {step.callout && calloutStyle && (
+              <div className={`callout callout--${step.callout.kind}`} style={{ borderLeftColor: calloutStyle.stroke }}>
+                <div className="callout-title" style={{ color: calloutStyle.stroke }}>
+                  {step.callout.kind === 'warn' ? <TriangleAlert size={13} /> : step.callout.kind === 'tip' ? <CheckCircle2 size={13} /> : <Lightbulb size={13} />}
+                  {step.callout.title ?? calloutStyle.title}
                 </div>
-                <div className="recap-a">
-                  <ArrowRight size={14} className="recap-arrow" />
-                  <span className="recap-decision">{renderInline(r.decision, `recap-d-${i}`)}</span>
-                </div>
-                <div className="recap-why">{renderInline(r.because, `recap-b-${i}`)}</div>
+                <div>{renderInline(step.callout.text, 'callout')}</div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+            )}
 
-        {nextLesson && stepIndex === totalSteps - 1 && (
-          <div className="next-lesson-card">
-            <div className="next-lesson-title">{nextLesson.title}</div>
-            <button type="button" className="tactile-btn tactile-btn--primary next-lesson-btn" onClick={() => onSelectLesson(nextLesson.slug)}>
-              下一课：{nextLesson.title} <ArrowRight size={13} style={{ verticalAlign: -2 }} />
-            </button>
-          </div>
-        )}
-      </div>
+            <div className="inspector-nav">
+              <button type="button" className="inspector-nav-back" onClick={onPrevStep} disabled={!canPrev}>
+                ← 上一步
+              </button>
+              {canNext ? (
+                <button type="button" className="inspector-nav-next" onClick={onNextStep}>
+                  <span className="inspector-nav-next-text">
+                    下一步：{nextStep?.shortLabel ?? ''}
+                  </span>
+                  <ArrowRight size={14} />
+                </button>
+              ) : nextLesson ? (
+                <button
+                  type="button"
+                  className="inspector-nav-next"
+                  onClick={() => onSelectLesson(nextLesson.slug)}
+                  title={nextLesson.title}
+                >
+                  <span className="inspector-nav-next-text">下一课：{nextLesson.title}</span>
+                  <ArrowRight size={14} />
+                </button>
+              ) : (
+                <button type="button" className="inspector-nav-next" onClick={onOpenCheatsheet}>
+                  <span className="inspector-nav-next-text">架构速查表</span>
+                  <ArrowRight size={14} />
+                </button>
+              )}
+            </div>
+          </article>
 
-      <div className="inspector-footer">
-        <div className="inspector-nav">
-          <button type="button" className="tactile-btn" onClick={onPrevStep} disabled={!canPrev}>
-            ← 上一步
-          </button>
-          {canNext ? (
-            <button type="button" className="tactile-btn tactile-btn--primary" onClick={onNextStep}>
-              下一步 →
-            </button>
-          ) : nextLesson ? (
-            <button
-              type="button"
-              className="tactile-btn tactile-btn--primary"
-              onClick={() => onSelectLesson(nextLesson.slug)}
-              title={`进入下一课：${nextLesson.title}`}
-            >
-              下一课 →
-            </button>
-          ) : (
-            <button type="button" className="tactile-btn tactile-btn--primary" onClick={onOpenCheatsheet}>
-              架构速查表 →
-            </button>
+          {/* Card 2: Source Code */}
+          {step.sourceDrawer && (
+            <section className="inspector-card source-drawer">
+              <div className="source-drawer-head">
+                <button
+                  type="button"
+                  className="source-drawer-toggle"
+                  onClick={() => setDrawerOpen((o) => !o)}
+                  aria-expanded={drawerOpen}
+                  aria-label={drawerOpen ? '折叠源码' : '展开源码'}
+                >
+                  <FileCode2 size={14} />
+                  <span className="source-drawer-title">{step.sourceDrawer.title}</span>
+                  <ChevronDown size={13} className={`source-drawer-chevron ${drawerOpen ? 'source-drawer-chevron--open' : ''}`} />
+                </button>
+                <span className="source-drawer-actions">
+                  <button
+                    type="button"
+                    className={`source-copy-btn ${copied ? 'source-copy-btn--copied' : ''}`}
+                    onClick={() => void copyCode()}
+                    aria-label="复制代码"
+                  >
+                    {copied ? <Check size={12} /> : <Copy size={12} />}
+                  </button>
+                  <a className="source-link" href={step.sourceDrawer.githubUrl} target="_blank" rel="noopener noreferrer" title={step.sourceDrawer.filePath}>
+                    <ExternalLink size={12} />
+                  </a>
+                </span>
+              </div>
+              <div className={`source-drawer-body ${drawerOpen ? 'source-drawer-body--open' : ''}`}>
+                <div>
+                  <pre className="code-block">
+                    {codeLines.map((line, i) => (
+                      <div key={i} className="code-line">
+                        <span className="code-ln">{i + 1}</span>
+                        <span className="code-text">{highlightLine(line, step.sourceDrawer!.language)}</span>
+                      </div>
+                    ))}
+                  </pre>
+                </div>
+              </div>
+            </section>
           )}
-        </div>
-        <div className="inspector-footer-meta">
-          <span className="inspector-footer-step mono">
-            {stepIndex + 1} / {totalSteps}
-          </span>
-          <button type="button" className="inspector-cheatsheet-link" onClick={onOpenCheatsheet}>
-            打开架构速查表
-          </button>
+
+          {/* Card 3: Live Metrics (Moved from StagePanel — Algo Lab Facts Card pattern) */}
+          {step.kpis.length > 0 && (
+            <section className="inspector-card inspector-facts-card" aria-label="关键状态">
+              <div className="inspector-facts-list">
+                {step.kpis.slice(0, 4).map((k) => (
+                  <div key={k.label} className="inspector-fact-row" title={`${k.label}：${k.value}`}>
+                    <span className="inspector-fact-label">{k.label}</span>
+                    <span key={`${lesson.slug}-${stepIndex}-${k.label}`} className="inspector-fact-value mono">
+                      {k.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Card 4: Objectives (Default Expanded) */}
+          {lesson.objectives.length > 0 && (
+            <section className="inspector-card objectives">
+              <button type="button" className="objectives-head" onClick={() => setObjectivesOpen((o) => !o)} aria-expanded={objectivesOpen}>
+                <span className="objectives-head-title">
+                  <ListChecks size={14} />
+                  <span>本课要点</span>
+                </span>
+                <span className="objectives-head-right">
+                  <span className="mono">{doneObjectives.length}/{lesson.objectives.length}</span>
+                  <ChevronDown size={13} className={`objectives-chevron ${objectivesOpen ? 'objectives-chevron--open' : ''}`} />
+                </span>
+              </button>
+              <div className={`objectives-body ${objectivesOpen ? 'objectives-body--open' : ''}`}>
+                <div className="objectives-body-inner">
+                  <ul className="objectives-list">
+                    {lesson.objectives.map((o) => {
+                      const done = stepIndex + 1 >= o.completedAtStep;
+                      return (
+                        <li key={o.id} className={done ? 'done' : ''}>
+                          <span className={`obj-check ${done ? '' : 'obj-check--pending'}`}>
+                            {done ? <CheckCircle2 size={14} /> : <Circle size={14} />}
+                          </span>
+                          <span className="obj-text">{o.text}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {filePreview && (
+            <section className="inspector-card inspector-terminal" aria-label="会话日志预览">
+              <div className="inspector-terminal-head">
+                <span className="inspector-terminal-title mono">{filePreview.title}</span>
+              </div>
+              <div className="inspector-terminal-body">
+                {filePreview.lines.map((line, i) => (
+                  <div key={i} className={`inspector-terminal-line ${line.highlight ? 'inspector-terminal-line--highlight' : ''} ${line.muted ? 'inspector-terminal-line--muted' : ''}`}>
+                    <span className="inspector-terminal-ln">{i + 1}</span>
+                    <span className="inspector-terminal-text">{line.text}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {step.recapTable && (
+            <section className="inspector-card recap">
+              {step.recapTable.map((r, i) => (
+                <div key={i} className="recap-row">
+                  <div className="recap-q">{r.question}</div>
+                  <div className="recap-a">
+                    <ArrowRight size={13} className="recap-arrow" />
+                    <span className="recap-decision">{renderInline(r.decision, `recap-d-${i}`)}</span>
+                  </div>
+                  <div className="recap-why">{renderInline(r.because, `recap-b-${i}`)}</div>
+                </div>
+              ))}
+            </section>
+          )}
         </div>
       </div>
     </aside>
