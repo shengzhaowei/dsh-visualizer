@@ -77,7 +77,7 @@ export const HARNESS_STUDIOS: Record<Exclude<HarnessId, 'claude-code'>, HarnessS
   pi: {
     id: 'pi',
     mascotName: 'Pi-chan',
-    standeeSrc: '/pi-chan-standee.svg',
+    standeeSrc: '/pi-chan-standee.png',
     standeeAlt: 'Pi-chan 全身立绘',
     headline: {
       prefix1: '用',
@@ -108,7 +108,7 @@ export const HARNESS_STUDIOS: Record<Exclude<HarnessId, 'claude-code'>, HarnessS
   codex: {
     id: 'codex',
     mascotName: 'Codex-chan',
-    standeeSrc: '/codex-chan-standee.svg',
+    standeeSrc: '/codex-chan-standee.png',
     standeeAlt: 'Codex-chan 全身立绘',
     headline: {
       prefix1: '用',
@@ -141,7 +141,7 @@ export const HARNESS_STUDIOS: Record<Exclude<HarnessId, 'claude-code'>, HarnessS
   langchain: {
     id: 'langchain',
     mascotName: 'Graph-chan',
-    standeeSrc: '/langchain-chan-standee.svg',
+    standeeSrc: '/langchain-chan-standee.png',
     standeeAlt: 'LangGraph-chan 全身立绘',
     headline: {
       prefix1: '用',
